@@ -1,0 +1,33 @@
+# No ignores los .jar en la raíz
+!/*.jar
+
+# Ignore build directories
+**/build/
+**/dist/
+**/nbproject/private/
+
+# Ignore class files and other compiled bytecode
+*.class
+
+# Ignore NetBeans specific files
+**/nbproject/private/
+**/nbproject/BuildImpl.xml
+**/nbproject/genfiles.properties
+
+# Ignore Java generated files
+*.java~
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Ignore OS specific files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE-specific files
+.idea/
+*.iml

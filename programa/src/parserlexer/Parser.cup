@@ -1,0 +1,470 @@
+package parserlexer;
+
+import java_cup.runtime.Symbol;
+import java.util.ArrayList;
+import java.util.List;
+import utils.SymbolTable;
+import utils.TreeNode;
+
+action code 
+{:     
+    String currentHash;
+    public SymbolTable symbolTable = new SymbolTable();
+    public TreeNode treeNode = new TreeNode("PROGRAM");
+    public TreeNode functionNode;
+:}
+
+parser code
+{:    
+    private Symbol s;
+  
+    //Lista de errores controlados
+    public List<String> errorList = new ArrayList<>();
+    
+    // Agrega errores controlados a la lista
+    public void logError(Symbol s) {
+        String error = "Error cerca de Linea: " + (s.right + 1) + " Columna: " + (s.left + 1) + ", Texto: \"" + s.value + "\"";
+        errorList.add(error);
+    }
+
+    // Agrega errores controlados a la lista
+    public void logError(String error) {
+        errorList.add(error);
+    }
+
+    // Obtiene la lista de errores controlados
+    public List<String> getErrorList() {
+        return errorList;
+    }
+
+    // Gestiona errores recuperables -error-
+    public void syntax_error(Symbol s){
+        this.s = s;
+        logError(s);
+    }
+
+    // Gestiona errores no recuperables
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception {
+        String error = "\nError no recuperable:\n No se encontró final de sentencia (finregalo), \n o no se encontró final de bloque (cierracuento) \n o se determinó un error desconocido ";
+        errorList.add(error);
+    }
+
+    // Método para obtener el Symbol donde se generó el error.
+    public Symbol getS(){
+        return this.s;
+    }
+
+    //Método para salida por consolda
+    public void print(String prodName, Symbol s){
+         String salida = "Encontrado " +prodName+ " : cerca de Linea: " + (s.right + 1) + " Columna: " + (s.left + 1) + ", Texto: \"" + s.value + "\"";
+         System.out.println(salida); 
+    }
+
+    public Object getSymbolTable() {
+        return this.action_obj.symbolTable;
+    }
+
+    public Object getTreeNode() {
+        return this.action_obj.treeNode;
+    }
+:};
+
+/* TERMINALS */
+
+/* ---------- General ---------- */
+terminal                        Main, Identifier;
+
+/* ---------- Literals ---------- */
+terminal                        IntegerLiteral, FloatLiteral, BoolLiteral, CharacterLiteral, StringLiteral;
+
+/* ---------- Types ---------- */
+terminal                        Integer, Float, Bool, Char, String;
+
+/* ---------- Arrays ---------- */
+terminal                        BracketOpening, BracketClosure;
+
+/* ---------- Operators ---------- */
+// Assignment sign
+terminal                        AssignmentSign;
+
+// Parenthesis
+terminal                        ParenthesisOpening, ParenthesisClosure;
+
+// Binary Arithmetic Operators
+terminal                        Sum, Subtraction, Division, Multiplication, Module, Power;
+
+// Unary Arithmetic Operators
+terminal                        Increment, Decrement;
+
+//Negative operator
+terminal                        Negative;
+
+// Relational Operators
+terminal                        Less, LessEqual, Greater, GreaterEqual, Equal, NotEqual;
+
+// Logical Operators
+terminal                        Conjunction, Disjunction, Negation;
+
+/* ---------- Blocks ---------- */
+terminal                        BlockOpening, BlockClosure, EndSentence;                    
+
+/* ---------- Control Structures ---------- */
+terminal                        If, Else, While, For, Switch, Case, Default, Break, Return, Colon, Comma;
+
+/* ---------- IO Operators ---------- */
+terminal                        Print, Read;
+
+/* ---------- NON TERMINALES ---------- */
+
+non terminal PROGRAM, FUNCTION, VARIABLE_TYPE, VARIABLE_DECLARATION, VARIABLE_ASSIGNMENT;
+non terminal NEGATIVE_OPERATOR, PARAMETER_DECLARATION, PARAMETER_DECLARATION_LIST, PARAMETER_DECLARATION_OPTION; 
+non terminal FUNCTION_DECLARATION,FUNCTION_CALL, FUNCTION_CALL_PARAMETER, FUNCTION_CALL_PARAMETER_LIST, FUNCTION_CALL_PARAMETER_OPTION, LITERALS ;
+non terminal FUNCTION_DECLARATION_BODY, EXPRESSION, BINARY_ARITHMETIC_OPERATOR, ARITHMETIC_EXPRESSION, SIMPLE_EXPRESSION;
+non terminal FUNCTION_BODY_ELEMENT, NEGATIVE_LITERAL, UNARY_ARITHMETIC_EXPRESSION;
+non terminal CONTROL_STRUCTURE, IF_STRUCTURE, WHILE_STRUCTURE, FOR_STRUCTURE, SWITCH_STRUCTURE, CASES, CASE, DEFAULT_CASE, RETURN_STATEMENT, BREAK_STATEMENT;
+non terminal PRINT_STATEMENT, READ_STATEMENT, RELATIONAL_EXPRESSION, LOGICAL_EXPRESSION, EXPRESSION_LIST, FUNCTION_NAME, ARRAY_DECLARATION,ARRAY_USE;
+non terminal ARRAY_ELEMENTS, LITERAL_LIST, ELSE_STRUCTURE, ELSE_IF_STRUCTURE, IF_ELSE_STRUCTURE_TYPE, UPDATE_EXPRESSION, RELATIONAL_OPERATOR;
+non terminal INIT_FOR_STRUCTURE, SWITCH_EXPRESSION, CASE_LABEL, FUNCTION_CALL_EXPRESSION;
+
+/* ---------- Precedences ---------- */
+
+precedence left Disjunction;
+precedence left Conjunction;
+precedence right Negation;
+precedence left Less, LessEqual, Greater, GreaterEqual, Equal, NotEqual;
+precedence left Sum, Subtraction;
+precedence left Multiplication, Division, Module; 
+precedence right Power;
+precedence right AssignmentSign; 
+
+// Declaración del non terminal inicial
+start with PROGRAM;
+
+// Definición del non terminal inicial
+PROGRAM ::= /* Vacío */ 
+          | PROGRAM FUNCTION_DECLARATION {: RESULT = " -Texto Generico- "; :};
+
+FUNCTION ::= VARIABLE_TYPE:type FUNCTION_NAME:name 
+             ParenthesisOpening PARAMETER_DECLARATION_OPTION:params ParenthesisClosure 
+                {:
+                    currentHash = name.toString();
+                    if(!symbolTable.containsFunctionKey(currentHash))
+                    {
+                        functionNode = new TreeNode("Function: " + name.toString());
+                        treeNode.addChild(functionNode);
+
+                        symbolTable.addFunction(name.toString(), type.toString(), params.toString());                            
+                        //System.out.println("La funcion " + name.toString() + " ha sido agregada a la tabla de símbolos.");
+
+                    }else {
+                        parser.logError("La función '" + name.toString() + "' ya está definida.");
+                    }
+                    RESULT = " -Texto Generico- ";
+                :}
+           ;
+
+FUNCTION_DECLARATION ::= FUNCTION BlockOpening FUNCTION_DECLARATION_BODY:body BlockClosure 
+                         {:                        
+                            RESULT = " -Texto Generico- ";
+                         :}
+                        ;
+
+VARIABLE_TYPE ::= Integer {: RESULT = "Integer"; :}
+                | Float   {: RESULT = "Float";   :}
+                | String  {: RESULT = "String";  :}
+                | Bool    {: RESULT = "Bool";    :}
+                | Char    {: RESULT = "Char";    :}
+                ;
+
+FUNCTION_NAME ::= Identifier:id {: RESULT = id.toString(); :}
+                | Main          {: RESULT = "Main";        :}
+                ;
+
+PARAMETER_DECLARATION ::= VARIABLE_TYPE:type Identifier:id 
+                          {: RESULT = type.toString() + " " + id.toString(); :}
+                        ;
+
+PARAMETER_DECLARATION_LIST ::= PARAMETER_DECLARATION:param 
+                               {: RESULT = param; :}
+                             | PARAMETER_DECLARATION:param Comma PARAMETER_DECLARATION_LIST:list 
+                               {: RESULT = param + ", " + list; :}
+                             ;
+
+PARAMETER_DECLARATION_OPTION ::= /* Vacío */ 
+                                 {: RESULT = ""; :}
+                               | PARAMETER_DECLARATION_LIST:params 
+                                 {: RESULT = params; :}
+                               ;
+
+
+FUNCTION_DECLARATION_BODY ::= FUNCTION_BODY_ELEMENT 
+                              {: RESULT = "Cuerpo de la funcion simple"; :} 
+                            | FUNCTION_DECLARATION_BODY FUNCTION_BODY_ELEMENT
+                              {: RESULT = "Cuerpo de la funcion compuesto"; :}
+                            ;
+
+FUNCTION_BODY_ELEMENT ::= VARIABLE_DECLARATION {: RESULT = " -Texto Generico- "; :}
+                        | VARIABLE_ASSIGNMENT {: RESULT = " -Texto Generico- "; :}
+                        | FUNCTION_CALL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                        | CONTROL_STRUCTURE {: RESULT = " -Texto Generico- "; :}
+                        | PRINT_STATEMENT {: RESULT = " -Texto Generico- "; :}
+                        | READ_STATEMENT {: RESULT = " -Texto Generico- "; :}
+                        | RETURN_STATEMENT {: RESULT = " -Texto Generico- "; :}
+                        | BREAK_STATEMENT {: RESULT = " -Texto Generico- "; :}
+                        | error {: RESULT = " -Texto Generico de Error- "; :}
+                        ;
+
+VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
+                        {: 
+                            RESULT = " -Texto Generico- ";
+                            if(!symbolTable.containsVariableKey(id.toString()))
+                            {
+                                TreeNode variableNode = new TreeNode("Variable: " + id.toString());
+                                functionNode.addChild(variableNode);
+
+                                symbolTable.addVariable(id.toString(), type.toString(), currentHash);
+                                //System.out.println("(Alcance: " + currentHash + ") Variable " + id.toString() + " de tipo " + type.toString() + " ha sido declarada.");
+                            }else {
+                                parser.logError("La variable '" + id.toString() + "' ya está definida.");
+                            }                            
+                        :}
+                       | VARIABLE_TYPE:type Identifier:id AssignmentSign EXPRESSION EndSentence
+                        {: 
+                            RESULT = " -Texto Generico- ";                            
+                            if(!symbolTable.containsVariableKey(id.toString()))
+                            {
+                                TreeNode variableNode = new TreeNode("Variable: " + id.toString());
+                                functionNode.addChild(variableNode);
+
+                                symbolTable.addVariable(id.toString(), type.toString(), currentHash);
+                                //System.out.println("(Alcance: " + currentHash + ") Variable " + id.toString() + " de tipo " + type.toString() + " ha sido declarada.");
+                            }else {
+                                parser.logError("La variable '" + id.toString() + "' ya está definida.");
+                            }
+                        :}
+                       | ARRAY_DECLARATION EndSentence {: RESULT = " -Texto Generico- "; :}
+                       | ARRAY_DECLARATION AssignmentSign ARRAY_ELEMENTS EndSentence {: RESULT = " -Texto Generico- "; :}
+                       ;
+
+ARRAY_ELEMENTS ::= BlockOpening LITERAL_LIST:list BlockClosure
+                    {: 
+                        RESULT = " -Texto Generico- "; 
+                        //System.out.println("Elementos del array: " + list.toString());
+                    :}
+                 ;
+
+ARRAY_DECLARATION ::= VARIABLE_TYPE:type Identifier:id BracketOpening BracketClosure 
+                    {: 
+                        RESULT = " -Texto Generico- ";                         
+                        if(!symbolTable.containsVariableKey(id.toString()))
+                        {
+                            TreeNode variableNode = new TreeNode("Variable: " + id.toString());
+                            functionNode.addChild(variableNode);
+
+                            symbolTable.addVariable(id.toString(), type.toString() + "[]", currentHash);
+                            //System.out.println("(Alcance: " + currentHash + ") Array " + id.toString() + " de tipo " + type.toString() + " declarado.");
+                        }else {
+                            parser.logError("La variable '" + id.toString() + "' ya está definida.");
+                        }
+                    :}
+                    | VARIABLE_TYPE:type Identifier:id BracketOpening IntegerLiteral:size BracketClosure 
+                    {: 
+                        RESULT = " -Texto Generico- ";                        
+                        if(!symbolTable.containsVariableKey(id.toString()))
+                        {
+                           TreeNode variableNode = new TreeNode("Variable: " + id.toString());
+                           functionNode.addChild(variableNode);
+
+                           symbolTable.addVariable(id.toString(), type.toString() + "[" + size + "]", currentHash);
+                           //System.out.println("(Alcance: " + currentHash + ") Array " + id.toString() + " con tamaño " + size + " declarado.");
+                        }else {
+                            parser.logError("La variable '" + id.toString() + "' ya está definida.");
+                        }
+                    :}
+                    | VARIABLE_TYPE:type Identifier:id BracketOpening Identifier:sizeId BracketClosure 
+                    {: 
+                        RESULT = " -Texto Generico- ";                        
+                        if(!symbolTable.containsVariableKey(id.toString()))
+                        {
+                           TreeNode variableNode = new TreeNode("Variable: " + id.toString());
+                           functionNode.addChild(variableNode);
+
+                           symbolTable.addVariable(id.toString(), type.toString() + "[]", currentHash);
+                           //System.out.println("(Alcance: " + currentHash + ") Array " + id.toString() + " de tamaño variable " + sizeId + " declarado.");
+                        }else {
+                            parser.logError("La variable '" + id.toString() + "' ya está definida.");
+                        }
+                    :};
+
+ARRAY_USE ::= Identifier BracketOpening IntegerLiteral BracketClosure {: RESULT = " -Texto Generico- "; :}
+            | Identifier BracketOpening Identifier BracketClosure {: RESULT = " -Texto Generico- "; :}
+            ;
+
+LITERAL_LIST ::= LITERALS {: RESULT = " -Texto Generico- "; :}
+               | LITERAL_LIST Comma LITERALS {: RESULT = " -Texto Generico- "; :}
+               ;
+
+LITERALS ::= IntegerLiteral: i {: RESULT = i; :}
+           | FloatLiteral: f {: RESULT = f; :}
+           | BoolLiteral: b {: RESULT = b; :}
+           | CharacterLiteral: c {: RESULT = "\'"+c+"\'"; :}
+           | StringLiteral: s {: RESULT = "\""+s+"\""; :}
+           ;
+
+PRINT_STATEMENT ::= Print ParenthesisOpening EXPRESSION ParenthesisClosure EndSentence {: RESULT = " -Texto Generico- "; :}
+                  ;
+
+READ_STATEMENT ::= Read ParenthesisOpening Identifier ParenthesisClosure EndSentence {: RESULT = " -Texto Generico- "; :}
+                 ;
+
+BINARY_ARITHMETIC_OPERATOR ::= Sum {: RESULT = " -Texto Generico- "; :}
+                             | Subtraction {: RESULT = " -Texto Generico- "; :}
+                             | Multiplication {: RESULT = " -Texto Generico- "; :}
+                             | Division {: RESULT = " -Texto Generico- "; :}
+                             | Module {: RESULT = " -Texto Generico- "; :}
+                             | Power {: RESULT = " -Texto Generico- "; :}
+                             ;
+
+NEGATIVE_OPERATOR ::= Negative {: RESULT = " -Texto Generico- "; :}
+                    ; 
+
+FUNCTION_CALL_PARAMETER ::= SIMPLE_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                        ;
+
+FUNCTION_CALL_PARAMETER_LIST ::= FUNCTION_CALL_PARAMETER {: RESULT = " -Texto Generico- "; :}
+                               | FUNCTION_CALL_PARAMETER Comma FUNCTION_CALL_PARAMETER_LIST {: RESULT = " -Texto Generico- "; :}
+                               ;
+
+FUNCTION_CALL_PARAMETER_OPTION ::= /* Vacío */ {: RESULT = " -Texto Generico VACÍO- "; :}
+                                 | FUNCTION_CALL_PARAMETER_LIST {: RESULT = " -Texto Generico- "; :}
+                                 ;
+
+FUNCTION_CALL ::= FUNCTION_NAME ParenthesisOpening FUNCTION_CALL_PARAMETER_OPTION  ParenthesisClosure {: RESULT = " -Texto Generico- "; :}
+                ;
+
+FUNCTION_CALL_EXPRESSION ::= FUNCTION_CALL EndSentence {: RESULT = " -Texto Generico- "; :}
+                           ;
+
+NEGATIVE_LITERAL ::= NEGATIVE_OPERATOR IntegerLiteral {: RESULT = " -Texto Generico- "; :}
+                   | NEGATIVE_OPERATOR FloatLiteral {: RESULT = " -Texto Generico- "; :}
+                   ;
+
+UNARY_ARITHMETIC_EXPRESSION ::= Identifier Increment {: RESULT = " -Texto Generico- "; :}
+                              | Identifier Decrement {: RESULT = " -Texto Generico- "; :}
+                              ;
+
+EXPRESSION ::= ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+             | LOGICAL_EXPRESSION  {: RESULT = " -Texto Generico- "; :}           
+             | NEGATIVE_LITERAL {: RESULT = " -Texto Generico- "; :}
+             | ParenthesisOpening EXPRESSION ParenthesisClosure {: RESULT = " -Texto Generico- "; :}
+             ;
+
+ARITHMETIC_EXPRESSION ::= SIMPLE_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                        | ARITHMETIC_EXPRESSION BINARY_ARITHMETIC_OPERATOR ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                        ;
+
+SIMPLE_EXPRESSION ::= Identifier {: RESULT = " -Texto Generico- "; :}                    
+                    | LITERALS {: RESULT = " -Texto Generico- "; :}
+                    | ARRAY_USE {: RESULT = " -Texto Generico- "; :}
+                    | FUNCTION_CALL {: RESULT = " -Texto Generico- "; :}
+                    | UNARY_ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                    ;
+
+RELATIONAL_EXPRESSION ::= ARITHMETIC_EXPRESSION RELATIONAL_OPERATOR ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                        ;
+
+RELATIONAL_OPERATOR ::= Less {: RESULT = " -Texto Generico- "; :}
+                      | LessEqual {: RESULT = " -Texto Generico- "; :}
+                      | Greater {: RESULT = " -Texto Generico- "; :}
+                      | GreaterEqual {: RESULT = " -Texto Generico- "; :}
+                      | Equal {: RESULT = " -Texto Generico- "; :}
+                      | NotEqual {: RESULT = " -Texto Generico- "; :}
+                      ;
+
+LOGICAL_EXPRESSION ::= RELATIONAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                     | Negation LOGICAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                     | LOGICAL_EXPRESSION Conjunction LOGICAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                     | LOGICAL_EXPRESSION Disjunction LOGICAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                     ;
+
+EXPRESSION_LIST ::= EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                  | EXPRESSION Comma EXPRESSION_LIST {: RESULT = " -Texto Generico- "; :}
+                  ;
+
+VARIABLE_ASSIGNMENT ::= Identifier AssignmentSign EXPRESSION EndSentence {: RESULT = " -Texto Generico- "; :}
+                      | UNARY_ARITHMETIC_EXPRESSION EndSentence {: RESULT = " -Texto Generico- "; :}
+                      | Identifier AssignmentSign ARRAY_ELEMENTS EndSentence //Para asignación de arreglo de elementos
+                        {: RESULT = " -Texto Generico- "; :}
+                      | ARRAY_USE AssignmentSign EXPRESSION EndSentence //Para asignación de un elemento en el arreglo
+                        {: RESULT = " -Texto Generico- "; :}
+                      ;
+
+CONTROL_STRUCTURE ::= IF_ELSE_STRUCTURE_TYPE {: RESULT = " -Texto Generico- "; :}
+                    | WHILE_STRUCTURE {: RESULT = " -Texto Generico- "; :}
+                    | FOR_STRUCTURE {: RESULT = " -Texto Generico- "; :}
+                    | SWITCH_STRUCTURE {: RESULT = " -Texto Generico- "; :}
+                    ;
+
+IF_STRUCTURE ::= If ParenthesisOpening LOGICAL_EXPRESSION ParenthesisClosure BlockOpening FUNCTION_DECLARATION_BODY BlockClosure {: RESULT = " -Texto Generico- "; :}
+               ;
+
+ELSE_STRUCTURE ::= Else BlockOpening FUNCTION_DECLARATION_BODY BlockClosure {: RESULT = " -Texto Generico- "; :}
+                 ;
+
+ELSE_IF_STRUCTURE ::= Else If ParenthesisOpening LOGICAL_EXPRESSION ParenthesisClosure BlockOpening FUNCTION_DECLARATION_BODY BlockClosure {: RESULT = " -Texto Generico- "; :}
+                    | ELSE_IF_STRUCTURE ELSE_STRUCTURE {: RESULT = " -Texto Generico- "; :}
+                    ;
+
+IF_ELSE_STRUCTURE_TYPE ::= IF_STRUCTURE {: RESULT = " -Texto Generico- "; :}
+                         | IF_STRUCTURE ELSE_STRUCTURE {: RESULT = " -Texto Generico- "; :}
+                         | IF_STRUCTURE ELSE_IF_STRUCTURE {: RESULT = " -Texto Generico- "; :}
+                         ;
+
+WHILE_STRUCTURE ::= While ParenthesisOpening LOGICAL_EXPRESSION ParenthesisClosure BlockOpening FUNCTION_DECLARATION_BODY BlockClosure {: RESULT = " -Texto Generico- "; :}
+                  ;
+
+FOR_STRUCTURE ::= For ParenthesisOpening INIT_FOR_STRUCTURE LOGICAL_EXPRESSION EndSentence UPDATE_EXPRESSION ParenthesisClosure BlockOpening FUNCTION_DECLARATION_BODY BlockClosure {: RESULT = " -Texto Generico- "; :}
+                ;
+
+INIT_FOR_STRUCTURE ::= VARIABLE_DECLARATION {: RESULT = " -Texto Generico- "; :}
+                     | VARIABLE_ASSIGNMENT {: RESULT = " -Texto Generico- "; :}
+                     ;
+
+UPDATE_EXPRESSION ::= UNARY_ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                    | Identifier AssignmentSign EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                    ;
+
+SWITCH_STRUCTURE ::= Switch ParenthesisOpening SWITCH_EXPRESSION ParenthesisClosure BlockOpening CASES  BlockClosure {: RESULT = " -Texto Generico- "; :}
+                   ;
+
+CASES ::= CASE {: RESULT = " -Texto Generico- "; :}
+        | CASE CASES {: RESULT = " -Texto Generico- "; :}
+        | DEFAULT_CASE {: RESULT = " -Texto Generico- "; :}
+        ;
+
+CASE ::= Case CASE_LABEL Colon FUNCTION_DECLARATION_BODY {: RESULT = " -Texto Generico- "; :}
+       ;
+
+DEFAULT_CASE ::= Default Colon FUNCTION_DECLARATION_BODY {: RESULT = " -Texto Generico- "; :}
+               ;
+
+SWITCH_EXPRESSION ::= Identifier  {: RESULT = " -Texto Generico- "; :}                    
+                    | IntegerLiteral {: RESULT = " -Texto Generico- "; :}
+                    | Char {: RESULT = " -Texto Generico- "; :}
+                    | ARRAY_USE {: RESULT = " -Texto Generico- "; :}
+                    | FUNCTION_CALL {: RESULT = " -Texto Generico- "; :}
+                    | UNARY_ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                    | ParenthesisOpening EXPRESSION ParenthesisClosure {: RESULT = " -Texto Generico- "; :}
+                    ;
+
+CASE_LABEL ::= Identifier {: RESULT = " -Texto Generico- "; :}                     
+             | IntegerLiteral {: RESULT = " -Texto Generico- "; :}
+             | CharacterLiteral {: RESULT = " -Texto Generico- "; :}
+             ;
+
+RETURN_STATEMENT ::= Return EndSentence {: RESULT = " -Texto Generico- "; :}
+                   | Return EXPRESSION EndSentence {: RESULT = " -Texto Generico- "; :}
+                   ;
+
+BREAK_STATEMENT ::= Break EndSentence {: RESULT = " -Texto Generico- "; :}
+                  ;
