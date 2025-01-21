@@ -296,8 +296,7 @@ ARRAY_DECLARATION ::= VARIABLE_TYPE:type Identifier:id BracketOpening BracketClo
                         }
                     :};
 
-ARRAY_USE ::= Identifier BracketOpening IntegerLiteral BracketClosure {: RESULT = " -Texto Generico- "; :}
-            | Identifier BracketOpening Identifier BracketClosure {: RESULT = " -Texto Generico- "; :}
+ARRAY_USE ::= Identifier BracketOpening EXPRESSION BracketClosure {: RESULT = " -Texto Generico- "; :}
             ;
 
 LITERAL_LIST ::= LITERALS {: RESULT = " -Texto Generico- "; :}
@@ -367,7 +366,7 @@ SIMPLE_EXPRESSION ::= Identifier {: RESULT = " -Texto Generico- "; :}
                     | LITERALS {: RESULT = " -Texto Generico- "; :}
                     | ARRAY_USE {: RESULT = " -Texto Generico- "; :}
                     | FUNCTION_CALL {: RESULT = " -Texto Generico- "; :}
-                    | UNARY_ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                    | UNARY_ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}                 
                     ;
 
 RELATIONAL_EXPRESSION ::= ARITHMETIC_EXPRESSION RELATIONAL_OPERATOR ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
