@@ -168,16 +168,16 @@ public class View_Main extends javax.swing.JFrame {
                 lineNumberComponent.repaint();               
             }
             //Funcionalidad tabla de símbolos
-            SymbolTable symbolTable = (SymbolTable) parser.getSymbolTable();
-            symbolTable.printVariableSymbols();
+            SymbolTable symbolTable = (SymbolTable) parser.getSymbolTable();            
             
-            TreeNode treeNode = (TreeNode) parser.getTreeNode();
-            treeNode.printTree("");
+            TreeNode treeNode = (TreeNode) parser.getTreeNode();            
             
             //Checkbox para hacer opcional mostrar ventanas de tabla de symbolos y arbol sintáctico
             var mostrarInfoExtra = jCheckBox_VerInfoExtra.isSelected();
             if(mostrarInfoExtra){
-                showSymbolTable(symbolTable);
+               symbolTable.printVariableSymbols(); 
+               treeNode.printTree("");
+               showSymbolTable(symbolTable);
                 showTreeNode(treeNode);
             }
             
@@ -551,9 +551,9 @@ public class View_Main extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(label_Titulo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(22, 22, 22)
-                .addGroup(jPanel_BodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton_LoadFile)
-                    .addComponent(jButton_SaveToFile))
+                .addGroup(jPanel_BodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton_SaveToFile, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jButton_LoadFile))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)

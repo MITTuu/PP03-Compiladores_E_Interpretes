@@ -306,8 +306,8 @@ LITERAL_LIST ::= LITERALS {: RESULT = " -Texto Generico- "; :}
 LITERALS ::= IntegerLiteral: i {: RESULT = i; :}
            | FloatLiteral: f {: RESULT = f; :}
            | BoolLiteral: b {: RESULT = b; :}
-           | CharacterLiteral: c {: RESULT = "\'"+c+"\'"; :}
-           | StringLiteral: s {: RESULT = "\""+s+"\""; :}
+           | CharacterLiteral: c {: RESULT = c; :}
+           | StringLiteral: s {: RESULT = s; :}
            ;
 
 PRINT_STATEMENT ::= Print ParenthesisOpening EXPRESSION ParenthesisClosure EndSentence {: RESULT = " -Texto Generico- "; :}
@@ -316,12 +316,12 @@ PRINT_STATEMENT ::= Print ParenthesisOpening EXPRESSION ParenthesisClosure EndSe
 READ_STATEMENT ::= Read ParenthesisOpening Identifier ParenthesisClosure EndSentence {: RESULT = " -Texto Generico- "; :}
                  ;
 
-BINARY_ARITHMETIC_OPERATOR ::= Sum {: RESULT = " -Texto Generico- "; :}
-                             | Subtraction {: RESULT = " -Texto Generico- "; :}
-                             | Multiplication {: RESULT = " -Texto Generico- "; :}
-                             | Division {: RESULT = " -Texto Generico- "; :}
-                             | Module {: RESULT = " -Texto Generico- "; :}
-                             | Power {: RESULT = " -Texto Generico- "; :}
+BINARY_ARITHMETIC_OPERATOR ::= Sum {: RESULT = " suma "; :}
+                             | Subtraction {: RESULT = " resta "; :}
+                             | Multiplication {: RESULT = " multiplica "; :}
+                             | Division {: RESULT = " divide "; :}
+                             | Module {: RESULT = " cociente "; :}
+                             | Power {: RESULT = " potencia "; :}
                              ;
 
 NEGATIVE_OPERATOR ::= Negative {: RESULT = " -Texto Generico- "; :}
@@ -348,47 +348,48 @@ NEGATIVE_LITERAL ::= NEGATIVE_OPERATOR IntegerLiteral {: RESULT = " -Texto Gener
                    | NEGATIVE_OPERATOR FloatLiteral {: RESULT = " -Texto Generico- "; :}
                    ;
 
-UNARY_ARITHMETIC_EXPRESSION ::= Identifier Increment {: RESULT = " -Texto Generico- "; :}
-                              | Identifier Decrement {: RESULT = " -Texto Generico- "; :}
+UNARY_ARITHMETIC_EXPRESSION ::= Identifier:id Increment {: RESULT = " Identificador: "+ id.toString()+ "++ "; :}
+                              | Identifier:id Decrement {: RESULT = " Identificador: "+ id.toString()+ "-- "; :}
                               ;
 
 
-EXPRESSION ::= LOGICAL_EXPRESSION  {: RESULT = " -Texto Generico- "; :}
+/* EXPRESSION: El nivel raíz de las expresiones */
+EXPRESSION ::= LOGICAL_EXPRESSION:exp  {: RESULT = exp.toString(); System.out.println("NUEVA EXPRECION: " + RESULT);:}
              ;
 
-
-SIMPLE_EXPRESSION ::= Identifier {: RESULT = " -Texto Generico- "; :}                    
-                    | LITERALS {: RESULT = " -Texto Generico- "; :}
-                    | NEGATIVE_LITERAL {: RESULT = " -Texto Generico- "; :}
-                    | ARRAY_USE {: RESULT = " -Texto Generico- "; :}
-                    | FUNCTION_CALL {: RESULT = " -Texto Generico- "; :}
-                    | UNARY_ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
-                    | ParenthesisOpening EXPRESSION ParenthesisClosure {: RESULT = " -Texto Generico- "; :}
-                    | Negation SIMPLE_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+/* SIMPLE_EXPRESSION: Nivel base de las expresiones */
+SIMPLE_EXPRESSION ::= Identifier:exp {: RESULT = " Identificador: " +exp.toString() + " "; :}                    
+                    | LITERALS:exp {: RESULT = exp.toString(); :}
+                    | NEGATIVE_LITERAL:exp {: RESULT = exp.toString(); :}
+                    | ARRAY_USE:exp {: RESULT = exp.toString(); :}
+                    | FUNCTION_CALL:exp {: RESULT = exp.toString(); :}
+                    | UNARY_ARITHMETIC_EXPRESSION:exp {: RESULT = exp.toString(); :}
+                    | ParenthesisOpening EXPRESSION:exp ParenthesisClosure {: RESULT = " (" + exp.toString() + ") "; :}
+                    | Negation SIMPLE_EXPRESSION:exp {: RESULT = " -" + exp.toString(); :}
                     ;
 
-ARITHMETIC_EXPRESSION ::= SIMPLE_EXPRESSION {: RESULT = " -Texto Generico- "; :}
-                        | ARITHMETIC_EXPRESSION BINARY_ARITHMETIC_OPERATOR ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+ARITHMETIC_EXPRESSION ::= SIMPLE_EXPRESSION:exp {: RESULT = exp.toString(); :}
+                        | ARITHMETIC_EXPRESSION:exp1 BINARY_ARITHMETIC_OPERATOR:op ARITHMETIC_EXPRESSION:exp2 {: RESULT = exp1.toString() + op.toString() + exp2.toString();; :}
                         ;
 
-RELATIONAL_OPERATOR ::= Less {: RESULT = " -Texto Generico- "; :}
-                      | LessEqual {: RESULT = " -Texto Generico- "; :}
-                      | Greater {: RESULT = " -Texto Generico- "; :}
-                      | GreaterEqual {: RESULT = " -Texto Generico- "; :}
-                      | Equal {: RESULT = " -Texto Generico- "; :}
-                      | NotEqual {: RESULT = " -Texto Generico- "; :}
+RELATIONAL_OPERATOR ::= Less {: RESULT = " < "; :}
+                      | LessEqual {: RESULT = " <= "; :}
+                      | Greater {: RESULT = " > "; :}
+                      | GreaterEqual {: RESULT = " >= "; :}
+                      | Equal {: RESULT = " == "; :}
+                      | NotEqual {: RESULT = " != "; :}
                       ;
 
-RELATIONAL_EXPRESSION ::= ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
-                        | ARITHMETIC_EXPRESSION RELATIONAL_OPERATOR ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+RELATIONAL_EXPRESSION ::= ARITHMETIC_EXPRESSION:exp {: RESULT = exp.toString(); :}
+                        | RELATIONAL_EXPRESSION:exp1 RELATIONAL_OPERATOR:op RELATIONAL_EXPRESSION:exp2 {: RESULT = exp1.toString() + op.toString() + exp2.toString(); :}
                         ;
 
-LOGICAL_OPERATOR ::= Conjunction {: RESULT = " -Texto Generico- "; :}
-                   | Disjunction {: RESULT = " -Texto Generico- "; :}
+LOGICAL_OPERATOR ::= Conjunction {: RESULT = " && "; :}
+                   | Disjunction {: RESULT = " || "; :}
                    ;
 
-LOGICAL_EXPRESSION ::= RELATIONAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}                     
-                     | LOGICAL_EXPRESSION LOGICAL_OPERATOR LOGICAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+LOGICAL_EXPRESSION ::= RELATIONAL_EXPRESSION:exp {: RESULT = exp.toString(); :}                     
+                     | LOGICAL_EXPRESSION:exp1 LOGICAL_OPERATOR:op LOGICAL_EXPRESSION:exp2 {: RESULT = exp1.toString() + op.toString() + exp2.toString(); :}
                      ;
 
 VARIABLE_ASSIGNMENT ::= Identifier AssignmentSign EXPRESSION EndSentence {: RESULT = " -Texto Generico- "; :}
