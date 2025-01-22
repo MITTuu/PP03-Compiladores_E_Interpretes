@@ -121,7 +121,7 @@ non terminal NEGATIVE_OPERATOR, PARAMETER_DECLARATION, PARAMETER_DECLARATION_LIS
 non terminal FUNCTION_DECLARATION,FUNCTION_CALL, FUNCTION_CALL_PARAMETER, FUNCTION_CALL_PARAMETER_LIST, FUNCTION_CALL_PARAMETER_OPTION, LITERALS ;
 non terminal FUNCTION_DECLARATION_BODY, EXPRESSION, BINARY_ARITHMETIC_OPERATOR, ARITHMETIC_EXPRESSION, SIMPLE_EXPRESSION;
 non terminal FUNCTION_BODY_ELEMENT, NEGATIVE_LITERAL, UNARY_ARITHMETIC_EXPRESSION;
-non terminal CONTROL_STRUCTURE, IF_STRUCTURE, WHILE_STRUCTURE, FOR_STRUCTURE, SWITCH_STRUCTURE, CASES, CASE, DEFAULT_CASE, RETURN_STATEMENT, BREAK_STATEMENT;
+non terminal CONTROL_STRUCTURE, IF_STRUCTURE, WHILE_STRUCTURE, FOR_STRUCTURE, SWITCH_STRUCTURE,CASES, CASE, DEFAULT_CASE, RETURN_STATEMENT, BREAK_STATEMENT;
 non terminal PRINT_STATEMENT, READ_STATEMENT, RELATIONAL_EXPRESSION, LOGICAL_EXPRESSION, EXPRESSION_LIST, FUNCTION_NAME, ARRAY_DECLARATION,ARRAY_USE;
 non terminal ARRAY_ELEMENTS, LITERAL_LIST, ELSE_STRUCTURE, ELSE_IF_STRUCTURE, IF_ELSE_STRUCTURE_TYPE, UPDATE_EXPRESSION, RELATIONAL_OPERATOR;
 non terminal INIT_FOR_STRUCTURE, SWITCH_EXPRESSION, CASE_LABEL, FUNCTION_CALL_EXPRESSION;
@@ -352,24 +352,23 @@ UNARY_ARITHMETIC_EXPRESSION ::= Identifier Increment {: RESULT = " -Texto Generi
                               | Identifier Decrement {: RESULT = " -Texto Generico- "; :}
                               ;
 
-EXPRESSION ::= ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+
+EXPRESSION ::= NEGATIVE_LITERAL {: RESULT = " -Texto Generico- "; :}
+             | ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
              | LOGICAL_EXPRESSION  {: RESULT = " -Texto Generico- "; :}           
-             | NEGATIVE_LITERAL {: RESULT = " -Texto Generico- "; :}
-             | ParenthesisOpening EXPRESSION ParenthesisClosure {: RESULT = " -Texto Generico- "; :}
              ;
 
-ARITHMETIC_EXPRESSION ::= SIMPLE_EXPRESSION {: RESULT = " -Texto Generico- "; :}
-                        | ARITHMETIC_EXPRESSION BINARY_ARITHMETIC_OPERATOR ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
-                        ;
 
 SIMPLE_EXPRESSION ::= Identifier {: RESULT = " -Texto Generico- "; :}                    
                     | LITERALS {: RESULT = " -Texto Generico- "; :}
                     | ARRAY_USE {: RESULT = " -Texto Generico- "; :}
                     | FUNCTION_CALL {: RESULT = " -Texto Generico- "; :}
-                    | UNARY_ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}                 
+                    | UNARY_ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                    | ParenthesisOpening EXPRESSION ParenthesisClosure {: RESULT = " -Texto Generico- "; :}
                     ;
 
-RELATIONAL_EXPRESSION ::= ARITHMETIC_EXPRESSION RELATIONAL_OPERATOR ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+ARITHMETIC_EXPRESSION ::= SIMPLE_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                        | ARITHMETIC_EXPRESSION BINARY_ARITHMETIC_OPERATOR ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
                         ;
 
 RELATIONAL_OPERATOR ::= Less {: RESULT = " -Texto Generico- "; :}
@@ -380,10 +379,15 @@ RELATIONAL_OPERATOR ::= Less {: RESULT = " -Texto Generico- "; :}
                       | NotEqual {: RESULT = " -Texto Generico- "; :}
                       ;
 
+RELATIONAL_EXPRESSION ::= ARITHMETIC_EXPRESSION RELATIONAL_OPERATOR ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                        ;
+
 LOGICAL_EXPRESSION ::= RELATIONAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
                      | Negation LOGICAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
-                     | LOGICAL_EXPRESSION Conjunction LOGICAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
-                     | LOGICAL_EXPRESSION Disjunction LOGICAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                     | LOGICAL_EXPRESSION Conjunction RELATIONAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                     | LOGICAL_EXPRESSION Disjunction RELATIONAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                     | LOGICAL_EXPRESSION Conjunction ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+                     | LOGICAL_EXPRESSION Disjunction ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
                      ;
 
 EXPRESSION_LIST ::= EXPRESSION {: RESULT = " -Texto Generico- "; :}

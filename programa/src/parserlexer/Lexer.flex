@@ -44,7 +44,7 @@ import java.util.List;
 integerLiteral       = [-]?0|[-]?[1-9][0-9]*
 floatLiteral         = {integerLiteral}"."[0-9]+
 boolLiteral          = "true" | "false"
-characterLiteral     = '[^']*'
+characterLiteral     = '[^']'
 stringLiteral        = \"([^\"\\]|\\.)*\"
 
 // Comments
