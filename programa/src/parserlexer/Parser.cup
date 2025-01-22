@@ -365,6 +365,7 @@ SIMPLE_EXPRESSION ::= Identifier {: RESULT = " -Texto Generico- "; :}
                     | FUNCTION_CALL {: RESULT = " -Texto Generico- "; :}
                     | UNARY_ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
                     | ParenthesisOpening EXPRESSION ParenthesisClosure {: RESULT = " -Texto Generico- "; :}
+                    | Negation ParenthesisOpening EXPRESSION ParenthesisClosure {: RESULT = " -Texto Generico- "; :}
                     ;
 
 ARITHMETIC_EXPRESSION ::= SIMPLE_EXPRESSION {: RESULT = " -Texto Generico- "; :}
@@ -382,8 +383,7 @@ RELATIONAL_OPERATOR ::= Less {: RESULT = " -Texto Generico- "; :}
 RELATIONAL_EXPRESSION ::= ARITHMETIC_EXPRESSION RELATIONAL_OPERATOR ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
                         ;
 
-LOGICAL_EXPRESSION ::= RELATIONAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
-                     | Negation LOGICAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+LOGICAL_EXPRESSION ::= RELATIONAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}                     
                      | LOGICAL_EXPRESSION Conjunction RELATIONAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
                      | LOGICAL_EXPRESSION Disjunction RELATIONAL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
                      | LOGICAL_EXPRESSION Conjunction ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
