@@ -147,7 +147,7 @@ public class View_Main extends javax.swing.JFrame {
             } else {
                 StringBuilder mensajeErrores = new StringBuilder("ERRORES ENCONTRADOS:\n");
                 if(!lexErrorList.isEmpty()) {
-                    mensajeErrores.append("\n\n");
+                    mensajeErrores.append("\n");
                     mensajeErrores.append("Errores léxicos:").append("\n");
                     
                     for (Symbol sym: lexErrorList){
@@ -174,9 +174,12 @@ public class View_Main extends javax.swing.JFrame {
             TreeNode treeNode = (TreeNode) parser.getTreeNode();
             treeNode.printTree("");
             
-            showSymbolTable(symbolTable);
-            
-            showTreeNode(treeNode);
+            //Checkbox para hacer opcional mostrar ventanas de tabla de symbolos y arbol sintáctico
+            var mostrarInfoExtra = jCheckBox_VerInfoExtra.isSelected();
+            if(mostrarInfoExtra){
+                showSymbolTable(symbolTable);
+                showTreeNode(treeNode);
+            }
             
         } catch (Exception ex) {
             Symbol sym = parser.getS();
@@ -462,6 +465,7 @@ public class View_Main extends javax.swing.JFrame {
         jButton_LexicalAnalyzer = new javax.swing.JButton();
         label_Titulo = new java.awt.Label();
         jButton_SaveToFile = new javax.swing.JButton();
+        jCheckBox_VerInfoExtra = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -513,50 +517,53 @@ public class View_Main extends javax.swing.JFrame {
             }
         });
 
+        jCheckBox_VerInfoExtra.setText("Mostrar Tabla de Symbolos y Arbol Sintáctico");
+
         javax.swing.GroupLayout jPanel_BodyLayout = new javax.swing.GroupLayout(jPanel_Body);
         jPanel_Body.setLayout(jPanel_BodyLayout);
         jPanel_BodyLayout.setHorizontalGroup(
             jPanel_BodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
             .addGroup(jPanel_BodyLayout.createSequentialGroup()
-                .addGap(35, 35, 35)
-                .addGroup(jPanel_BodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(label_Titulo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 550, Short.MAX_VALUE))
                 .addGroup(jPanel_BodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel_BodyLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel_BodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jButton_SintaxAnalyzer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton_LexicalAnalyzer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton_LoadFile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 566, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel_BodyLayout.createSequentialGroup()
-                        .addGap(576, 576, 576)
-                        .addComponent(jButton_SaveToFile, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(22, Short.MAX_VALUE))
+                        .addGap(35, 35, 35)
+                        .addGroup(jPanel_BodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(label_Titulo, javax.swing.GroupLayout.PREFERRED_SIZE, 550, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel_BodyLayout.createSequentialGroup()
+                                .addComponent(jButton_LoadFile, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton_SaveToFile, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(jPanel_BodyLayout.createSequentialGroup()
+                        .addGap(425, 425, 425)
+                        .addComponent(jButton_LexicalAnalyzer, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(106, 106, 106)
+                        .addComponent(jButton_SintaxAnalyzer)
+                        .addGap(36, 36, 36)
+                        .addComponent(jCheckBox_VerInfoExtra)
+                        .addGap(0, 104, Short.MAX_VALUE)))
+                .addGap(29, 29, 29))
+            .addComponent(jScrollPane2)
         );
         jPanel_BodyLayout.setVerticalGroup(
             jPanel_BodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel_BodyLayout.createSequentialGroup()
-                .addGroup(jPanel_BodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel_BodyLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel_BodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(label_Titulo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton_SaveToFile))
-                        .addGap(20, 20, 20)
-                        .addGroup(jPanel_BodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel_BodyLayout.createSequentialGroup()
-                        .addGap(70, 70, 70)
-                        .addComponent(jButton_LoadFile)
-                        .addGap(80, 80, 80)
-                        .addComponent(jButton_LexicalAnalyzer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(40, 40, 40)
-                        .addComponent(jButton_SintaxAnalyzer)))
-                .addContainerGap(35, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(label_Titulo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(22, 22, 22)
+                .addGroup(jPanel_BodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton_LoadFile)
+                    .addComponent(jButton_SaveToFile))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel_BodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton_LexicalAnalyzer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton_SintaxAnalyzer)
+                    .addComponent(jCheckBox_VerInfoExtra))
+                .addGap(18, 18, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         label_Titulo.getAccessibleContext().setAccessibleName("");
@@ -565,11 +572,16 @@ public class View_Main extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel_Body, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel_Body, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel_Body, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel_Body, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         jPanel_Body.getAccessibleContext().setAccessibleName("");
@@ -636,6 +648,7 @@ public class View_Main extends javax.swing.JFrame {
     private javax.swing.JButton jButton_LoadFile;
     private javax.swing.JButton jButton_SaveToFile;
     private javax.swing.JButton jButton_SintaxAnalyzer;
+    private javax.swing.JCheckBox jCheckBox_VerInfoExtra;
     private javax.swing.JPanel jPanel_Body;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
