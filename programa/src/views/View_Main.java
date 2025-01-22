@@ -21,6 +21,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import utils.AST.ProgramNode;
 import utils.SymbolTable;
 import utils.SymbolTable.FunctionSymbol;
 import utils.SymbolTable.VariableSymbol;
@@ -133,8 +134,8 @@ public class View_Main extends javax.swing.JFrame {
         Parser parser = new Parser(new Lexer(new StringReader(expr)));
 
         try {
-            parser.parse();            
-            
+            ProgramNode program = (ProgramNode)parser.parse().value; 
+            String salidaAST = program.toString(" ");
             Lexer s =  (Lexer) parser.getScanner();
             
             List<Symbol> lexErrorList = s.lexErrorList;
@@ -178,8 +179,10 @@ public class View_Main extends javax.swing.JFrame {
                symbolTable.printVariableSymbols(); 
                treeNode.printTree("");
                showSymbolTable(symbolTable);
-                showTreeNode(treeNode);
+               showAST(salidaAST);
+               //showTreeNode(treeNode);
             }
+            
             
         } catch (Exception ex) {
             Symbol sym = parser.getS();
@@ -430,6 +433,12 @@ public class View_Main extends javax.swing.JFrame {
         buildTreeString(sb, treeNode, 0);
         
         JOptionPane.showMessageDialog(null, sb.toString(), "Árbol Sintáctico", JOptionPane.PLAIN_MESSAGE);
+    }
+    
+    // Método para mostrar el contenido de la tabla de símbolos
+    public static void showAST(String arbol) {
+               
+        JOptionPane.showMessageDialog(null, arbol, "Árbol Sintáctico Abstracto (AST)", JOptionPane.PLAIN_MESSAGE);
     }
 
     // Método recursivo para construir la cadena de texto del árbol

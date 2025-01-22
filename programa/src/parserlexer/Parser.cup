@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import utils.SymbolTable;
 import utils.TreeNode;
+import utils.AST.*;
 
 action code 
 {:     
@@ -124,7 +125,7 @@ non terminal FUNCTION_BODY_ELEMENT, NEGATIVE_LITERAL, UNARY_ARITHMETIC_EXPRESSIO
 non terminal CONTROL_STRUCTURE, IF_STRUCTURE, WHILE_STRUCTURE, FOR_STRUCTURE, SWITCH_STRUCTURE,CASES, CASE, DEFAULT_CASE, RETURN_STATEMENT, BREAK_STATEMENT;
 non terminal PRINT_STATEMENT, READ_STATEMENT, RELATIONAL_EXPRESSION, LOGICAL_EXPRESSION, FUNCTION_NAME, ARRAY_DECLARATION,ARRAY_USE;
 non terminal ARRAY_ELEMENTS, LITERAL_LIST, ELSE_STRUCTURE, ELSE_IF_STRUCTURE, IF_ELSE_STRUCTURE_TYPE, UPDATE_EXPRESSION, RELATIONAL_OPERATOR;
-non terminal INIT_FOR_STRUCTURE, SWITCH_EXPRESSION, CASE_LABEL, FUNCTION_CALL_EXPRESSION;
+non terminal INIT_FOR_STRUCTURE, SWITCH_EXPRESSION, CASE_LABEL, FUNCTION_CALL_EXPRESSION, FUNCTION_LIST;
 
 /* ---------- Precedences ---------- */
 
@@ -142,7 +143,33 @@ start with PROGRAM;
 
 // Definición del non terminal inicial
 PROGRAM ::= /* Vacío */ 
-          | PROGRAM FUNCTION_DECLARATION {: RESULT = " -Texto Generico- "; :};
+          | FUNCTION_LIST:funcs
+            {: 
+                RESULT = new ProgramNode();
+                for (FunctionNode fn : (List<FunctionNode>)funcs) {
+                    ((ProgramNode) RESULT).addFunction((FunctionNode)fn);
+                }
+                System.out.println(RESULT.toString());
+            :};
+
+FUNCTION_LIST ::= FUNCTION_LIST:funcs FUNCTION_DECLARATION:fn
+                    {:
+                        ((List<FunctionNode>)funcs).add((FunctionNode)fn);
+                        RESULT = funcs;
+                    :}
+                | FUNCTION_DECLARATION:fn
+                    {:
+                        RESULT = new ArrayList<>();
+                        ((List<FunctionNode>) RESULT).add((FunctionNode)fn);
+                    :}
+                ;
+
+FUNCTION_DECLARATION ::= FUNCTION:fn BlockOpening FUNCTION_DECLARATION_BODY:body BlockClosure 
+                         {: 
+                            FunctionNode functionNode = (FunctionNode) fn;
+                            RESULT = new FunctionNode(functionNode.name, functionNode.parameters, List.of(body.toString()));
+                         :}
+                        ;
 
 FUNCTION ::= VARIABLE_TYPE:type FUNCTION_NAME:name 
              ParenthesisOpening PARAMETER_DECLARATION_OPTION:params ParenthesisClosure 
@@ -159,15 +186,11 @@ FUNCTION ::= VARIABLE_TYPE:type FUNCTION_NAME:name
                     }else {
                         parser.logError("La función '" + name.toString() + "' ya está definida.");
                     }
-                    RESULT = " -Texto Generico- ";
+                    List<String> parametros = List.of(params.toString());
+                    RESULT = new FunctionNode(name.toString(), parametros);
                 :}
            ;
 
-FUNCTION_DECLARATION ::= FUNCTION BlockOpening FUNCTION_DECLARATION_BODY:body BlockClosure 
-                         {:                        
-                            RESULT = " -Texto Generico- ";
-                         :}
-                        ;
 
 VARIABLE_TYPE ::= Integer {: RESULT = "Integer"; :}
                 | Float   {: RESULT = "Float";   :}
@@ -354,7 +377,7 @@ UNARY_ARITHMETIC_EXPRESSION ::= Identifier:id Increment {: RESULT = " Identifica
 
 
 /* EXPRESSION: El nivel raíz de las expresiones */
-EXPRESSION ::= LOGICAL_EXPRESSION:exp  {: RESULT = exp.toString(); System.out.println("NUEVA EXPRECION: " + RESULT);:}
+EXPRESSION ::= LOGICAL_EXPRESSION:exp  {: RESULT = exp.toString(); :}
              ;
 
 /* SIMPLE_EXPRESSION: Nivel base de las expresiones */
