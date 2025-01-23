@@ -30,9 +30,9 @@ public class ProgramNode extends ASTNode {
     @Override
     public String toString(String indent) {
         StringBuilder sb = new StringBuilder();
-        sb.append(indent).append("ProgramNode\n");
+        sb.append(indent).append("Programa\n");
         for (FunctionNode fn : functions) {
-            sb.append(fn.toString(indent + "└── "));
+            sb.append(indent).append("└── ").append(fn.toString(indent+"        "));
         }
         return sb.toString();
     }

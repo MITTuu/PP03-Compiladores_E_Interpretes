@@ -186,7 +186,7 @@ public class View_Main extends javax.swing.JFrame {
             
         } catch (Exception ex) {
             Symbol sym = parser.getS();
-            jTextArea_Output.setText("Error crítico de sintaxis. Linea: " + (sym.right + 1) + " Columna: " + (sym.left + 1) + ", Texto: \"" + sym.value + "\"");
+            jTextArea_Output.setText("Error crítico: " + ex.getMessage());
             jTextArea_Output.setForeground(Color.red);
         }
 

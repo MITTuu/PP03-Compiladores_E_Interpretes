@@ -2,31 +2,46 @@ package utils.AST;
 
 // Nodo para una función
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class FunctionNode extends ASTNode {
-    public String name;
-    public List<String> parameters;
-    public List<String> variables;
+    String name;
+    String returnType;
+    List<ParameterNode> parameterNodeList;
+    List<BodyNode> bodyNodeList;
 
-    public FunctionNode(String name, List<String> parameters) {
-        this.name = name;
-        this.parameters = parameters;
-    }
-    
-    public FunctionNode(String name, List<String> parameters, List<String> variables) {
-        this.name = name;
-        this.parameters = parameters;
-        this.variables = variables;
+   
+    public FunctionNode(String function, List<BodyNode> bodyList) {
+        String[] functionParts = function.split(":");
+        //valida si es una funcion vacía
+        if(functionParts.length >= 2){
+            this.returnType = functionParts[0];
+            this.name = functionParts[1];
+            this.bodyNodeList = bodyList;
+        }else{
+            this.name="ERROR";
+            this.returnType ="";
+            this.bodyNodeList = new ArrayList<>();
+        }
+        //Valida si es una función con parametros
+        if(functionParts.length == 3){
+            String params = functionParts[2];
+            SplitParametersToNodes(params);
+        }else{
+            //Asigna una lista vacía de parametros si no hay paramatros en la declaración de función
+            List<ParameterNode> paramNodeList = new ArrayList<ParameterNode>();
+        }   
+        
     }
 
     @Override
     void checkSemantics() {
         // Verificar duplicados en parámetros
-        Set<String> paramSet = new HashSet<>(parameters);
-        if (paramSet.size() != parameters.size()) {
+        Set<ParameterNode> paramSet = new HashSet<>(parameterNodeList);
+        if (paramSet.size() != parameterNodeList.size()) {
             throw new RuntimeException("Parámetros duplicados en función " + name);
         }
 
@@ -52,19 +67,47 @@ public class FunctionNode extends ASTNode {
     @Override
     String toString(String indent) {
         StringBuilder sb = new StringBuilder();
-        sb.append(indent).append("FunctionNode: ").append(name).append("\n");
-
+        sb.append("FunciónDeclaración: ").append(name).append("\n");
+        
         // Parámetros
-        sb.append(indent).append("    ├── Parámetros: ").append(parameters).append("\n");
-
-        // Variables
-        sb.append(indent).append("    └── Variables: [");
-        for (int i = 0; i < variables.size(); i++) {
-            sb.append(variables.get(i));
-            if (i < variables.size() - 1) sb.append(", ");
+        sb.append(indent).append("├── Parámetros: [ ");
+        if(parameterNodeList != null){
+            for(int i=0; i < parameterNodeList.size(); i++){
+                sb.append(parameterNodeList.get(i).variableType).append(" ").append(parameterNodeList.get(i).identifier);
+                if(i+1 < parameterNodeList.size()){
+                    sb.append(", ");
+                }
+            }
+            sb.append(" ");
         }
         sb.append("]\n");
+        
+        
+        // Elementos del body de la función
+        sb.append(indent).append("└── Bloque de instrucciones");
+        sb.append("\n");
+        
+        for (int i = 0; i < bodyNodeList.size(); i++) {
+            if(i+1 == bodyNodeList.size()){
+                sb.append(indent).append("        └── ").append(bodyNodeList.get(i).toString(indent+"        "));
+            }else{
+                sb.append(indent).append("        ├── ").append(bodyNodeList.get(i).toString(indent+"        │"));
+            }
+        }
 
         return sb.toString();
+    }
+
+    //Separa el string de parametros para obtener sus tipos y nombre en un nuevo nodo
+    //Asigna la lista de parametros a la variable global
+    private void SplitParametersToNodes(String params) {
+        List<ParameterNode> paramNodeList = new ArrayList<ParameterNode>();
+        String[] parameterList = params.split(";");
+        for (String param : parameterList){
+            String[] paramParts = param.split("@&@");
+            ParameterNode paramNode = new ParameterNode(paramParts[0],paramParts[1]);
+            paramNodeList.add(paramNode);
+        }
+        this.parameterNodeList = paramNodeList;
     }
 }

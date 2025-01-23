@@ -149,7 +149,6 @@ PROGRAM ::= /* Vacío */
                 for (FunctionNode fn : (List<FunctionNode>)funcs) {
                     ((ProgramNode) RESULT).addFunction((FunctionNode)fn);
                 }
-                System.out.println(RESULT.toString());
             :};
 
 FUNCTION_LIST ::= FUNCTION_LIST:funcs FUNCTION_DECLARATION:fn
@@ -162,12 +161,21 @@ FUNCTION_LIST ::= FUNCTION_LIST:funcs FUNCTION_DECLARATION:fn
                         RESULT = new ArrayList<>();
                         ((List<FunctionNode>) RESULT).add((FunctionNode)fn);
                     :}
+                | error  
+                    {: 
+                        RESULT = new ArrayList<>(); 
+                        ((List<FunctionNode>) RESULT).add(new FunctionNode("ERROR", new ArrayList<>() ));
+                    :}
+                | FUNCTION_LIST:funcs error
+                    {:
+                          ((List<FunctionNode>)funcs).add( new FunctionNode("ERROR", new ArrayList<>() ));
+                          RESULT = funcs;
+                    :}
                 ;
 
 FUNCTION_DECLARATION ::= FUNCTION:fn BlockOpening FUNCTION_DECLARATION_BODY:body BlockClosure 
-                         {: 
-                            FunctionNode functionNode = (FunctionNode) fn;
-                            RESULT = new FunctionNode(functionNode.name, functionNode.parameters, List.of(body.toString()));
+                         {:                             
+                            RESULT = new FunctionNode(fn.toString(), (List<BodyNode>)body);
                          :}
                         ;
 
@@ -180,14 +188,10 @@ FUNCTION ::= VARIABLE_TYPE:type FUNCTION_NAME:name
                         functionNode = new TreeNode("Function: " + name.toString());
                         treeNode.addChild(functionNode);
 
-                        symbolTable.addFunction(name.toString(), type.toString(), params.toString());                            
-                        //System.out.println("La funcion " + name.toString() + " ha sido agregada a la tabla de símbolos.");
-
-                    }else {
-                        parser.logError("La función '" + name.toString() + "' ya está definida.");
+                        symbolTable.addFunction(name.toString(), type.toString(), params.toString());                    
                     }
-                    List<String> parametros = List.of(params.toString());
-                    RESULT = new FunctionNode(name.toString(), parametros);
+
+                    RESULT = type.toString() + ":" + name.toString() + ":" + params.toString();
                 :}
            ;
 
@@ -204,37 +208,43 @@ FUNCTION_NAME ::= Identifier:id {: RESULT = id.toString(); :}
                 ;
 
 PARAMETER_DECLARATION ::= VARIABLE_TYPE:type Identifier:id 
-                          {: RESULT = type.toString() + " " + id.toString(); :}
+                          {: RESULT = type.toString() + "@&@" + id.toString(); :}
                         ;
 
 PARAMETER_DECLARATION_LIST ::= PARAMETER_DECLARATION:param 
-                               {: RESULT = param; :}
+                               {: RESULT = param.toString(); :}
                              | PARAMETER_DECLARATION:param Comma PARAMETER_DECLARATION_LIST:list 
-                               {: RESULT = param + ", " + list; :}
+                               {: RESULT = param.toString() + ";" + list.toString(); :}
                              ;
 
 PARAMETER_DECLARATION_OPTION ::= /* Vacío */ 
                                  {: RESULT = ""; :}
                                | PARAMETER_DECLARATION_LIST:params 
-                                 {: RESULT = params; :}
+                                 {: RESULT = params.toString(); :}
                                ;
 
 
-FUNCTION_DECLARATION_BODY ::= FUNCTION_BODY_ELEMENT 
-                              {: RESULT = "Cuerpo de la funcion simple"; :} 
-                            | FUNCTION_DECLARATION_BODY FUNCTION_BODY_ELEMENT
-                              {: RESULT = "Cuerpo de la funcion compuesto"; :}
+FUNCTION_DECLARATION_BODY ::= FUNCTION_BODY_ELEMENT:body 
+                              {: 
+                                RESULT = new ArrayList<>();  
+                                ((List<BodyNode>)RESULT).add((BodyNode)body) ; 
+                              :} 
+                            | FUNCTION_DECLARATION_BODY:bodyList FUNCTION_BODY_ELEMENT:body
+                              {:
+                                ((List<BodyNode>)bodyList).add((BodyNode)body);                               
+                                RESULT = bodyList; 
+                              :}
                             ;
 
-FUNCTION_BODY_ELEMENT ::= VARIABLE_DECLARATION {: RESULT = " -Texto Generico- "; :}
-                        | VARIABLE_ASSIGNMENT {: RESULT = " -Texto Generico- "; :}
-                        | FUNCTION_CALL_EXPRESSION {: RESULT = " -Texto Generico- "; :}
-                        | CONTROL_STRUCTURE {: RESULT = " -Texto Generico- "; :}
-                        | PRINT_STATEMENT {: RESULT = " -Texto Generico- "; :}
-                        | READ_STATEMENT {: RESULT = " -Texto Generico- "; :}
-                        | RETURN_STATEMENT {: RESULT = " -Texto Generico- "; :}
-                        | BREAK_STATEMENT {: RESULT = " -Texto Generico- "; :}
-                        | error {: RESULT = " -Texto Generico de Error- "; :}
+FUNCTION_BODY_ELEMENT ::= VARIABLE_DECLARATION:e {: RESULT = new BodyNode("VARIABLE_DECLARATION", new GenericASTNode(e.toString()) ); :}
+                        | VARIABLE_ASSIGNMENT:e {: RESULT = new BodyNode("VARIABLE_ASSIGNMENT", new GenericASTNode(e.toString()) ); :}
+                        | FUNCTION_CALL_EXPRESSION:e {: RESULT = new BodyNode("FUNCTION_CALL_EXPRESSION", new GenericASTNode(e.toString()) ); :}
+                        | CONTROL_STRUCTURE:e {: RESULT = new BodyNode("CONTROL_STRUCTURE", new GenericASTNode(e.toString()) ); :}
+                        | PRINT_STATEMENT:e {: RESULT = new BodyNode("PRINT_STATEMENT", new GenericASTNode(e.toString()) ); :}
+                        | READ_STATEMENT:e {: RESULT = new BodyNode("READ_STATEMENT", new GenericASTNode(e.toString()) ); :}
+                        | RETURN_STATEMENT:e {: RESULT = new BodyNode("RETURN_STATEMENT", new GenericASTNode(e.toString()) ); :}
+                        | BREAK_STATEMENT:e {: RESULT = new BodyNode("BREAK_STATEMENT", new GenericASTNode(e.toString()) ); :}
+                        | error  {: RESULT = new BodyNode("ERROR", new GenericASTNode("Error de sintaxis en esta posición") ); :}
                         ;
 
 VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
