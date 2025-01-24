@@ -230,7 +230,7 @@ FUNCTION_DECLARATION_BODY ::= FUNCTION_BODY_ELEMENT:body
                               :}
                             ;
 
-FUNCTION_BODY_ELEMENT ::= VARIABLE_DECLARATION:e {: RESULT = new BodyNode("VARIABLE_DECLARATION", new GenericASTNode(e.toString()) ); :}
+FUNCTION_BODY_ELEMENT ::= VARIABLE_DECLARATION:e {: RESULT = new BodyNode("Variable-Declaración", (ASTNode)e); :}
                         | VARIABLE_ASSIGNMENT:e {: RESULT = new BodyNode("VARIABLE_ASSIGNMENT", new GenericASTNode(e.toString()) ); :}
                         | FUNCTION_CALL_EXPRESSION:e {: RESULT = new BodyNode("FUNCTION_CALL_EXPRESSION", new GenericASTNode(e.toString()) ); :}
                         | CONTROL_STRUCTURE:e {: RESULT = new BodyNode("CONTROL_STRUCTURE", new GenericASTNode(e.toString()) ); :}
@@ -255,19 +255,19 @@ VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
                                 parser.logError("La variable '" + id.toString() + "' ya está definida.");
                             }                            
                         :}
-                       | VARIABLE_TYPE:type Identifier:id AssignmentSign EXPRESSION:epr EndSentence
+                       | VARIABLE_TYPE:type Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                         {: 
-                            RESULT = " -Texto Generico- ";                            
+                            RESULT = new VariableDeclarationNode(type.toString(), id.toString(), new ExpressionNode(exp.toString()));                            
                             if(!symbolTable.containsVariableKey(id.toString()))
                             {
-                                symbolTable.addVariable(id.toString(), type.toString(), currentHash, epr.toString(), typeright + 1);
+                                symbolTable.addVariable(id.toString(), type.toString(), currentHash, exp.toString(), typeright + 1);
                                 //System.out.println("(Alcance: " + currentHash + ") Variable " + id.toString() + " de tipo " + type.toString() + " ha sido declarada.");
                             }else {
                                 parser.logError("La variable '" + id.toString() + "' ya está definida.");
                             }
                         :}
-                       | ARRAY_DECLARATION EndSentence {: RESULT = " -Texto Generico- "; :}
-                       | ARRAY_DECLARATION AssignmentSign ARRAY_ELEMENTS EndSentence {: RESULT = " -Texto Generico- "; :}
+                       | ARRAY_DECLARATION EndSentence {: RESULT =  new GenericASTNode(" -Texto Generico- "); :}
+                       | ARRAY_DECLARATION AssignmentSign ARRAY_ELEMENTS EndSentence {: RESULT =  new GenericASTNode(" -Texto Generico- "); :}
                        ;
 
 ARRAY_ELEMENTS ::= BlockOpening LITERAL_LIST:list BlockClosure

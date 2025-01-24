@@ -24,7 +24,7 @@ public class BodyNode extends ASTNode{
     String toString(String indent) {
         StringBuilder sb = new StringBuilder();
         sb.append(name).append("\n");
-        sb.append(bodyElement.toString(indent+"     └── "));
+        sb.append(bodyElement.toString(indent+"     "));
         return sb.toString();
     }
     

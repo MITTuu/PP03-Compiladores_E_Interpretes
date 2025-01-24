@@ -67,7 +67,7 @@ public class FunctionNode extends ASTNode {
     @Override
     String toString(String indent) {
         StringBuilder sb = new StringBuilder();
-        sb.append("FunciónDeclaración: ").append(name).append("\n");
+        sb.append("Función-Declaración: ").append(name).append("\n");
         
         // Parámetros
         sb.append(indent).append("├── Parámetros: [ ");
