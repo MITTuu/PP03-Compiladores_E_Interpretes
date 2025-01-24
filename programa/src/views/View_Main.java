@@ -4,6 +4,7 @@ import bin.Lexer;
 import bin.Parser;
 import bin.sym;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,11 +17,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 import utils.AST.ProgramNode;
 import utils.SymbolsTable.SymbolTable;
 import utils.SymbolsTable.FunctionSymbol;
@@ -180,7 +188,6 @@ public class View_Main extends javax.swing.JFrame {
                treeNode.printTree("");
                showSymbolTable(symbolTable);
                showAST(salidaAST);
-               //showTreeNode(treeNode);
             }
             
             
@@ -410,49 +417,77 @@ public class View_Main extends javax.swing.JFrame {
 
     // Método para mostrar el contenido de la tabla de símbolos
     public static void showSymbolTable(SymbolTable symbolTable) {
-        StringBuilder sb = new StringBuilder();
+        // Crear las columnas para la tabla de funciones
+        String[] functionColumns = {"Función", "Tipo de Retorno", "Parámetros"};
+        DefaultTableModel functionTableModel = new DefaultTableModel(functionColumns, 0);
 
-            sb.append("Funciones:\n");
-            for (Map.Entry<String, FunctionSymbol> entry : symbolTable.getFunctionSymbols().entrySet()) {
-                sb.append(" Scope: ").append(entry.getValue().getName() ).append(" -> Parametros: " +entry.getValue().getParameters()+ " | Tipo del retorno: " +entry.getValue().getReturnType()).append("\n");
-            }
+        // Llenar la tabla de funciones con datos
+        for (Map.Entry<String, FunctionSymbol> entry : symbolTable.getFunctionSymbols().entrySet()) {
+            FunctionSymbol function = entry.getValue();
+            functionTableModel.addRow(new Object[]{
+                    function.getName(),
+                    function.getReturnType(),
+                    function.getParameters()
+            });
+        }
+        JTable functionTable = new JTable(functionTableModel);
 
-            sb.append("\nVariables:\n");
-            for (Map.Entry<String, VariableSymbol> entry : symbolTable.getVariableSymbols().entrySet()) {
-                sb.append(" Scope: ").append(entry.getValue().getScope()).append(" -> Nombre: ").append(entry.getValue().getName() +" | Tipo: " +entry.getValue().getType()).append("\n");
-            }
+        // Ajustar tamaño de la tabla de funciones según su contenido
+        functionTable.setFillsViewportHeight(true);
+        functionTable.setPreferredScrollableViewportSize(functionTable.getPreferredSize());
 
-        // Mostrar el contenido en un JOptionPane
-        JOptionPane.showMessageDialog(null, sb.toString(), "Tabla de Símbolos", JOptionPane.PLAIN_MESSAGE);
+        // Crear las columnas para la tabla de variables
+        String[] variableColumns = {"Variable", "Tipo", "Scope", "Valor", "Línea"};
+        DefaultTableModel variableTableModel = new DefaultTableModel(variableColumns, 0);
+
+        // Llenar la tabla de variables con datos
+        for (Map.Entry<String, VariableSymbol> entry : symbolTable.getVariableSymbols().entrySet()) {
+            VariableSymbol variable = entry.getValue();
+            variableTableModel.addRow(new Object[]{
+                    variable.getName(),
+                    variable.getType(),
+                    variable.getScope(),
+                    variable.getValue() != null ? variable.getValue().toString() : "null",
+                    variable.getDeclarationLine()
+            });
+        }
+        JTable variableTable = new JTable(variableTableModel);
+
+        // Ajustar tamaño de la tabla de variables según su contenido
+        variableTable.setFillsViewportHeight(true);
+        variableTable.setPreferredScrollableViewportSize(variableTable.getPreferredSize());
+
+        // Crear paneles con scroll para ambas tablas
+        JScrollPane functionScrollPane = new JScrollPane(functionTable);
+        functionScrollPane.setBorder(BorderFactory.createTitledBorder("Funciones"));
+
+        JScrollPane variableScrollPane = new JScrollPane(variableTable);
+        variableScrollPane.setBorder(BorderFactory.createTitledBorder("Variables"));
+
+        // Crear un panel principal para colocar las tablas
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(functionScrollPane);
+        panel.add(Box.createVerticalStrut(5)); 
+        panel.add(variableScrollPane);
+
+        JScrollPane scrollPane = new JScrollPane(panel);
+        scrollPane.setPreferredSize(new Dimension(900, 500));
+
+        JOptionPane.showMessageDialog(null, scrollPane, "Tabla de Símbolos", JOptionPane.PLAIN_MESSAGE);
     }
-    
-    // Método para mostrar el contenido de la tabla de símbolos
-    public static void showTreeNode(TreeNode treeNode) {
-        StringBuilder sb = new StringBuilder();
-        
-        buildTreeString(sb, treeNode, 0);
-        
-        JOptionPane.showMessageDialog(null, sb.toString(), "Árbol Sintáctico", JOptionPane.PLAIN_MESSAGE);
-    }
-    
+
+
     // Método para mostrar el contenido de la tabla de símbolos
     public static void showAST(String arbol) {
-               
-        JOptionPane.showMessageDialog(null, arbol, "Árbol Sintáctico Abstracto (AST)", JOptionPane.PLAIN_MESSAGE);
-    }
+        JTextArea textArea = new JTextArea(arbol);
+        textArea.setEditable(false);
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 
-    // Método recursivo para construir la cadena de texto del árbol
-    private static void buildTreeString(StringBuilder sb, TreeNode node, int level) {
-        // Añadir el nodo actual con la indentación correspondiente
-        for (int i = 0; i < level; i++) {
-            sb.append("         ");
-        }
-        sb.append(node.getValue()).append("\n");
-        
-        // Recursión sobre los hijos del nodo actual
-        for (TreeNode child : node.getChildren()) {
-            buildTreeString(sb, child, level + 1);
-        }
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new Dimension(600, 500));
+
+        JOptionPane.showMessageDialog(null, scrollPane, "Árbol Sintáctico Abstracto (AST)", JOptionPane.PLAIN_MESSAGE);
     }
      
     /**
@@ -550,7 +585,7 @@ public class View_Main extends javax.swing.JFrame {
                         .addComponent(jButton_SintaxAnalyzer)
                         .addGap(36, 36, 36)
                         .addComponent(jCheckBox_VerInfoExtra)
-                        .addGap(0, 104, Short.MAX_VALUE)))
+                        .addGap(0, 198, Short.MAX_VALUE)))
                 .addGap(29, 29, 29))
             .addComponent(jScrollPane2)
         );
@@ -570,8 +605,8 @@ public class View_Main extends javax.swing.JFrame {
                     .addComponent(jButton_LexicalAnalyzer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton_SintaxAnalyzer)
                     .addComponent(jCheckBox_VerInfoExtra))
-                .addGap(18, 18, Short.MAX_VALUE)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 224, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -583,14 +618,14 @@ public class View_Main extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel_Body, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel_Body, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel_Body, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addComponent(jPanel_Body, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jPanel_Body.getAccessibleContext().setAccessibleName("");
