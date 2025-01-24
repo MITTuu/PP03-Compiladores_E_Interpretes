@@ -231,7 +231,7 @@ FUNCTION_DECLARATION_BODY ::= FUNCTION_BODY_ELEMENT:body
                             ;
 
 FUNCTION_BODY_ELEMENT ::= VARIABLE_DECLARATION:e {: RESULT = new BodyNode("Variable-Declaración", (ASTNode)e); :}
-                        | VARIABLE_ASSIGNMENT:e {: RESULT = new BodyNode("VARIABLE_ASSIGNMENT", new GenericASTNode(e.toString()) ); :}
+                        | VARIABLE_ASSIGNMENT:e {: RESULT = new BodyNode("Variable-Asignación", (ASTNode)e); :}
                         | FUNCTION_CALL_EXPRESSION:e {: RESULT = new BodyNode("FUNCTION_CALL_EXPRESSION", new GenericASTNode(e.toString()) ); :}
                         | CONTROL_STRUCTURE:e {: RESULT = new BodyNode("CONTROL_STRUCTURE", new GenericASTNode(e.toString()) ); :}
                         | PRINT_STATEMENT:e {: RESULT = new BodyNode("PRINT_STATEMENT", new GenericASTNode(e.toString()) ); :}
@@ -243,17 +243,12 @@ FUNCTION_BODY_ELEMENT ::= VARIABLE_DECLARATION:e {: RESULT = new BodyNode("Varia
 
 VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
                         {: 
-                            RESULT = new VariableDeclarationNode(type.toString(), id.toString());
-
-                            
+                            RESULT = new VariableDeclarationNode(type.toString(), id.toString());                            
 
                             if(!symbolTable.containsVariableKey(id.toString()))
                             {
                                 symbolTable.addVariable(id.toString(), type.toString(), currentHash, null, typeright + 1);
-                                //System.out.println("(Alcance: " + currentHash + ") Variable " + id.toString() + " de tipo " + type.toString() + " ha sido declarada.");
-                            }else {
-                                parser.logError("La variable '" + id.toString() + "' ya está definida.");
-                            }                            
+                            }                           
                         :}
                        | VARIABLE_TYPE:type Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                         {: 
@@ -261,68 +256,69 @@ VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
                             if(!symbolTable.containsVariableKey(id.toString()))
                             {
                                 symbolTable.addVariable(id.toString(), type.toString(), currentHash, exp.toString(), typeright + 1);
-                                //System.out.println("(Alcance: " + currentHash + ") Variable " + id.toString() + " de tipo " + type.toString() + " ha sido declarada.");
-                            }else {
-                                parser.logError("La variable '" + id.toString() + "' ya está definida.");
                             }
                         :}
-                       | ARRAY_DECLARATION EndSentence {: RESULT =  new GenericASTNode(" -Texto Generico- "); :}
-                       | ARRAY_DECLARATION AssignmentSign ARRAY_ELEMENTS EndSentence {: RESULT =  new GenericASTNode(" -Texto Generico- "); :}
+                       | ARRAY_DECLARATION:arr EndSentence 
+                        {:
+                            RESULT =  (ArrayDeclarationNode)arr; 
+                        :}
+                       | ARRAY_DECLARATION:arr AssignmentSign ARRAY_ELEMENTS:elements EndSentence 
+                        {: 
+                            RESULT =  new ArrayDeclarationNode((ArrayDeclarationNode)arr,(ArrayElementsNode)elements); 
+                        :}
                        ;
 
 ARRAY_ELEMENTS ::= BlockOpening LITERAL_LIST:list BlockClosure
                     {: 
-                        RESULT = " -Texto Generico- "; 
-                        //System.out.println("Elementos del array: " + list.toString());
+                        RESULT = new ArrayElementsNode((List<String>)list); 
                     :}
                  ;
 
 ARRAY_DECLARATION ::= VARIABLE_TYPE:type Identifier:id BracketOpening BracketClosure 
                     {: 
-                        RESULT = " -Texto Generico- ";                         
+                        RESULT = new ArrayDeclarationNode(type.toString(), id.toString());                         
                         if(!symbolTable.containsVariableKey(id.toString()))
                         {
                             symbolTable.addVariable(id.toString(), type.toString() + "[]", currentHash, null, typeright + 1);
-                            //System.out.println("(Alcance: " + currentHash + ") Array " + id.toString() + " de tipo " + type.toString() + " declarado.");
-                        }else {
-                            parser.logError("La variable '" + id.toString() + "' ya está definida.");
                         }
                     :}
                     | VARIABLE_TYPE:type Identifier:id BracketOpening IntegerLiteral:size BracketClosure 
                     {: 
-                        RESULT = " -Texto Generico- ";                        
+                        RESULT =  new ArrayDeclarationNode(type.toString(), id.toString(),size.toString());                    
                         if(!symbolTable.containsVariableKey(id.toString()))
                         {
                            symbolTable.addVariable(id.toString(), type.toString() + "[" + size + "]", currentHash, null, typeright + 1);
-                           //System.out.println("(Alcance: " + currentHash + ") Array " + id.toString() + " con tamaño " + size + " declarado.");
-                        }else {
-                            parser.logError("La variable '" + id.toString() + "' ya está definida.");
                         }
                     :}
                     | VARIABLE_TYPE:type Identifier:id BracketOpening Identifier:sizeId BracketClosure 
                     {: 
-                        RESULT = " -Texto Generico- ";                        
+                        RESULT =  new ArrayDeclarationNode(type.toString(), id.toString(), sizeId.toString());                       
                         if(!symbolTable.containsVariableKey(id.toString()))
                         {
                            symbolTable.addVariable(id.toString(), type.toString() + "[]", currentHash, null, typeright + 1);
-                           //System.out.println("(Alcance: " + currentHash + ") Array " + id.toString() + " de tamaño variable " + sizeId + " declarado.");
-                        }else {
-                            parser.logError("La variable '" + id.toString() + "' ya está definida.");
                         }
                     :};
 
 ARRAY_USE ::= Identifier BracketOpening EXPRESSION BracketClosure {: RESULT = " -Texto Generico- "; :}
             ;
 
-LITERAL_LIST ::= LITERALS {: RESULT = " -Texto Generico- "; :}
-               | LITERAL_LIST Comma LITERALS {: RESULT = " -Texto Generico- "; :}
+LITERAL_LIST ::= LITERALS:literal
+                {: 
+                    RESULT = new ArrayList<String>();
+                    ((List<String>)RESULT).add(literal.toString()); 
+                :}
+               | LITERAL_LIST:list Comma LITERALS:literal 
+                {: 
+                    ((List<String>)list).add(literal.toString()); 
+                    RESULT = list; 
+                :}
                ;
 
-LITERALS ::= IntegerLiteral: i {: RESULT = i; :}
-           | FloatLiteral: f {: RESULT = f; :}
-           | BoolLiteral: b {: RESULT = b; :}
-           | CharacterLiteral: c {: RESULT = c; :}
-           | StringLiteral: s {: RESULT = s; :}
+LITERALS ::= IntegerLiteral: i {: RESULT = "Integer:" + i.toString(); :}
+           | FloatLiteral: f {: RESULT = "Float:" + f.toString(); :}
+           | BoolLiteral: b {: RESULT = "Bool:" + b.toString(); :}
+           | CharacterLiteral: c {: RESULT = "Char:" + c.toString(); :}
+           | StringLiteral: s {: RESULT = "String:" + s.toString(); :}
            ;
 
 PRINT_STATEMENT ::= Print ParenthesisOpening EXPRESSION ParenthesisClosure EndSentence {: RESULT = " -Texto Generico- "; :}
@@ -363,8 +359,8 @@ NEGATIVE_LITERAL ::= NEGATIVE_OPERATOR IntegerLiteral {: RESULT = " -Texto Gener
                    | NEGATIVE_OPERATOR FloatLiteral {: RESULT = " -Texto Generico- "; :}
                    ;
 
-UNARY_ARITHMETIC_EXPRESSION ::= Identifier:id Increment {: RESULT = " Identificador: "+ id.toString()+ "++ "; :}
-                              | Identifier:id Decrement {: RESULT = " Identificador: "+ id.toString()+ "-- "; :}
+UNARY_ARITHMETIC_EXPRESSION ::= Identifier:id Increment {: RESULT = " Id:"+ id.toString()+ "++ "; :}
+                              | Identifier:id Decrement {: RESULT = " Id:"+ id.toString()+ "-- "; :}
                               ;
 
 
@@ -373,7 +369,7 @@ EXPRESSION ::= LOGICAL_EXPRESSION:exp  {: RESULT = exp.toString(); :}
              ;
 
 /* SIMPLE_EXPRESSION: Nivel base de las expresiones */
-SIMPLE_EXPRESSION ::= Identifier:exp {: RESULT = " Identificador: " +exp.toString() + " "; :}                    
+SIMPLE_EXPRESSION ::= Identifier:exp {: RESULT = " Id:" +exp.toString() + " "; :}                    
                     | LITERALS:exp {: RESULT = exp.toString(); :}
                     | NEGATIVE_LITERAL:exp {: RESULT = exp.toString(); :}
                     | ARRAY_USE:exp {: RESULT = exp.toString(); :}

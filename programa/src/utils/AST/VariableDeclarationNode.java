@@ -33,7 +33,7 @@ public class VariableDeclarationNode extends ASTNode{
     @Override
     String toString(String indent) {
         StringBuilder sb = new StringBuilder();
-        sb.append(indent).append("├── Type: ").append(type).append("\n");
+        sb.append(indent).append("├── Tipo: ").append(type).append("\n");
         if(expression !=null){
             sb.append(indent).append("├── Id: ").append(id).append("\n");
             sb.append(indent).append("└── Asignación").append("\n");
