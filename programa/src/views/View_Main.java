@@ -13,6 +13,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -35,11 +37,29 @@ import utils.SymbolsTable.FunctionSymbol;
 import utils.SymbolsTable.VariableSymbol;
 import utils.TreeNode;
 
+/**
+ * La clase {@code View_Main} representa la interfaz gráfica principal de la aplicación.
+ * Proporciona un editor de texto con numeración de líneas y otras herramientas 
+ * relacionadas con la generación, análisis léxico y sintáctico del código fuente.
+ * 
+ * Incluye funcionalidades para:
+ *   - Cargar y guardar archivos.
+ *   - Visualizar el código fuente con numeración de líneas.
+ *   - Realizar análisis léxico, sintáctico y semántico.
+ *   - Mostrar resultados en diferentes componentes de la interfaz.
+ * 
+ * @author Dylan Montiel Zúñiga
+ * @author Joselyn Jiménez Salgado
+ * @version 1/23/2025
+ */
 public class View_Main extends javax.swing.JFrame {
 
     LineNumberComponent lineNumberComponent;
+    
     /**
-     * Creates new form GUI_Main
+     * Constructor de la clase {@code View_Main}.
+     * 
+     * Inicializa los componentes gráficos de la interfaz y configura el editor de texto 
      */
     public View_Main() {
         initComponents();
@@ -135,7 +155,19 @@ public class View_Main extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Guardado cancelado.");
         }
     }
-    
+
+    /**
+     * Realiza el análisis sintáctico del código fuente ingresado en el área de texto. Utiliza el 
+     * analizador léxico ({@link Lexer}) y el analizador sintáctico ({@link Parser}) para procesar 
+     * el texto proporcionado. Realiza las siguientes operaciones:
+     *   - Obtiene y analiza el texto ingresado en el área de entrada.
+     *   - Detecta errores léxicos y sintácticos, si los hay, y los muestra en el área de salida.
+     *   - Genera el árbol sintáctico abstracto (AST) y la tabla de símbolos si no se detectan errores críticos.
+     *   - Opcionalmente, muestra el AST y la tabla de símbolos en ventanas separadas si la opción correspondiente 
+     *     está habilitada mediante un {@code JCheckBox}.
+     * 
+     * En caso de errores, se muestra un mensaje en el área de salida.
+     */
     private void analizadorSintactico(){
         String expr = jTextArea_Input.getText();
 
@@ -196,10 +228,13 @@ public class View_Main extends javax.swing.JFrame {
             jTextArea_Output.setText("Error crítico: " + ex.getMessage());
             jTextArea_Output.setForeground(Color.red);
         }
-
-                
     }
 
+    /**
+     * Este método utiliza un objeto {@link Lexer} para procesar el texto ingresado en el área de texto y realizar el análisis léxico. 
+     * El resultado se muestra en el área de salida con información detallada sobre cada token reconocido, incluyendo la línea, columna 
+     * y el lexema correspondiente. En caso de que se detecten errores léxicos, estos se listan al final.
+     */
     private void analizadorLexico() {
        boolean continuaError = false;
         // Obtiene el texto de entrada desde JTATextoArea
@@ -415,7 +450,13 @@ public class View_Main extends javax.swing.JFrame {
         }
     }
 
-    // Método para mostrar el contenido de la tabla de símbolos
+    /**
+     * Muestra el contenido de la tabla de símbolos en un cuadro de diálogo con dos tablas:
+     * una para las funciones y otra para las variables. Cada tabla se ajusta dinámicamente 
+     * al tamaño de su contenido y se incluye un scroll para manejar tablas grandes.
+     *
+     * @param symbolTable la tabla de símbolos que contiene las funciones y variables a mostrar.
+     */ 
     public static void showSymbolTable(SymbolTable symbolTable) {
         // Crear las columnas para la tabla de funciones
         String[] functionColumns = {"Función", "Tipo de Retorno", "Parámetros"};
@@ -440,9 +481,12 @@ public class View_Main extends javax.swing.JFrame {
         String[] variableColumns = {"Variable", "Tipo", "Scope", "Valor", "Línea"};
         DefaultTableModel variableTableModel = new DefaultTableModel(variableColumns, 0);
 
-        // Llenar la tabla de variables con datos
-        for (Map.Entry<String, VariableSymbol> entry : symbolTable.getVariableSymbols().entrySet()) {
-            VariableSymbol variable = entry.getValue();
+        // Obtener las variables de la tabla de símbolos y ordenarlas por el número de línea
+        List<VariableSymbol> variables = new ArrayList<>(symbolTable.getVariableSymbols().values());
+        variables.sort(Comparator.comparingInt(VariableSymbol::getDeclarationLine));
+
+        // Llenar la tabla de variables con datos ordenados
+        for (VariableSymbol variable : variables) {
             variableTableModel.addRow(new Object[]{
                     variable.getName(),
                     variable.getType(),
@@ -478,7 +522,13 @@ public class View_Main extends javax.swing.JFrame {
     }
 
 
-    // Método para mostrar el contenido de la tabla de símbolos
+    /**
+     * Muestra el Árbol Sintáctico Abstracto (AST) en un cuadro de diálogo con un área de texto.
+     * El texto del AST se muestra en una fuente monoespaciada y el cuadro incluye un scroll 
+     * para manejar contenido extenso.
+     *
+     * @param arbol una representación en texto del Árbol Sintáctico Abstracto (AST) a mostrar.
+     */
     public static void showAST(String arbol) {
         JTextArea textArea = new JTextArea(arbol);
         textArea.setEditable(false);
