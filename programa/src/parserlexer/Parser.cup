@@ -10,6 +10,8 @@ import utils.AST.*;
 action code 
 {:     
     String currentHash;
+    String currentFunction;
+    String currentSwitch;
     public SymbolTable symbolTable = new SymbolTable();
     public TreeNode treeNode = new TreeNode("PROGRAM");
     public TreeNode functionNode;
@@ -183,6 +185,8 @@ FUNCTION ::= VARIABLE_TYPE:type FUNCTION_NAME:name
              ParenthesisOpening PARAMETER_DECLARATION_OPTION:params ParenthesisClosure 
                 {:
                     currentHash = name.toString();
+                    currentFunction = name.toString();
+
                     if(!symbolTable.containsFunctionKey(currentHash))
                     {
                         functionNode = new TreeNode("Function: " + name.toString());
@@ -250,18 +254,21 @@ FUNCTION_BODY_ELEMENT ::= VARIABLE_DECLARATION:e {: RESULT = new BodyNode("VARIA
 VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
                         {: 
                             RESULT = " -Texto Generico- ";
+
+                            
+
                             if(!symbolTable.containsVariableKey(id.toString()))
                             {
                                 TreeNode variableNode = new TreeNode("Variable: " + id.toString());
-                                functionNode.addChild(variableNode);
+                                functionNode.addChild(variableNode); 
 
-                                symbolTable.addVariable(id.toString(), type.toString(), currentHash);
+                                symbolTable.addVariable(id.toString(), type.toString(), currentHash, null, typeright + 1);
                                 //System.out.println("(Alcance: " + currentHash + ") Variable " + id.toString() + " de tipo " + type.toString() + " ha sido declarada.");
                             }else {
                                 parser.logError("La variable '" + id.toString() + "' ya está definida.");
                             }                            
                         :}
-                       | VARIABLE_TYPE:type Identifier:id AssignmentSign EXPRESSION EndSentence
+                       | VARIABLE_TYPE:type Identifier:id AssignmentSign EXPRESSION:epr EndSentence
                         {: 
                             RESULT = " -Texto Generico- ";                            
                             if(!symbolTable.containsVariableKey(id.toString()))
@@ -269,7 +276,7 @@ VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
                                 TreeNode variableNode = new TreeNode("Variable: " + id.toString());
                                 functionNode.addChild(variableNode);
 
-                                symbolTable.addVariable(id.toString(), type.toString(), currentHash);
+                                symbolTable.addVariable(id.toString(), type.toString(), currentHash, epr.toString(), typeright + 1);
                                 //System.out.println("(Alcance: " + currentHash + ") Variable " + id.toString() + " de tipo " + type.toString() + " ha sido declarada.");
                             }else {
                                 parser.logError("La variable '" + id.toString() + "' ya está definida.");
@@ -294,7 +301,7 @@ ARRAY_DECLARATION ::= VARIABLE_TYPE:type Identifier:id BracketOpening BracketClo
                             TreeNode variableNode = new TreeNode("Variable: " + id.toString());
                             functionNode.addChild(variableNode);
 
-                            symbolTable.addVariable(id.toString(), type.toString() + "[]", currentHash);
+                            symbolTable.addVariable(id.toString(), type.toString() + "[]", currentHash, null, typeright + 1);
                             //System.out.println("(Alcance: " + currentHash + ") Array " + id.toString() + " de tipo " + type.toString() + " declarado.");
                         }else {
                             parser.logError("La variable '" + id.toString() + "' ya está definida.");
@@ -308,7 +315,7 @@ ARRAY_DECLARATION ::= VARIABLE_TYPE:type Identifier:id BracketOpening BracketClo
                            TreeNode variableNode = new TreeNode("Variable: " + id.toString());
                            functionNode.addChild(variableNode);
 
-                           symbolTable.addVariable(id.toString(), type.toString() + "[" + size + "]", currentHash);
+                           symbolTable.addVariable(id.toString(), type.toString() + "[" + size + "]", currentHash, null, typeright + 1);
                            //System.out.println("(Alcance: " + currentHash + ") Array " + id.toString() + " con tamaño " + size + " declarado.");
                         }else {
                             parser.logError("La variable '" + id.toString() + "' ya está definida.");
@@ -322,7 +329,7 @@ ARRAY_DECLARATION ::= VARIABLE_TYPE:type Identifier:id BracketOpening BracketClo
                            TreeNode variableNode = new TreeNode("Variable: " + id.toString());
                            functionNode.addChild(variableNode);
 
-                           symbolTable.addVariable(id.toString(), type.toString() + "[]", currentHash);
+                           symbolTable.addVariable(id.toString(), type.toString() + "[]", currentHash, null, typeright + 1);
                            //System.out.println("(Alcance: " + currentHash + ") Array " + id.toString() + " de tamaño variable " + sizeId + " declarado.");
                         }else {
                             parser.logError("La variable '" + id.toString() + "' ya está definida.");
@@ -439,10 +446,32 @@ CONTROL_STRUCTURE ::= IF_ELSE_STRUCTURE_TYPE {: RESULT = " -Texto Generico- "; :
                     | SWITCH_STRUCTURE {: RESULT = " -Texto Generico- "; :}
                     ;
 
-IF_STRUCTURE ::= If ParenthesisOpening LOGICAL_EXPRESSION ParenthesisClosure BlockOpening FUNCTION_DECLARATION_BODY BlockClosure {: RESULT = " -Texto Generico- "; :}
+IF_STRUCTURE ::= If ParenthesisOpening LOGICAL_EXPRESSION ParenthesisClosure BlockOpening 
+               {: 
+                    symbolTable.enterBlock(currentFunction, "if"); 
+                    currentHash = symbolTable.getCurrentBlockIdentifier();
+               :}
+                 FUNCTION_DECLARATION_BODY BlockClosure
+               {: 
+                   RESULT = " -Texto Generico- ";
+
+                   symbolTable.exitBlock(); 
+                   currentHash = symbolTable.getCurrentScope(); 
+               :}
                ;
 
-ELSE_STRUCTURE ::= Else BlockOpening FUNCTION_DECLARATION_BODY BlockClosure {: RESULT = " -Texto Generico- "; :}
+ELSE_STRUCTURE ::= Else BlockOpening 
+                 {: 
+                       symbolTable.enterBlock(currentFunction, "else"); 
+                       currentHash = symbolTable.getCurrentBlockIdentifier();
+                 :}
+                   FUNCTION_DECLARATION_BODY BlockClosure 
+                 {: 
+                       RESULT = " -Texto Generico- ";
+
+                       symbolTable.exitBlock(); 
+                       currentHash = symbolTable.getCurrentScope(); 
+                 :}
                  ;
 
 ELSE_IF_STRUCTURE ::= Else If ParenthesisOpening LOGICAL_EXPRESSION ParenthesisClosure BlockOpening FUNCTION_DECLARATION_BODY BlockClosure {: RESULT = " -Texto Generico- "; :}
@@ -454,10 +483,32 @@ IF_ELSE_STRUCTURE_TYPE ::= IF_STRUCTURE {: RESULT = " -Texto Generico- "; :}
                          | IF_STRUCTURE ELSE_IF_STRUCTURE {: RESULT = " -Texto Generico- "; :}
                          ;
 
-WHILE_STRUCTURE ::= While ParenthesisOpening LOGICAL_EXPRESSION ParenthesisClosure BlockOpening FUNCTION_DECLARATION_BODY BlockClosure {: RESULT = " -Texto Generico- "; :}
-                  ;
+WHILE_STRUCTURE ::= While ParenthesisOpening LOGICAL_EXPRESSION ParenthesisClosure BlockOpening 
+                  {: 
+                        symbolTable.enterBlock(currentFunction, "while"); 
+                        currentHash = symbolTable.getCurrentBlockIdentifier(); 
+                  :}
+                    FUNCTION_DECLARATION_BODY BlockClosure
+                  {: 
+                        RESULT = " -Texto Generico- ";
 
-FOR_STRUCTURE ::= For ParenthesisOpening INIT_FOR_STRUCTURE LOGICAL_EXPRESSION EndSentence UPDATE_EXPRESSION ParenthesisClosure BlockOpening FUNCTION_DECLARATION_BODY BlockClosure {: RESULT = " -Texto Generico- "; :}
+                        symbolTable.exitBlock(); 
+                        currentHash = symbolTable.getCurrentScope(); 
+                  :}
+                   ;
+
+FOR_STRUCTURE ::= For ParenthesisOpening INIT_FOR_STRUCTURE LOGICAL_EXPRESSION EndSentence UPDATE_EXPRESSION ParenthesisClosure BlockOpening 
+                {: 
+                      symbolTable.enterBlock(currentFunction, "for"); 
+                      currentHash = symbolTable.getCurrentBlockIdentifier();
+                :}                
+                  FUNCTION_DECLARATION_BODY BlockClosure
+                {: 
+                      RESULT = " -Texto Generico- ";
+
+                      symbolTable.exitBlock(); 
+                      currentHash = symbolTable.getCurrentScope(); 
+                :}
                 ;
 
 INIT_FOR_STRUCTURE ::= VARIABLE_DECLARATION {: RESULT = " -Texto Generico- "; :}
@@ -468,19 +519,53 @@ UPDATE_EXPRESSION ::= UNARY_ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico-
                     | Identifier AssignmentSign EXPRESSION {: RESULT = " -Texto Generico- "; :}
                     ;
 
-SWITCH_STRUCTURE ::= Switch ParenthesisOpening SWITCH_EXPRESSION ParenthesisClosure BlockOpening CASES  BlockClosure {: RESULT = " -Texto Generico- "; :}
-                   ;
+SWITCH_STRUCTURE ::= Switch ParenthesisOpening SWITCH_EXPRESSION ParenthesisClosure BlockOpening
+                   {: 
+                         symbolTable.enterBlock(currentFunction, "switch"); 
+                         currentHash = symbolTable.getCurrentBlockIdentifier();
+                         currentSwitch = currentHash;
+                   :}
+                     CASES  BlockClosure
+                   {: 
+                         RESULT = " -Texto Generico- ";
+
+                         symbolTable.exitBlock(); 
+                         currentHash = symbolTable.getCurrentScope(); 
+                   :}
+                    ;
 
 CASES ::= CASE {: RESULT = " -Texto Generico- "; :}
         | CASE CASES {: RESULT = " -Texto Generico- "; :}
         | DEFAULT_CASE {: RESULT = " -Texto Generico- "; :}
         ;
 
-CASE ::= Case CASE_LABEL Colon FUNCTION_DECLARATION_BODY {: RESULT = " -Texto Generico- "; :}
-       ;
+CASE ::= Case CASE_LABEL Colon 
+       {: 
+             symbolTable.enterBlock(currentSwitch, "case"); 
+             currentHash = symbolTable.getCurrentBlockIdentifier();       
+       :}
+         FUNCTION_DECLARATION_BODY
+       {: 
+             RESULT = " -Texto Generico- ";
 
-DEFAULT_CASE ::= Default Colon FUNCTION_DECLARATION_BODY {: RESULT = " -Texto Generico- "; :}
-               ;
+             symbolTable.exitBlock(); 
+             currentHash = symbolTable.getCurrentScope(); 
+       :} 
+        ;
+
+DEFAULT_CASE ::= Default Colon 
+               {: 
+                     symbolTable.enterBlock(currentSwitch, "default"); 
+                     currentHash = symbolTable.getCurrentBlockIdentifier();       
+               :}                 
+                 FUNCTION_DECLARATION_BODY
+               {: 
+                     RESULT = " -Texto Generico- ";
+
+                     symbolTable.exitBlock(); 
+                     currentHash = symbolTable.getCurrentScope(); 
+               :} 
+                ;
 
 SWITCH_EXPRESSION ::= Identifier  {: RESULT = " -Texto Generico- "; :}                    
                     | IntegerLiteral {: RESULT = " -Texto Generico- "; :}
