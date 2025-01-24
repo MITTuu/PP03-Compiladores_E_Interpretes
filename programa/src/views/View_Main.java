@@ -35,7 +35,6 @@ import utils.AST.ProgramNode;
 import utils.SymbolsTable.SymbolTable;
 import utils.SymbolsTable.FunctionSymbol;
 import utils.SymbolsTable.VariableSymbol;
-import utils.TreeNode;
 
 /**
  * La clase {@code View_Main} representa la interfaz gráfica principal de la aplicación.
@@ -210,14 +209,12 @@ public class View_Main extends javax.swing.JFrame {
             }
             //Funcionalidad tabla de símbolos
             SymbolTable symbolTable = (SymbolTable) parser.getSymbolTable();            
-            
-            TreeNode treeNode = (TreeNode) parser.getTreeNode();            
+                       
             
             //Checkbox para hacer opcional mostrar ventanas de tabla de symbolos y arbol sintáctico
             var mostrarInfoExtra = jCheckBox_VerInfoExtra.isSelected();
             if(mostrarInfoExtra){
                symbolTable.printVariableSymbols(); 
-               treeNode.printTree("");
                showSymbolTable(symbolTable);
                showAST(salidaAST);
             }
