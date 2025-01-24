@@ -22,9 +22,9 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import utils.AST.ProgramNode;
-import utils.SymbolTable;
-import utils.SymbolTable.FunctionSymbol;
-import utils.SymbolTable.VariableSymbol;
+import utils.SymbolsTable.SymbolTable;
+import utils.SymbolsTable.FunctionSymbol;
+import utils.SymbolsTable.VariableSymbol;
 import utils.TreeNode;
 
 public class View_Main extends javax.swing.JFrame {

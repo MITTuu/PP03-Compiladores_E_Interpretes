@@ -3,7 +3,7 @@ package parserlexer;
 import java_cup.runtime.Symbol;
 import java.util.ArrayList;
 import java.util.List;
-import utils.SymbolTable;
+import utils.SymbolsTable.SymbolTable;
 import utils.TreeNode;
 import utils.AST.*;
 

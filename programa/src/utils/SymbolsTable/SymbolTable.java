@@ -1,4 +1,4 @@
-package utils;
+package utils.SymbolsTable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -7,6 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * La clase SymbolTable maneja la tabla de símbolos de un programa, almacenando funciones y variables
+ * junto con su información asociada. 
+ * 
+ * @author Dylan Montiel Zúñiga
+ * @version 1/23/2024
+ */
 public class SymbolTable {
 
     // Mapa para almacenar funciones
@@ -15,6 +22,7 @@ public class SymbolTable {
     // Mapa para almacenar variables
     private Map<String, VariableSymbol> variableSymbols = new HashMap<>();
 
+    // Identificador del bloque actual
     public String blockIdentifier;
     
     // Pila para manejar bloques de control
@@ -23,12 +31,21 @@ public class SymbolTable {
     // Contadores para identificar bloques únicos por tipo
     private Map<String, Integer> blockCounters = new HashMap<>();
 
+    /**
+     * Constructor de la clase SymbolTable.
+     * Inicializa la pila de bloques con el alcance global.
+     */
     public SymbolTable() {
-        // Agregar un alcance global inicial a la pila
         blockStack.push("global");
     }
     
-    // Agrega una función a la tabla de símbolos
+    /**
+     * Agrega una nueva función a la tabla de símbolos.
+     * @param name El nombre de la función.
+     * @param returnType El tipo de retorno de la función.
+     * @param parameters Los parámetros de la función en formato de cadena.
+     * @throws RuntimeException Si la función ya está definida en la tabla de símbolos.
+     */
     public void addFunction(String name, String returnType, String parameters) {
         if (functionSymbols.containsKey(name)) {
             throw new RuntimeException("La función '" + name + "' ya está definida.");
@@ -36,7 +53,16 @@ public class SymbolTable {
         functionSymbols.put(name, new FunctionSymbol(name, returnType, parameters));
     }
 
-    // Agrega una variable a la tabla de símbolos
+
+    /**
+     * Agrega una nueva variable a la tabla de símbolos.
+     * @param name El nombre de la variable.
+     * @param type El tipo de la variable.
+     * @param scope El alcance (bloque) donde la variable es válida.
+     * @param value El valor de la variable.
+     * @param declarationLine La línea de declaración de la variable en el código fuente.
+     * @throws RuntimeException Si la variable ya está definida en la tabla de símbolos.
+     */
     public void addVariable(String name, String type, String scope, Object value, int declarationLine) {
         if (variableSymbols.containsKey(name)) {
             throw new RuntimeException("La variable '" + name + "' ya está definida.");
@@ -44,7 +70,11 @@ public class SymbolTable {
         variableSymbols.put(name, new VariableSymbol(name, type, scope, value, declarationLine));
     }
     
-    // Maneja el inicio de un nuevo bloque de control
+    /**
+     * Inicia un nuevo bloque de control, incrementando el contador para el tipo de bloque.
+     * @param functionName El nombre de la función a la que pertenece el bloque.
+     * @param blockType El tipo de bloque (por ejemplo, "if", "while").
+     */
     public void enterBlock(String functionName, String blockType) {
         // Incrementar el contador para este tipo de bloque
         String blockKey = functionName + "_" + blockType;
@@ -56,7 +86,10 @@ public class SymbolTable {
         blockStack.push(blockIdentifier);
     }
 
-    // Maneja el fin de un bloque de control
+    /**
+     * Finaliza el bloque de control actual, restaurando el bloque anterior en la pila.
+     * @throws RuntimeException Si se intenta salir del bloque global.
+     */
     public void exitBlock() {
         if (!blockStack.isEmpty() && !blockStack.peek().equals("global")) {
             blockStack.pop();
@@ -65,32 +98,59 @@ public class SymbolTable {
         }
     }
 
-    // Obtiene el alcance actual (el bloque en la cima de la pila)
+    /**
+     * Obtiene el identificador del bloque actual (el bloque en la cima de la pila).
+     * @return El identificador del bloque actual.
+     */
     public String getCurrentBlockIdentifier() {
         return blockIdentifier;
     }
 
+    /**
+     * Obtiene el alcance actual (el bloque en la cima de la pila).
+     * @return El alcance actual.
+     */
     public String getCurrentScope() {
         return blockStack.peek();
     }
-    
+
+    /**
+     * Verifica si existe una variable con el nombre dado en la tabla de símbolos.
+     * @param name El nombre de la variable.
+     * @return true si la variable existe, false en caso contrario.
+     */
     public boolean containsVariableKey (String name){
      return variableSymbols.containsKey(name);
     }
     
+    /**
+     * Verifica si existe una función con el nombre dado en la tabla de símbolos.
+     * @param name El nombre de la función.
+     * @return true si la función existe, false en caso contrario.
+     */    
     public boolean containsFunctionKey (String name){
      return variableSymbols.containsKey(name);
     }
     
+    /**
+     * Obtiene el mapa de funciones en la tabla de símbolos.
+     * @return Un mapa con las funciones definidas en la tabla de símbolos.
+     */
     public Map<String, FunctionSymbol> getFunctionSymbols (){
      return functionSymbols;
     }
-    
+
+    /**
+     * Obtiene el mapa de variables en la tabla de símbolos.
+     * @return Un mapa con las variables definidas en la tabla de símbolos.
+     */    
     public Map<String, VariableSymbol> getVariableSymbols (){
      return variableSymbols;
     }
     
-    // Imprime todas las funciones en la tabla de símbolos con formato de tabla
+    /**
+     * Imprime todas las funciones en la tabla de símbolos con formato de tabla.
+     */
     public void printFunctionSymbols() {
         System.out.println("\n" + String.format("%-20s %-20s %-20s", "Funcion", "Tipo de Retorno", "Parametros"));
         System.out.println("---------------------------------------------------------------");
@@ -99,7 +159,9 @@ public class SymbolTable {
         }
     }
 
-    // Imprime todas las variables en la tabla de símbolos con formato de tabla
+    /**
+     * Imprime todas las variables en la tabla de símbolos con formato de tabla, agrupadas por su alcance.
+     */
     public void printVariableSymbols() {
         // Agrupar las variables por scope
         Map<String, List<VariableSymbol>> groupedByScope = new HashMap<>();
@@ -123,72 +185,6 @@ public class SymbolTable {
                     symbol.getDeclarationLine()
                 ));
             }
-        }
-    }
-
-    // Clase para representar la información de una variable
-    public class VariableSymbol {
-        private String name;
-        private String type;
-        private String scope; 
-        private Object value; 
-        private int declarationLine;
-
-        public VariableSymbol(String name, String type, String scope, Object value, int declarationLine) {
-            this.name = name;
-            this.type = type;
-            this.scope = scope;
-            this.value = value;
-            this.declarationLine = declarationLine;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public String getScope() {
-            return scope;
-        }
-
-        public Object getValue() {
-            return value;
-        }
-
-        public void setValue(Object value) {
-            this.value = value;
-        }
-
-        public int getDeclarationLine() {
-            return declarationLine;
-        }
-    }
-
-    // Clase para representar la información de una función
-    public class FunctionSymbol {
-        private String name;
-        private String returnType;
-        private String parameters;
-
-        public FunctionSymbol(String name, String returnType, String parameters) {
-            this.name = name;
-            this.returnType = returnType;
-            this.parameters = parameters;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getReturnType() {
-            return returnType;
-        }
-
-        public String getParameters() {
-            return parameters;
         }
     }
 }
