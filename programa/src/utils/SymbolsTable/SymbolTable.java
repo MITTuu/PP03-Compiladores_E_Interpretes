@@ -30,6 +30,7 @@ public class SymbolTable {
     
     // Contadores para identificar bloques únicos por tipo
     private Map<String, Integer> blockCounters = new HashMap<>();
+    
 
     /**
      * Constructor de la clase SymbolTable.
@@ -47,10 +48,15 @@ public class SymbolTable {
      * @throws RuntimeException Si la función ya está definida en la tabla de símbolos.
      */
     public void addFunction(String name, String returnType, String parameters) {
+        
         if (functionSymbols.containsKey(name)) {
             throw new RuntimeException("La función '" + name + "' ya está definida.");
         }
-        functionSymbols.put(name, new FunctionSymbol(name, returnType, parameters));
+        
+        //Convierte la lista de parametros en un string de elementos separados por comas.
+        String functionParameters = parameters.replaceAll("@&@", " ").replaceAll(";", ", ");
+        
+        functionSymbols.put(name, new FunctionSymbol(name, returnType, functionParameters));
     }
 
 
