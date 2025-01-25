@@ -1,6 +1,7 @@
 package utils.AST;
 
 public class ExpressionNode extends ASTNode{
+    
 String expression;
     public ExpressionNode(String expression){
         this.expression = expression;

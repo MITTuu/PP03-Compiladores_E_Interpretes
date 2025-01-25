@@ -173,8 +173,14 @@ public class View_Main extends javax.swing.JFrame {
         Parser parser = new Parser(new Lexer(new StringReader(expr)));
 
         try {
-            ProgramNode program = (ProgramNode)parser.parse().value; 
-            String salidaAST = program.toString(" ");
+            Symbol result = parser.parse();
+            ProgramNode program ;
+            String salidaAST = "Sin datos para mostrar.";
+            if(result.value != null)
+            {
+                program = (ProgramNode)result.value;
+                salidaAST = program.toString(" ");
+            }            
             Lexer s =  (Lexer) parser.getScanner();
             
             List<Symbol> lexErrorList = s.lexErrorList;
@@ -532,7 +538,7 @@ public class View_Main extends javax.swing.JFrame {
         textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 
         JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(600, 500));
+        scrollPane.setPreferredSize(new Dimension(800, 500));
 
         JOptionPane.showMessageDialog(null, scrollPane, "Árbol Sintáctico Abstracto (AST)", JOptionPane.PLAIN_MESSAGE);
     }

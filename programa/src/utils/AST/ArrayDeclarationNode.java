@@ -61,7 +61,7 @@ public class ArrayDeclarationNode extends ASTNode {
             sb.append(indent).append("├── Tamaño: ").append(size).append("\n");
             sb.append(indent).append("└── Inicialización de array \n").append(arrayElements.toString(indent+ "    "));
         }else{
-            sb.append(indent).append("└── Error de datos en ArrayDeclarationNode ").append(type).append("\n");
+            sb.append(indent).append("└── Error de datos en ArrayDeclarationNode ").append("\n");
         }       
         return sb.toString();
     }  

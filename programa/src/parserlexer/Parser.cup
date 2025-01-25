@@ -299,7 +299,10 @@ ARRAY_DECLARATION ::= VARIABLE_TYPE:type Identifier:id BracketOpening BracketClo
                         }
                     :};
 
-ARRAY_USE ::= Identifier BracketOpening EXPRESSION BracketClosure {: RESULT = " -Texto Generico- "; :}
+ARRAY_USE ::= Identifier:id BracketOpening EXPRESSION:exp BracketClosure 
+                {: 
+                    RESULT = new ArrayUseNode(id.toString(), new ExpressionNode(exp.toString())); 
+                :}
             ;
 
 LITERAL_LIST ::= LITERALS:literal
@@ -359,8 +362,8 @@ NEGATIVE_LITERAL ::= NEGATIVE_OPERATOR IntegerLiteral {: RESULT = " -Texto Gener
                    | NEGATIVE_OPERATOR FloatLiteral {: RESULT = " -Texto Generico- "; :}
                    ;
 
-UNARY_ARITHMETIC_EXPRESSION ::= Identifier:id Increment {: RESULT = " Id:"+ id.toString()+ "++ "; :}
-                              | Identifier:id Decrement {: RESULT = " Id:"+ id.toString()+ "-- "; :}
+UNARY_ARITHMETIC_EXPRESSION ::= Identifier:id Increment {: RESULT = id.toString()+":"+ "++"; :}
+                              | Identifier:id Decrement {: RESULT = id.toString()+ ":"+"--"; :}
                               ;
 
 
@@ -403,12 +406,22 @@ LOGICAL_EXPRESSION ::= RELATIONAL_EXPRESSION:exp {: RESULT = exp.toString(); :}
                      | LOGICAL_EXPRESSION:exp1 LOGICAL_OPERATOR:op LOGICAL_EXPRESSION:exp2 {: RESULT = exp1.toString() + op.toString() + exp2.toString(); :}
                      ;
 
-VARIABLE_ASSIGNMENT ::= Identifier AssignmentSign EXPRESSION EndSentence {: RESULT = " -Texto Generico- "; :}
-                      | UNARY_ARITHMETIC_EXPRESSION EndSentence {: RESULT = " -Texto Generico- "; :}
-                      | Identifier AssignmentSign ARRAY_ELEMENTS EndSentence //Para asignación de arreglo de elementos
-                        {: RESULT = " -Texto Generico- "; :}
-                      | ARRAY_USE AssignmentSign EXPRESSION EndSentence //Para asignación de un elemento en el arreglo
-                        {: RESULT = " -Texto Generico- "; :}
+VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence 
+                        {: 
+                            RESULT = new VariableAssignmentNode(id.toString(), new ExpressionNode(exp.toString())); 
+                        :}
+                      | UNARY_ARITHMETIC_EXPRESSION:exp EndSentence 
+                        {: 
+                            RESULT = new VariableAssignmentNode(exp.toString()); 
+                        :}
+                      | Identifier:id AssignmentSign ARRAY_ELEMENTS:elements EndSentence //Para asignación de arreglo de elementos
+                        {: 
+                            RESULT = new VariableAssignmentNode(id.toString(), (ArrayElementsNode)elements); 
+                        :}
+                      | ARRAY_USE:arr AssignmentSign EXPRESSION:exp EndSentence //Para asignación de un elemento en el arreglo
+                        {: 
+                            RESULT = new VariableAssignmentNode((ArrayUseNode)arr, new ExpressionNode(exp.toString())); 
+                        :}
                       ;
 
 CONTROL_STRUCTURE ::= IF_ELSE_STRUCTURE_TYPE {: RESULT = " -Texto Generico- "; :}
