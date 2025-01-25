@@ -232,7 +232,7 @@ FUNCTION_DECLARATION_BODY ::= FUNCTION_BODY_ELEMENT:body
 
 FUNCTION_BODY_ELEMENT ::= VARIABLE_DECLARATION:e {: RESULT = new BodyNode("Variable-Declaración", (ASTNode)e); :}
                         | VARIABLE_ASSIGNMENT:e {: RESULT = new BodyNode("Variable-Asignación", (ASTNode)e); :}
-                        | FUNCTION_CALL_EXPRESSION:e {: RESULT = new BodyNode("FUNCTION_CALL_EXPRESSION", new GenericASTNode(e.toString()) ); :}
+                        | FUNCTION_CALL_EXPRESSION:e {: RESULT = new BodyNode("Función-Llamada", (ASTNode)e); :}
                         | CONTROL_STRUCTURE:e {: RESULT = new BodyNode("CONTROL_STRUCTURE", new GenericASTNode(e.toString()) ); :}
                         | PRINT_STATEMENT:e {: RESULT = new BodyNode("PRINT_STATEMENT", new GenericASTNode(e.toString()) ); :}
                         | READ_STATEMENT:e {: RESULT = new BodyNode("READ_STATEMENT", new GenericASTNode(e.toString()) ); :}
@@ -341,21 +341,32 @@ BINARY_ARITHMETIC_OPERATOR ::= Sum {: RESULT = " suma "; :}
 NEGATIVE_OPERATOR ::= Negative {: RESULT = " -Texto Generico- "; :}
                     ; 
 
-FUNCTION_CALL_PARAMETER ::= SIMPLE_EXPRESSION {: RESULT = " -Texto Generico- "; :}
+FUNCTION_CALL_PARAMETER ::= SIMPLE_EXPRESSION:exp {: RESULT = exp.toString(); :}
                         ;
 
-FUNCTION_CALL_PARAMETER_LIST ::= FUNCTION_CALL_PARAMETER {: RESULT = " -Texto Generico- "; :}
-                               | FUNCTION_CALL_PARAMETER Comma FUNCTION_CALL_PARAMETER_LIST {: RESULT = " -Texto Generico- "; :}
+FUNCTION_CALL_PARAMETER_LIST ::= FUNCTION_CALL_PARAMETER:param 
+                                    {: 
+                                        RESULT = new ArrayList<ExpressionNode>(); 
+                                        ((List<ExpressionNode>)RESULT).add(new ExpressionNode(param.toString()));
+                                    :}
+                               | FUNCTION_CALL_PARAMETER:param Comma FUNCTION_CALL_PARAMETER_LIST:paramList 
+                                    {: 
+                                        ((List<ExpressionNode>)paramList).add(new ExpressionNode(param.toString()));
+                                        RESULT = (List<ExpressionNode>)paramList; 
+                                    :}
                                ;
 
-FUNCTION_CALL_PARAMETER_OPTION ::= /* Vacío */ {: RESULT = " -Texto Generico VACÍO- "; :}
-                                 | FUNCTION_CALL_PARAMETER_LIST {: RESULT = " -Texto Generico- "; :}
+FUNCTION_CALL_PARAMETER_OPTION ::= /* Vacío */ {: RESULT = new ArrayList<ExpressionNode>(); :}
+                                 | FUNCTION_CALL_PARAMETER_LIST:parameters {: RESULT = (List<ExpressionNode>)parameters; :}
                                  ;
 
-FUNCTION_CALL ::= FUNCTION_NAME ParenthesisOpening FUNCTION_CALL_PARAMETER_OPTION  ParenthesisClosure {: RESULT = " -Texto Generico- "; :}
+FUNCTION_CALL ::= FUNCTION_NAME:name ParenthesisOpening FUNCTION_CALL_PARAMETER_OPTION:parameters  ParenthesisClosure 
+                    {: 
+                        RESULT = new FunctionCallNode(name.toString(), (List<ExpressionNode>)parameters); 
+                    :}
                 ;
 
-FUNCTION_CALL_EXPRESSION ::= FUNCTION_CALL EndSentence {: RESULT = " -Texto Generico- "; :}
+FUNCTION_CALL_EXPRESSION ::= FUNCTION_CALL:func EndSentence {: RESULT = (ASTNode)func; :}
                            ;
 
 NEGATIVE_LITERAL ::= NEGATIVE_OPERATOR IntegerLiteral {: RESULT = " -Texto Generico- "; :}
