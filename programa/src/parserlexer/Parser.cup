@@ -496,7 +496,7 @@ VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence
 
 CONTROL_STRUCTURE ::= IF_ELSE_STRUCTURE_TYPE:c {: RESULT = (ASTNode)c; :}
                     | WHILE_STRUCTURE:c {: RESULT = (ASTNode)c; :}
-                    | FOR_STRUCTURE:c {: RESULT = new GenericASTNode(c.toString()); :}
+                    | FOR_STRUCTURE:c {: RESULT = (ASTNode)c; :}
                     | SWITCH_STRUCTURE:c {: RESULT = new GenericASTNode(c.toString()); :}
                     ;
 
@@ -567,26 +567,32 @@ WHILE_STRUCTURE ::= While ParenthesisOpening LOGICAL_EXPRESSION:condition Parent
                   :}
                    ;
 
-FOR_STRUCTURE ::= For ParenthesisOpening INIT_FOR_STRUCTURE LOGICAL_EXPRESSION EndSentence UPDATE_EXPRESSION ParenthesisClosure BlockOpening 
+FOR_STRUCTURE ::= For ParenthesisOpening INIT_FOR_STRUCTURE:init LOGICAL_EXPRESSION:condition EndSentence UPDATE_EXPRESSION:updateExp ParenthesisClosure BlockOpening 
                 {: 
                       symbolTable.enterBlock(currentFunction, "for"); 
                       currentHash = symbolTable.getCurrentBlockIdentifier();
                 :}                
-                  FUNCTION_DECLARATION_BODY BlockClosure
+                  FUNCTION_DECLARATION_BODY:body BlockClosure
                 {: 
-                      RESULT = " -Texto Generico- ";
+                      RESULT = new ForStatementNode((ASTNode)init, new ExpressionNode(condition.toString()), (VariableAssignmentNode)updateExp, (List<BodyNode>)body);
 
                       symbolTable.exitBlock(); 
                       currentHash = symbolTable.getCurrentScope(); 
                 :}
                 ;
 
-INIT_FOR_STRUCTURE ::= VARIABLE_DECLARATION {: RESULT = " -Texto Generico- "; :}
-                     | VARIABLE_ASSIGNMENT {: RESULT = " -Texto Generico- "; :}
+INIT_FOR_STRUCTURE ::= VARIABLE_DECLARATION:varDecl {: RESULT =  varDecl; :}
+                     | VARIABLE_ASSIGNMENT:varAssig {: RESULT = varAssig; :}
                      ;
 
-UPDATE_EXPRESSION ::= UNARY_ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
-                    | Identifier AssignmentSign EXPRESSION {: RESULT = " -Texto Generico- "; :}
+UPDATE_EXPRESSION ::= UNARY_ARITHMETIC_EXPRESSION :exp
+                      {: 
+                        RESULT = new VariableAssignmentNode(exp.toString()); 
+                      :}
+                    | Identifier:id AssignmentSign EXPRESSION:exp 
+                      {: 
+                        RESULT = new VariableAssignmentNode(id.toString(), new ExpressionNode(exp.toString()));  
+                      :}
                     ;
 
 SWITCH_STRUCTURE ::= Switch ParenthesisOpening SWITCH_EXPRESSION ParenthesisClosure BlockOpening
