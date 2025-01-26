@@ -495,7 +495,7 @@ VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                       ;
 
 CONTROL_STRUCTURE ::= IF_ELSE_STRUCTURE_TYPE:c {: RESULT = (ASTNode)c; :}
-                    | WHILE_STRUCTURE:c {: RESULT = new GenericASTNode(c.toString()); :}
+                    | WHILE_STRUCTURE:c {: RESULT = (ASTNode)c; :}
                     | FOR_STRUCTURE:c {: RESULT = new GenericASTNode(c.toString()); :}
                     | SWITCH_STRUCTURE:c {: RESULT = new GenericASTNode(c.toString()); :}
                     ;
@@ -553,14 +553,14 @@ IF_ELSE_STRUCTURE_TYPE ::= IF_STRUCTURE:ifNode
                           :}
                          ;
 
-WHILE_STRUCTURE ::= While ParenthesisOpening LOGICAL_EXPRESSION ParenthesisClosure BlockOpening 
+WHILE_STRUCTURE ::= While ParenthesisOpening LOGICAL_EXPRESSION:condition ParenthesisClosure BlockOpening 
                   {: 
                         symbolTable.enterBlock(currentFunction, "while"); 
                         currentHash = symbolTable.getCurrentBlockIdentifier(); 
                   :}
-                    FUNCTION_DECLARATION_BODY BlockClosure
+                    FUNCTION_DECLARATION_BODY:body BlockClosure
                   {: 
-                        RESULT = " -Texto Generico- ";
+                        RESULT = new WhileStatementNode(new ExpressionNode(condition.toString()),( List<BodyNode>)body);
 
                         symbolTable.exitBlock(); 
                         currentHash = symbolTable.getCurrentScope(); 

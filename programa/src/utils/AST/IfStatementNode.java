@@ -63,7 +63,7 @@ public class IfStatementNode extends ASTNode {
         StringBuilder sb = new StringBuilder();
         switch (ifStatementCase) {
             case 1: // Caso para solamente un if
-                sb.append(indent).append("└── If - Bloque de Control").append("\n");
+                sb.append(indent).append("└── If - Estructura de Control").append("\n");
                 sb.append(indent).append("    ├── Condition:\n");
                 sb.append(condition.toString(indent + "    │   "));
                 sb.append(indent).append("    └── If - Bloque de instrucciones:\n");
@@ -77,7 +77,7 @@ public class IfStatementNode extends ASTNode {
                 break;
 
             case 2: // Caso para un if con su else respectivo
-                sb.append(indent).append("├── If - Bloque de Control").append("\n");
+                sb.append(indent).append("├── If - Estructura de Control").append("\n");
                 sb.append(indent).append("│   ├── Condition:\n");
                 sb.append(condition.toString(indent + "│   │   "));
                 sb.append(indent).append("│   └── If - Bloque de instrucciones:\n");
@@ -99,7 +99,7 @@ public class IfStatementNode extends ASTNode {
                 break;
 
             case 3: // Caso para un if con su cadena de elseif sin un else final
-                sb.append(indent).append("├── If - Bloque de Control").append("\n");
+                sb.append(indent).append("├── If - Estructura de Control").append("\n");
                 sb.append(indent).append("│   ├── Condition:\n");
                 sb.append(condition.toString(indent + "│   │   "));
                 sb.append(indent).append("│   └── If - Bloque de instrucciones:\n");
