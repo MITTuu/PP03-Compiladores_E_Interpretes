@@ -6,26 +6,46 @@ import java.util.List;
 
 
 public class IfStatementNode extends ASTNode {
-    private ExpressionNode condition;
-    private BodyNode thenBranch;
-    private List<IfStatementNode> elseIfBranches;
-    private BodyNode elseBranch;
+    ExpressionNode condition;
+    List<BodyNode> ifBody;
+    List<IfStatementNode> elseIfBranches;
+    List<BodyNode> finalElseBody;
+    private int ifStatementCase = 0;
 
-    public IfStatementNode(ExpressionNode condition, BodyNode thenBranch) {
+    //Caso para solamente un if
+    public IfStatementNode(ExpressionNode condition, List<BodyNode> ifBody) {
+        ifStatementCase =1;
         this.condition = condition;
-        this.thenBranch = thenBranch;
+        this.ifBody = ifBody;
         this.elseIfBranches = new ArrayList<>();
-        this.elseBranch = null;
+        this.finalElseBody = null;
     }
-
-    // Agregar un bloque "else-if"
-    public void addElseIfBranch(IfStatementNode elseIf) {
-        elseIfBranches.add(elseIf);
+    
+    //Caso para  un if con su else respectivo
+    public IfStatementNode(IfStatementNode ifStatementNode, List<BodyNode> elseBody) {
+        ifStatementCase = 2;
+        this.condition = ifStatementNode.condition;
+        this.ifBody = ifStatementNode.ifBody;
+        this.finalElseBody = elseBody;
+        this.elseIfBranches = new ArrayList<>();
     }
-
-    // Agregar un bloque "else"
-    public void setElseBranch(BodyNode elseBranch) {
-        this.elseBranch = elseBranch;
+    
+    //Caso para  un if con su cadena de elseif y opcional puede incluir un else body al final(validar eso)
+    public IfStatementNode(IfStatementNode ifStatementNode, List<IfStatementNode> elseIfBranches, int statementCase) {
+        ifStatementCase = 3;
+        this.condition = ifStatementNode.condition;
+        this.ifBody = ifStatementNode.ifBody;
+        this.finalElseBody = null;
+        this.elseIfBranches = elseIfBranches;
+    }
+    
+    //Caso para  cuando solo se incluye un else final
+    public IfStatementNode(List<BodyNode> elseBody) {
+        ifStatementCase = 4;
+        this.condition = null;
+        this.ifBody = null;
+        this.finalElseBody = elseBody;
+        this.elseIfBranches = new ArrayList<>();
     }
 
     @Override
@@ -40,25 +60,78 @@ public class IfStatementNode extends ASTNode {
 
     @Override
     String toString(String indent) {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
+        sb.append(indent).append("├── IfStatementNode").append("\n");
 
-        // Bloque principal "if"
-        builder.append("if (").append(condition.toString()).append(") {\n");
-        builder.append(thenBranch.toString()).append("}");
+        switch (ifStatementCase) {
+            case 1: // Caso para solamente un if
+                sb.append(indent).append("│   ├── Condition:\n");
+                sb.append(condition.toString(indent + "│   │   "));
+                sb.append(indent).append("│   └── If - Bloque de instrucciones:\n");
+                for (int i = 0; i < ifBody.size(); i++) {
+                    if(i+1 == ifBody.size()){
+                        sb.append(indent).append("│       └── ").append(ifBody.get(i).toString(indent+"        "));
+                    }else{
+                        sb.append(indent).append("│       ├── ").append(ifBody.get(i).toString(indent+"        │"));
+                    }
+                }
+                break;
 
-        // Bloques "else-if"
-        for (IfStatementNode elseIf : elseIfBranches) {
-            builder.append(" else if (").append(elseIf.condition.toString()).append(") {\n");
-            builder.append(elseIf.thenBranch.toString()).append("}");
+            case 2: // Caso para un if con su else respectivo
+                sb.append(indent).append("│   ├── Condition:\n");
+                sb.append(condition.toString(indent + "│   │   "));
+                sb.append(indent).append("│   └── If - Bloque de instrucciones:\n");
+                for (int i = 0; i < ifBody.size(); i++) {
+                    if(i+1 == ifBody.size()){
+                        sb.append(indent).append("│       └── ").append(ifBody.get(i).toString(indent+"│       "));
+                    }else{
+                        sb.append(indent).append("│       ├── ").append(ifBody.get(i).toString(indent+"│       │"));
+                    }
+                }
+                sb.append(indent).append("└── Else - Bloque de instrucciones:\n");
+                for (int i = 0; i < finalElseBody.size(); i++) {
+                    if(i+1 == finalElseBody.size()){
+                        sb.append(indent).append("        └── ").append(finalElseBody.get(i).toString(indent+"       "));
+                    }else{
+                        sb.append(indent).append("        ├── ").append(finalElseBody.get(i).toString(indent+"       │"));
+                    } 
+                }
+                break;
+
+            case 3: // Caso para un if con su cadena de elseif sin un else final
+                sb.append(indent).append("│   ├── Condition:\n");
+                sb.append(condition.toString(indent + "│   │   "));
+                sb.append(indent).append("│   └── If - Bloque de instrucciones:\n");
+                for (int i = 0; i < ifBody.size(); i++) {
+                    if(i+1 == ifBody.size()){
+                        sb.append(indent).append("       └── ").append(ifBody.get(i).toString(indent+"       "));
+                    }else{
+                        sb.append(indent).append("       ├── ").append(ifBody.get(i).toString(indent+"       │"));
+                    }
+                }
+                sb.append(indent).append("│   └── Else If Branches:\n");
+                for (IfStatementNode elseIfBranch : elseIfBranches) {
+                    sb.append(elseIfBranch.toString(indent.replace("|", " ") + "│       "));
+                }
+                break;
+
+            case 4: // Caso para cuando solo se incluye un else final
+                sb.append(indent).append("└── Else - Bloque de instrucciones:\n");
+                for (int i = 0; i < finalElseBody.size(); i++) {
+                    if(i+1 == finalElseBody.size()){
+                        sb.append(indent).append("        └── ").append(finalElseBody.get(i).toString(indent+"       "));
+                    }else{
+                        sb.append(indent).append("        ├── ").append(finalElseBody.get(i).toString(indent+"       │"));
+                    }
+                }
+                break;
+
+            default: // Caso de error
+                sb.append(indent).append("└── Error: Caso no definido para IfStatementNode\n");
+                break;
         }
 
-        // Bloque "else"
-        if (elseBranch != null) {
-            builder.append(" else {\n");
-            builder.append(elseBranch.toString()).append("}");
-        }
-
-        return builder.toString();
+        return sb.toString();
     }
 }
 

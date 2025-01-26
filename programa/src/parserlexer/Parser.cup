@@ -233,7 +233,7 @@ FUNCTION_DECLARATION_BODY ::= FUNCTION_BODY_ELEMENT:body
 FUNCTION_BODY_ELEMENT ::= VARIABLE_DECLARATION:e {: RESULT = new BodyNode("Variable-Declaración", (ASTNode)e); :}
                         | VARIABLE_ASSIGNMENT:e {: RESULT = new BodyNode("Variable-Asignación", (ASTNode)e); :}
                         | FUNCTION_CALL_EXPRESSION:e {: RESULT = new BodyNode("Función-Llamada", (ASTNode)e); :}
-                        | CONTROL_STRUCTURE:e {: RESULT = new BodyNode("CONTROL_STRUCTURE", new GenericASTNode(e.toString()) ); :}
+                        | CONTROL_STRUCTURE:e {: RESULT = new BodyNode("Estructura de Control", (ASTNode)e); :}
                         | PRINT_STATEMENT:e {: RESULT = new BodyNode("PRINT_STATEMENT", new GenericASTNode(e.toString()) ); :}
                         | READ_STATEMENT:e {: RESULT = new BodyNode("READ_STATEMENT", new GenericASTNode(e.toString()) ); :}
                         | RETURN_STATEMENT:e {: RESULT = new BodyNode("RETURN_STATEMENT", new GenericASTNode(e.toString()) ); :}
@@ -397,7 +397,7 @@ BINARY_ARITHMETIC_OPERATOR ::= Sum {: RESULT = " suma "; :}
                              | Power {: RESULT = " potencia "; :}
                              ;
 
-NEGATIVE_OPERATOR ::= Negative {: RESULT = " -Texto Generico- "; :}
+NEGATIVE_OPERATOR ::= Negative {: RESULT = "-"; :}
                     ; 
 
 FUNCTION_CALL_PARAMETER ::= SIMPLE_EXPRESSION:exp {: RESULT = exp.toString(); :}
@@ -428,8 +428,8 @@ FUNCTION_CALL ::= FUNCTION_NAME:name ParenthesisOpening FUNCTION_CALL_PARAMETER_
 FUNCTION_CALL_EXPRESSION ::= FUNCTION_CALL:func EndSentence {: RESULT = (ASTNode)func; :}
                            ;
 
-NEGATIVE_LITERAL ::= NEGATIVE_OPERATOR IntegerLiteral {: RESULT = " -Texto Generico- "; :}
-                   | NEGATIVE_OPERATOR FloatLiteral {: RESULT = " -Texto Generico- "; :}
+NEGATIVE_LITERAL ::= NEGATIVE_OPERATOR IntegerLiteral:lit {: RESULT = "NEGATIVE-"+lit.toString(); :}
+                   | NEGATIVE_OPERATOR FloatLiteral:lit {: RESULT = "NEGATIVE-"+lit.toString(); :}
                    ;
 
 UNARY_ARITHMETIC_EXPRESSION ::= Identifier:id Increment {: RESULT = id.toString()+":"+ "++"; :}
@@ -453,7 +453,7 @@ SIMPLE_EXPRESSION ::= Identifier:exp {: RESULT = " Id:" +exp.toString() + " "; :
                     ;
 
 ARITHMETIC_EXPRESSION ::= SIMPLE_EXPRESSION:exp {: RESULT = exp.toString(); :}
-                        | ARITHMETIC_EXPRESSION:exp1 BINARY_ARITHMETIC_OPERATOR:op ARITHMETIC_EXPRESSION:exp2 {: RESULT = exp1.toString() + op.toString() + exp2.toString();; :}
+                        | ARITHMETIC_EXPRESSION:exp1 BINARY_ARITHMETIC_OPERATOR:op ARITHMETIC_EXPRESSION:exp2 {: RESULT = exp1.toString() + op.toString() + exp2.toString(); :}
                         ;
 
 RELATIONAL_OPERATOR ::= Less {: RESULT = " < "; :}
@@ -494,47 +494,63 @@ VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                         :}
                       ;
 
-CONTROL_STRUCTURE ::= IF_ELSE_STRUCTURE_TYPE {: RESULT = " -Texto Generico- "; :}
-                    | WHILE_STRUCTURE {: RESULT = " -Texto Generico- "; :}
-                    | FOR_STRUCTURE {: RESULT = " -Texto Generico- "; :}
-                    | SWITCH_STRUCTURE {: RESULT = " -Texto Generico- "; :}
+CONTROL_STRUCTURE ::= IF_ELSE_STRUCTURE_TYPE:c {: RESULT = (ASTNode)c; :}
+                    | WHILE_STRUCTURE:c {: RESULT = new GenericASTNode(c.toString()); :}
+                    | FOR_STRUCTURE:c {: RESULT = new GenericASTNode(c.toString()); :}
+                    | SWITCH_STRUCTURE:c {: RESULT = new GenericASTNode(c.toString()); :}
                     ;
 
-IF_STRUCTURE ::= If ParenthesisOpening LOGICAL_EXPRESSION ParenthesisClosure BlockOpening 
+IF_STRUCTURE ::= If ParenthesisOpening LOGICAL_EXPRESSION:condition ParenthesisClosure BlockOpening 
                {: 
                     symbolTable.enterBlock(currentFunction, "if"); 
                     currentHash = symbolTable.getCurrentBlockIdentifier();
                :}
-                 FUNCTION_DECLARATION_BODY BlockClosure
+                 FUNCTION_DECLARATION_BODY:thenBody BlockClosure
                {: 
-                   RESULT = " -Texto Generico- ";
-
                    symbolTable.exitBlock(); 
                    currentHash = symbolTable.getCurrentScope(); 
+
+                   RESULT = new IfStatementNode(new ExpressionNode(condition.toString()), (List<BodyNode>)thenBody);
                :}
                ;
 
 ELSE_STRUCTURE ::= Else BlockOpening 
-                 {: 
-                       symbolTable.enterBlock(currentFunction, "else"); 
-                       currentHash = symbolTable.getCurrentBlockIdentifier();
-                 :}
-                   FUNCTION_DECLARATION_BODY BlockClosure 
-                 {: 
-                       RESULT = " -Texto Generico- ";
-
-                       symbolTable.exitBlock(); 
-                       currentHash = symbolTable.getCurrentScope(); 
-                 :}
+                    {: 
+                        symbolTable.enterBlock(currentFunction, "else"); 
+                        currentHash = symbolTable.getCurrentBlockIdentifier();
+                    :}
+                    FUNCTION_DECLARATION_BODY:elseBody BlockClosure 
+                    {:                     
+                        symbolTable.exitBlock(); 
+                        currentHash = symbolTable.getCurrentScope(); 
+                        RESULT = (List<BodyNode>)elseBody;
+                    :}
                  ;
 
-ELSE_IF_STRUCTURE ::= Else If ParenthesisOpening LOGICAL_EXPRESSION ParenthesisClosure BlockOpening FUNCTION_DECLARATION_BODY BlockClosure {: RESULT = " -Texto Generico- "; :}
-                    | ELSE_IF_STRUCTURE ELSE_STRUCTURE {: RESULT = " -Texto Generico- "; :}
+ELSE_IF_STRUCTURE ::= Else If ParenthesisOpening LOGICAL_EXPRESSION:condition ParenthesisClosure BlockOpening FUNCTION_DECLARATION_BODY:thenBody BlockClosure 
+                        {: 
+                            RESULT = new ArrayList<IfStatementNode>();
+                            ((ArrayList<IfStatementNode>)RESULT).add(new IfStatementNode((ExpressionNode)condition, (List<BodyNode>)thenBody));
+                        :}
+                    | ELSE_IF_STRUCTURE:elIfChain ELSE_STRUCTURE:elseBody 
+                        {: 
+                            ((ArrayList<IfStatementNode>)elIfChain).add(new IfStatementNode((List<BodyNode>)elseBody));//caso 4 IfStatementNode
+                            RESULT = (ArrayList<IfStatementNode>)elIfChain; 
+                        :}
                     ;
 
-IF_ELSE_STRUCTURE_TYPE ::= IF_STRUCTURE {: RESULT = " -Texto Generico- "; :}
-                         | IF_STRUCTURE ELSE_STRUCTURE {: RESULT = " -Texto Generico- "; :}
-                         | IF_STRUCTURE ELSE_IF_STRUCTURE {: RESULT = " -Texto Generico- "; :}
+IF_ELSE_STRUCTURE_TYPE ::= IF_STRUCTURE:ifNode 
+                          {: 
+                              RESULT = (IfStatementNode)ifNode; 
+                          :}
+                         | IF_STRUCTURE:ifNode ELSE_STRUCTURE:elseBody 
+                          {: 
+                              RESULT = new IfStatementNode((IfStatementNode)ifNode, (List<BodyNode>)elseBody); 
+                          :}
+                         | IF_STRUCTURE:ifNode ELSE_IF_STRUCTURE:elseIfChain
+                          {: 
+                              RESULT = new IfStatementNode((IfStatementNode)ifNode, (List<IfStatementNode>)elseIfChain, 3); 
+                          :}
                          ;
 
 WHILE_STRUCTURE ::= While ParenthesisOpening LOGICAL_EXPRESSION ParenthesisClosure BlockOpening 
