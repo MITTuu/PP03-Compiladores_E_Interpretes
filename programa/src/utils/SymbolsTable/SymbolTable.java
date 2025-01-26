@@ -82,13 +82,19 @@ public class SymbolTable {
      * @param blockType El tipo de bloque (por ejemplo, "if", "while").
      */
     public void enterBlock(String functionName, String blockType) {
+        // Obtener el bloque actual desde la pila
+        String currentBlock = blockStack.peek();
+
+        // Determinar el prefijo del nuevo bloque
+        String prefix = currentBlock.equals("global") ? functionName : currentBlock;
+
         // Incrementar el contador para este tipo de bloque
-        String blockKey = functionName + "_" + blockType;
+        String blockKey = prefix + "_" + blockType;
         blockCounters.put(blockKey, blockCounters.getOrDefault(blockKey, 0) + 1);
         int blockId = blockCounters.get(blockKey);
 
-        // Crear un identificador único para el bloque
-        blockIdentifier = functionName + "_" + blockType + "_" + blockId;
+        // Crear un identificador único para el nuevo bloque
+        blockIdentifier = prefix + "_" + blockType + "_" + blockId;
         blockStack.push(blockIdentifier);
     }
 
