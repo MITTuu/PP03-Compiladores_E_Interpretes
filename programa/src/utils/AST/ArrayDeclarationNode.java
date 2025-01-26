@@ -1,11 +1,17 @@
 package utils.AST;
 
+import bin.Parser;
+import utils.SymbolsTable.SymbolTable;
+
 public class ArrayDeclarationNode extends ASTNode {
     
     String type;
     String id;
     String size;
     ArrayElementsNode arrayElements;
+    SymbolTable symbolTable;
+    public Parser parser;
+    public String currentHash;
     
     public ArrayDeclarationNode (String type, String id){
         this.type = type;
@@ -35,8 +41,14 @@ public class ArrayDeclarationNode extends ASTNode {
     }
 
     @Override
-    void checkSemantics() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void checkSemantics() {
+        symbolTable = (SymbolTable) parser.getSymbolTable();
+        String functionName = currentHash.split("-")[0];
+        
+        if (symbolTable.containsVariableKey(id, functionName)) {
+            int line = symbolTable.getVariableLine(id, functionName);
+            throw new RuntimeException("La variable '" + id + "' ya está declarada en la línea " + line);
+        }
     }
 
     @Override

@@ -94,7 +94,7 @@ public class SymbolTable {
         int blockId = blockCounters.get(blockKey);
 
         // Crear un identificador único para el nuevo bloque
-        blockIdentifier = prefix + "_" + blockType + "_" + blockId;
+        blockIdentifier = prefix + "-" + blockType + "_" + blockId;
         blockStack.push(blockIdentifier);
     }
 
@@ -128,11 +128,26 @@ public class SymbolTable {
 
     /**
      * Verifica si existe una variable con el nombre dado en la tabla de símbolos.
-     * @param name El nombre de la variable.
+     * @param id
+     * @param functionName
      * @return true si la variable existe, false en caso contrario.
      */
-    public boolean containsVariableKey (String name){
-     return variableSymbols.containsKey(name);
+    public boolean containsVariableKey(String id, String functionName) {
+        for (VariableSymbol symbol : variableSymbols.values()) {
+            if (symbol.getName().equals(id) && symbol.getScope().equals(functionName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+ 
+    public int getVariableLine(String id, String functionName) {
+        for (VariableSymbol symbol : variableSymbols.values()) {
+            if (symbol.getName().equals(id) && symbol.getScope().equals(functionName)) {
+                return symbol.getDeclarationLine();
+            }
+        }
+        return 0;
     }
     
     /**
