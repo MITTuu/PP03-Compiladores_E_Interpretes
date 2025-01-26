@@ -10,7 +10,7 @@ public class IfStatementNode extends ASTNode {
     List<BodyNode> ifBody;
     List<IfStatementNode> elseIfBranches;
     List<BodyNode> finalElseBody;
-    private int ifStatementCase = 0;
+    private int ifStatementCase = 0;//Revisar producciones casos 3 y 4
 
     //Caso para solamente un if
     public IfStatementNode(ExpressionNode condition, List<BodyNode> ifBody) {
@@ -61,23 +61,23 @@ public class IfStatementNode extends ASTNode {
     @Override
     String toString(String indent) {
         StringBuilder sb = new StringBuilder();
-        sb.append(indent).append("├── IfStatementNode").append("\n");
-
         switch (ifStatementCase) {
             case 1: // Caso para solamente un if
-                sb.append(indent).append("│   ├── Condition:\n");
-                sb.append(condition.toString(indent + "│   │   "));
-                sb.append(indent).append("│   └── If - Bloque de instrucciones:\n");
+                sb.append(indent).append("└── If - Bloque de Control").append("\n");
+                sb.append(indent).append("    ├── Condition:\n");
+                sb.append(condition.toString(indent + "    │   "));
+                sb.append(indent).append("    └── If - Bloque de instrucciones:\n");
                 for (int i = 0; i < ifBody.size(); i++) {
                     if(i+1 == ifBody.size()){
-                        sb.append(indent).append("│       └── ").append(ifBody.get(i).toString(indent+"        "));
+                        sb.append(indent).append("        └── ").append(ifBody.get(i).toString(indent+"        "));
                     }else{
-                        sb.append(indent).append("│       ├── ").append(ifBody.get(i).toString(indent+"        │"));
+                        sb.append(indent).append("        ├── ").append(ifBody.get(i).toString(indent+"        │"));
                     }
                 }
                 break;
 
             case 2: // Caso para un if con su else respectivo
+                sb.append(indent).append("├── If - Bloque de Control").append("\n");
                 sb.append(indent).append("│   ├── Condition:\n");
                 sb.append(condition.toString(indent + "│   │   "));
                 sb.append(indent).append("│   └── If - Bloque de instrucciones:\n");
@@ -91,14 +91,15 @@ public class IfStatementNode extends ASTNode {
                 sb.append(indent).append("└── Else - Bloque de instrucciones:\n");
                 for (int i = 0; i < finalElseBody.size(); i++) {
                     if(i+1 == finalElseBody.size()){
-                        sb.append(indent).append("        └── ").append(finalElseBody.get(i).toString(indent+"       "));
+                        sb.append(indent).append("        └── ").append(finalElseBody.get(i).toString(indent+"        "));
                     }else{
-                        sb.append(indent).append("        ├── ").append(finalElseBody.get(i).toString(indent+"       │"));
+                        sb.append(indent).append("        ├── ").append(finalElseBody.get(i).toString(indent+"        │"));
                     } 
                 }
                 break;
 
             case 3: // Caso para un if con su cadena de elseif sin un else final
+                sb.append(indent).append("├── If - Bloque de Control").append("\n");
                 sb.append(indent).append("│   ├── Condition:\n");
                 sb.append(condition.toString(indent + "│   │   "));
                 sb.append(indent).append("│   └── If - Bloque de instrucciones:\n");
@@ -109,7 +110,7 @@ public class IfStatementNode extends ASTNode {
                         sb.append(indent).append("       ├── ").append(ifBody.get(i).toString(indent+"       │"));
                     }
                 }
-                sb.append(indent).append("│   └── Else If Branches:\n");
+                sb.append(indent).append("│   └── Else If - Declaraciones:\n");
                 for (IfStatementNode elseIfBranch : elseIfBranches) {
                     sb.append(elseIfBranch.toString(indent.replace("|", " ") + "│       "));
                 }
