@@ -82,13 +82,19 @@ public class SymbolTable {
      * @param blockType El tipo de bloque (por ejemplo, "if", "while").
      */
     public void enterBlock(String functionName, String blockType) {
+        // Obtener el bloque actual desde la pila
+        String currentBlock = blockStack.peek();
+
+        // Determinar el prefijo del nuevo bloque
+        String prefix = currentBlock.equals("global") ? functionName : currentBlock;
+
         // Incrementar el contador para este tipo de bloque
-        String blockKey = functionName + "_" + blockType;
+        String blockKey = prefix + "_" + blockType;
         blockCounters.put(blockKey, blockCounters.getOrDefault(blockKey, 0) + 1);
         int blockId = blockCounters.get(blockKey);
 
-        // Crear un identificador único para el bloque
-        blockIdentifier = functionName + "_" + blockType + "_" + blockId;
+        // Crear un identificador único para el nuevo bloque
+        blockIdentifier = prefix + "-" + blockType + "_" + blockId;
         blockStack.push(blockIdentifier);
     }
 
@@ -122,11 +128,26 @@ public class SymbolTable {
 
     /**
      * Verifica si existe una variable con el nombre dado en la tabla de símbolos.
-     * @param name El nombre de la variable.
+     * @param id
+     * @param functionName
      * @return true si la variable existe, false en caso contrario.
      */
-    public boolean containsVariableKey (String name){
-     return variableSymbols.containsKey(name);
+    public boolean containsVariableKey(String id, String functionName) {
+        for (VariableSymbol symbol : variableSymbols.values()) {
+            if (symbol.getName().equals(id) && symbol.getScope().equals(functionName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+ 
+    public int getVariableLine(String id, String functionName) {
+        for (VariableSymbol symbol : variableSymbols.values()) {
+            if (symbol.getName().equals(id) && symbol.getScope().equals(functionName)) {
+                return symbol.getDeclarationLine();
+            }
+        }
+        return 0;
     }
     
     /**

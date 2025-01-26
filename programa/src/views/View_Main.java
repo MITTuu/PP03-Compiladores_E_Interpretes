@@ -220,7 +220,6 @@ public class View_Main extends javax.swing.JFrame {
             //Checkbox para hacer opcional mostrar ventanas de tabla de symbolos y arbol sintáctico
             var mostrarInfoExtra = jCheckBox_VerInfoExtra.isSelected();
             if(mostrarInfoExtra){
-               symbolTable.printVariableSymbols(); 
                showSymbolTable(symbolTable);
                showAST(salidaAST);
             }

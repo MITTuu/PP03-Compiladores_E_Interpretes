@@ -243,20 +243,43 @@ FUNCTION_BODY_ELEMENT ::= VARIABLE_DECLARATION:e {: RESULT = new BodyNode("Varia
 
 VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
                         {: 
-                            RESULT = new VariableDeclarationNode(type.toString(), id.toString());                            
+                            RESULT = new VariableDeclarationNode(type.toString(), id.toString());
 
-                            if(!symbolTable.containsVariableKey(id.toString()))
-                            {
+                            try {
+                                ((VariableDeclarationNode) RESULT).parser = parser;
+                                ((VariableDeclarationNode) RESULT).currentHash = currentFunction;
+                                ((VariableDeclarationNode) RESULT).checkSemantics();
                                 symbolTable.addVariable(id.toString(), type.toString(), currentHash, null, typeright + 1);
-                            }                           
+
+                            } catch (RuntimeException e) {
+                                String message = e.getMessage();
+
+                                if (message.contains("ya está definida.")) {
+                                    System.out.println(message);
+                                } else {
+                                    parser.logError("Error en la línea " + (typeright+1) + ": " + message);
+                                }
+                            }                        
                         :}
                        | VARIABLE_TYPE:type Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                         {: 
-                            RESULT = new VariableDeclarationNode(type.toString(), id.toString(), new ExpressionNode(exp.toString()));                            
-                            if(!symbolTable.containsVariableKey(id.toString()))
-                            {
+                            RESULT = new VariableDeclarationNode(type.toString(), id.toString(), new ExpressionNode(exp.toString()));
+
+                            try {
+                                ((VariableDeclarationNode) RESULT).parser = parser;
+                                ((VariableDeclarationNode) RESULT).currentHash = currentFunction;
+                                ((VariableDeclarationNode) RESULT).checkSemantics();
                                 symbolTable.addVariable(id.toString(), type.toString(), currentHash, exp.toString(), typeright + 1);
-                            }
+
+                            } catch (RuntimeException e) {
+                                String message = e.getMessage();
+
+                                if (message.contains("ya está definida.")) {
+                                    System.out.println(message);
+                                } else {
+                                    parser.logError("Error en la línea " + (typeright+1) + ": " + message);
+                                }
+                            }                           
                         :}
                        | ARRAY_DECLARATION:arr EndSentence 
                         {:
@@ -277,25 +300,61 @@ ARRAY_ELEMENTS ::= BlockOpening LITERAL_LIST:list BlockClosure
 ARRAY_DECLARATION ::= VARIABLE_TYPE:type Identifier:id BracketOpening BracketClosure 
                     {: 
                         RESULT = new ArrayDeclarationNode(type.toString(), id.toString());                         
-                        if(!symbolTable.containsVariableKey(id.toString()))
-                        {
+
+                        try {
+                            ((ArrayDeclarationNode) RESULT).parser = parser;
+                            ((ArrayDeclarationNode) RESULT).currentHash = currentFunction;
+                            ((ArrayDeclarationNode) RESULT).checkSemantics();
                             symbolTable.addVariable(id.toString(), type.toString() + "[]", currentHash, null, typeright + 1);
+
+                        } catch (RuntimeException e) {
+                            String message = e.getMessage();
+
+                            if (message.contains("ya está definida.")) {
+                                System.out.println(message);
+                            } else {
+                                parser.logError("Error en la línea " + (typeright+1) + ": " + message);
+                            }
                         }
                     :}
                     | VARIABLE_TYPE:type Identifier:id BracketOpening IntegerLiteral:size BracketClosure 
                     {: 
                         RESULT =  new ArrayDeclarationNode(type.toString(), id.toString(),size.toString());                    
-                        if(!symbolTable.containsVariableKey(id.toString()))
-                        {
-                           symbolTable.addVariable(id.toString(), type.toString() + "[" + size + "]", currentHash, null, typeright + 1);
+
+                        try {
+                            ((ArrayDeclarationNode) RESULT).parser = parser;
+                            ((ArrayDeclarationNode) RESULT).currentHash = currentFunction;
+                            ((ArrayDeclarationNode) RESULT).checkSemantics();
+                            symbolTable.addVariable(id.toString(), type.toString() + "[" + size + "]", currentHash, null, typeright + 1);
+
+                        } catch (RuntimeException e) {
+                            String message = e.getMessage();
+
+                            if (message.contains("ya está definida.")) {
+                                System.out.println(message);
+                            } else {
+                                parser.logError("Error en la línea " + (typeright+1) + ": " + message);
+                            }
                         }
                     :}
                     | VARIABLE_TYPE:type Identifier:id BracketOpening Identifier:sizeId BracketClosure 
                     {: 
                         RESULT =  new ArrayDeclarationNode(type.toString(), id.toString(), sizeId.toString());                       
-                        if(!symbolTable.containsVariableKey(id.toString()))
-                        {
-                           symbolTable.addVariable(id.toString(), type.toString() + "[]", currentHash, null, typeright + 1);
+
+                        try {
+                            ((ArrayDeclarationNode) RESULT).parser = parser;
+                            ((ArrayDeclarationNode) RESULT).currentHash = currentFunction;
+                            ((ArrayDeclarationNode) RESULT).checkSemantics();
+                            symbolTable.addVariable(id.toString(), type.toString() + "[]", currentHash, null, typeright + 1);
+
+                        } catch (RuntimeException e) {
+                            String message = e.getMessage();
+
+                            if (message.contains("ya está definida.")) {
+                                System.out.println(message);
+                            } else {
+                                parser.logError("Error en la línea " + (typeright+1) + ": " + message);
+                            }
                         }
                     :};
 
