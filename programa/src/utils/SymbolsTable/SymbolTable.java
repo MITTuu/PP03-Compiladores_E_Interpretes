@@ -2,6 +2,8 @@ package utils.SymbolsTable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
@@ -48,14 +50,21 @@ public class SymbolTable {
      * @throws RuntimeException Si la función ya está definida en la tabla de símbolos.
      */
     public void addFunction(String name, String returnType, String parameters) {
-        
+
         if (functionSymbols.containsKey(name)) {
             throw new RuntimeException("La función '" + name + "' ya está definida.");
         }
-        
-        //Convierte la lista de parametros en un string de elementos separados por comas.
-        String functionParameters = parameters.replaceAll("@&@", " ").replaceAll(";", ", ");
-        
+
+        // Convierte la lista de parámetros en un arreglo de parámetros
+        String[] paramArray = parameters.replaceAll("@&@", " ").replaceAll(";", ", ").split(",\\s*");
+
+        // Invierte el orden de los parámetros
+        Collections.reverse(Arrays.asList(paramArray));
+
+        // Vuelve a juntar los parámetros en una cadena con el orden correcto
+        String functionParameters = String.join(", ", paramArray);
+
+        // Añade la función a la lista de símbolos
         functionSymbols.put(name, new FunctionSymbol(name, returnType, functionParameters));
     }
 
@@ -180,7 +189,7 @@ public class SymbolTable {
      * @return true si la función existe, false en caso contrario.
      */    
     public boolean containsFunctionKey (String name){
-     return variableSymbols.containsKey(name);
+     return functionSymbols.containsKey(name);
     }
     
     /**

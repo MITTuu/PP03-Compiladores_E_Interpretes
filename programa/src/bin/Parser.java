@@ -1871,12 +1871,12 @@ class CUP$Parser$actions {
 		Object parameters = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		 
                         RESULT = new FunctionCallNode(name.toString(), (List<ExpressionNode>)parameters);
-                        System.out.println((parametersright+1) + " LLamada a funcion " + name + " con los parametros: " + parameters.toString());
+                        //System.out.println((parametersright+1) + " LLamada a funcion " + name + " con los parametros: " + parameters.toString());
 
                         try {
                             ((FunctionCallNode) RESULT).parser = parser;
                             ((FunctionCallNode) RESULT).currentHash = currentFunction;
-                            //((FunctionCallNode) RESULT).checkSemantics();
+                            ((FunctionCallNode) RESULT).checkSemantics();
 
                         } catch (RuntimeException e) {
                             String message = e.getMessage();
