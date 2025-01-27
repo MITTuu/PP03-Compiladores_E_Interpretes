@@ -70,12 +70,36 @@ public class SymbolTable {
      * @throws RuntimeException Si la variable ya está definida en la tabla de símbolos.
      */
     public void addVariable(String name, String type, String scope, Object value, int declarationLine) {
-        if (variableSymbols.containsKey(name)) {
-            throw new RuntimeException("La variable '" + name + "' ya está definida.");
+        String mainScope = scope.split("-")[0];
+        String uniqueKey = mainScope + "." + name;
+
+        // Verificar si la variable ya está definida en el mismo alcance
+        if (variableSymbols.containsKey(uniqueKey)) {
+            throw new RuntimeException("La variable '" + name + "' ya está definida en el alcance '" + mainScope + "'.");
         }
-        variableSymbols.put(name, new VariableSymbol(name, type, scope, value, declarationLine));
+
+        // Agregar la variable con la clave única
+        variableSymbols.put(uniqueKey, new VariableSymbol(name, type, scope, value, declarationLine));
     }
-    
+  
+    /**
+     * Actualiza el valor de una variable en la tabla de símbolos.
+     * @param id El nombre de la variable.
+     * @param asignationScope El nombre de la función (alcance).
+     * @param newValue El nuevo valor de la variable.
+     * @throws RuntimeException Si la variable no existe en el alcance proporcionado.
+     */
+    public void updateVariableValue(String id, String asignationScope, Object newValue) {
+        for (VariableSymbol symbol : variableSymbols.values()) {
+            // Verificar si el nombre coincide y el alcance de asignación es válido
+            if (symbol.getName().equals(id) && asignationScope.startsWith(symbol.getScope())) {
+                symbol.setValue(newValue);
+                return;
+            }
+        }
+        throw new RuntimeException("La variable '" + id + "' no puede ser asignada en el alcance '" + asignationScope + "'.");
+    }
+   
     /**
      * Inicia un nuevo bloque de control, incrementando el contador para el tipo de bloque.
      * @param functionName El nombre de la función a la que pertenece el bloque.

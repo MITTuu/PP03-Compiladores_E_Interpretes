@@ -478,15 +478,45 @@ LOGICAL_EXPRESSION ::= RELATIONAL_EXPRESSION:exp {: RESULT = exp.toString(); :}
 
 VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence 
                         {: 
-                            RESULT = new VariableAssignmentNode(id.toString(), new ExpressionNode(exp.toString())); 
+                            RESULT = new VariableAssignmentNode(id.toString(), new ExpressionNode(exp.toString()));
+                            try {
+                                ((VariableAssignmentNode) RESULT).parser = parser;
+                                ((VariableAssignmentNode) RESULT).currentHash = currentFunction;
+                                ((VariableAssignmentNode) RESULT).checkSemantics();
+                                symbolTable.updateVariableValue(id.toString(), currentHash, exp.toString());
+
+                            } catch (RuntimeException e) {
+                                String message = e.getMessage();
+
+                                if (message.contains("ya está definida.")) {
+                                    System.out.println(message);
+                                } else {
+                                    parser.logError("Error en la línea " + (idright+1) + ": " + message);
+                                }
+                            }
                         :}
                       | UNARY_ARITHMETIC_EXPRESSION:exp EndSentence 
                         {: 
-                            RESULT = new VariableAssignmentNode(exp.toString()); 
+                            RESULT = new VariableAssignmentNode(exp.toString());
                         :}
                       | Identifier:id AssignmentSign ARRAY_ELEMENTS:elements EndSentence //Para asignación de arreglo de elementos
                         {: 
-                            RESULT = new VariableAssignmentNode(id.toString(), (ArrayElementsNode)elements); 
+                            RESULT = new VariableAssignmentNode(id.toString(), (ArrayElementsNode)elements);
+                            try {
+                                ((VariableAssignmentNode) RESULT).parser = parser;
+                                ((VariableAssignmentNode) RESULT).currentHash = currentFunction;
+                                ((VariableAssignmentNode) RESULT).checkSemantics();
+                                symbolTable.updateVariableValue(id.toString(), currentHash, elements);
+
+                            } catch (RuntimeException e) {
+                                String message = e.getMessage();
+
+                                if (message.contains("ya está definida.")) {
+                                    System.out.println(message);
+                                } else {
+                                    parser.logError("Error en la línea " + (idright+1) + ": " + message);
+                                }
+                            }
                         :}
                       | ARRAY_USE:arr AssignmentSign EXPRESSION:exp EndSentence //Para asignación de un elemento en el arreglo
                         {: 
