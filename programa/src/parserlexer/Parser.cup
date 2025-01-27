@@ -270,7 +270,7 @@ VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
                                 if (message.contains("ya está definida.")) {
                                     System.out.println(message);
                                 } else {
-                                    parser.logError("Error en la línea " + (typeright+1) + ": " + message);
+                                    parser.logSemanticError("Error en la línea " + (typeright+1) + ": " + message);
                                 }
                             }                        
                         :}
@@ -290,7 +290,7 @@ VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
                                 if (message.contains("ya está definida.")) {
                                     System.out.println(message);
                                 } else {
-                                    parser.logError("Error en la línea " + (typeright+1) + ": " + message);
+                                    parser.logSemanticError("Error en la línea " + (typeright+1) + ": " + message);
                                 }
                             }                           
                         :}
@@ -326,7 +326,7 @@ ARRAY_DECLARATION ::= VARIABLE_TYPE:type Identifier:id BracketOpening BracketClo
                             if (message.contains("ya está definida.")) {
                                 System.out.println(message);
                             } else {
-                                parser.logError("Error en la línea " + (typeright+1) + ": " + message);
+                                parser.logSemanticError("Error en la línea " + (typeright+1) + ": " + message);
                             }
                         }
                     :}
@@ -346,7 +346,7 @@ ARRAY_DECLARATION ::= VARIABLE_TYPE:type Identifier:id BracketOpening BracketClo
                             if (message.contains("ya está definida.")) {
                                 System.out.println(message);
                             } else {
-                                parser.logError("Error en la línea " + (typeright+1) + ": " + message);
+                                parser.logSemanticError("Error en la línea " + (typeright+1) + ": " + message);
                             }
                         }
                     :}
@@ -366,7 +366,7 @@ ARRAY_DECLARATION ::= VARIABLE_TYPE:type Identifier:id BracketOpening BracketClo
                             if (message.contains("ya está definida.")) {
                                 System.out.println(message);
                             } else {
-                                parser.logError("Error en la línea " + (typeright+1) + ": " + message);
+                                parser.logSemanticError("Error en la línea " + (typeright+1) + ": " + message);
                             }
                         }
                     :};
@@ -450,7 +450,7 @@ FUNCTION_CALL ::= FUNCTION_NAME:name ParenthesisOpening FUNCTION_CALL_PARAMETER_
 
                         } catch (RuntimeException e) {
                             String message = e.getMessage();
-                            parser.logError("Error en la línea " + (parametersright+1) + ": " + message);                           
+                            parser.logSemanticError("Error en la línea " + (parametersright+1) + ": " + message);                           
                         }
 
                     :}
@@ -522,7 +522,7 @@ VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                                 if (message.contains("ya está definida.")) {
                                     System.out.println(message);
                                 } else {
-                                    parser.logError("Error en la línea " + (idright+1) + ": " + message);
+                                    parser.logSemanticError("Error en la línea " + (idright+1) + ": " + message);
                                 }
                             }
                         :}
@@ -545,7 +545,7 @@ VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                                 if (message.contains("ya está definida.")) {
                                     System.out.println(message);
                                 } else {
-                                    parser.logError("Error en la línea " + (idright+1) + ": " + message);
+                                    parser.logSemanticError("Error en la línea " + (idright+1) + ": " + message);
                                 }
                             }
                         :}
