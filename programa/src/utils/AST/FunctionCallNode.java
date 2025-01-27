@@ -50,7 +50,7 @@ public class FunctionCallNode extends ASTNode{
     @Override
     String toString(String indent) {
         StringBuilder sb = new StringBuilder();
-        sb.append(indent).append("├── Name: ").append(name).append("\n");        
+        sb.append(indent).append("├── Nombre: ").append(name).append("\n");        
         
         // Parametros
         sb.append(indent).append("└── Lista de parametros").append("\n");
