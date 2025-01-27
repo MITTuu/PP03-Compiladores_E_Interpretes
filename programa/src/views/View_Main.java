@@ -184,8 +184,11 @@ public class View_Main extends javax.swing.JFrame {
             Lexer s =  (Lexer) parser.getScanner();
             
             List<Symbol> lexErrorList = s.lexErrorList;
-            // Obtener los errores acumulados
+            // Obtener los errores sintácticos acumulados
             List<String> errorList = parser.getErrorList();
+            
+            // Obtener los errores sintácticos acumulados
+            List<String> semanticErrorList = parser.getSemanticErrorList();
 
             if (errorList.isEmpty() && lexErrorList.isEmpty() ) {
                 jTextArea_Output.setText("Análisis Sintáctico realizado correctamente");
@@ -209,6 +212,14 @@ public class View_Main extends javax.swing.JFrame {
                     }
                 }
                 
+                /*LISTA DE ERRORES SEMÁNTICOS*/
+                if(!semanticErrorList.isEmpty()) {
+                    mensajeErrores.append("\n\n");
+                    mensajeErrores.append("Errores Semánticos:").append("\n");
+                    for (String error : semanticErrorList) {
+                        mensajeErrores.append(error).append("\n");
+                    }
+                }
                 jTextArea_Output.setText(mensajeErrores.toString());
                 jTextArea_Output.setForeground(Color.red);
                 lineNumberComponent.repaint();               
