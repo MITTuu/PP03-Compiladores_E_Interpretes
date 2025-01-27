@@ -18,12 +18,20 @@ parser code
 {:    
     private Symbol s;
   
-    //Lista de errores controlados
+    //Lista de errores sintácticos controlados
     public List<String> errorList = new ArrayList<>();
+
+    //Lista de errores semánticos 
+    public List<String> semanticErrorList = new ArrayList<>();
     
     // Agrega errores controlados a la lista
     public void logError(Symbol s) {
         String error = "Error cerca de Linea: " + (s.right + 1) + " Columna: " + (s.left + 1) + ", Texto: \"" + s.value + "\"";
+        errorList.add(error);
+    }
+
+    // Agrega errores semánticos a la lista
+    public void logSemanticError(String error) {
         errorList.add(error);
     }
 
@@ -32,9 +40,14 @@ parser code
         errorList.add(error);
     }
 
-    // Obtiene la lista de errores controlados
+    // Obtiene la lista de errores sintácticos controlados
     public List<String> getErrorList() {
         return errorList;
+    }
+
+    // Obtiene la lista de errores semánticos 
+    public List<String> getSemanticErrorList() {
+        return semanticErrorList;
     }
 
     // Gestiona errores recuperables -error-
