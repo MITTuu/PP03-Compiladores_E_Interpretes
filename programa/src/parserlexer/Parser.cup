@@ -207,7 +207,7 @@ PARAMETER_DECLARATION ::= VARIABLE_TYPE:type Identifier:id
 
 PARAMETER_DECLARATION_LIST ::= PARAMETER_DECLARATION:param 
                                {: RESULT = param.toString(); :}
-                             | PARAMETER_DECLARATION:param Comma PARAMETER_DECLARATION_LIST:list 
+                             | PARAMETER_DECLARATION_LIST:list  Comma PARAMETER_DECLARATION:param
                                {: RESULT = param.toString() + ";" + list.toString(); :}
                              ;
 
@@ -408,7 +408,7 @@ FUNCTION_CALL_PARAMETER_LIST ::= FUNCTION_CALL_PARAMETER:param
                                         RESULT = new ArrayList<ExpressionNode>(); 
                                         ((List<ExpressionNode>)RESULT).add(new ExpressionNode(param.toString()));
                                     :}
-                               | FUNCTION_CALL_PARAMETER:param Comma FUNCTION_CALL_PARAMETER_LIST:paramList 
+                               | FUNCTION_CALL_PARAMETER_LIST:paramList Comma FUNCTION_CALL_PARAMETER:param 
                                     {: 
                                         ((List<ExpressionNode>)paramList).add(new ExpressionNode(param.toString()));
                                         RESULT = (List<ExpressionNode>)paramList; 
@@ -497,7 +497,7 @@ VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence
 CONTROL_STRUCTURE ::= IF_ELSE_STRUCTURE_TYPE:c {: RESULT = (ASTNode)c; :}
                     | WHILE_STRUCTURE:c {: RESULT = (ASTNode)c; :}
                     | FOR_STRUCTURE:c {: RESULT = (ASTNode)c; :}
-                    | SWITCH_STRUCTURE:c {: RESULT = new GenericASTNode(c.toString()); :}
+                    | SWITCH_STRUCTURE:c {: RESULT = (ASTNode)c; :}
                     ;
 
 IF_STRUCTURE ::= If ParenthesisOpening LOGICAL_EXPRESSION:condition ParenthesisClosure BlockOpening 
@@ -595,71 +595,82 @@ UPDATE_EXPRESSION ::= UNARY_ARITHMETIC_EXPRESSION :exp
                       :}
                     ;
 
-SWITCH_STRUCTURE ::= Switch ParenthesisOpening SWITCH_EXPRESSION ParenthesisClosure BlockOpening
+SWITCH_STRUCTURE ::= Switch ParenthesisOpening SWITCH_EXPRESSION:exp ParenthesisClosure BlockOpening
                    {: 
                          symbolTable.enterBlock(currentFunction, "switch"); 
                          currentHash = symbolTable.getCurrentBlockIdentifier();
                          currentSwitch = currentHash;
                    :}
-                     CASES  BlockClosure
+                     CASES:caseList  BlockClosure
                    {: 
-                         RESULT = " -Texto Generico- ";
+                         RESULT = new SwitchStatementNode(new ExpressionNode(exp.toString()), (List<SwitchCaseNode>)caseList);
 
                          symbolTable.exitBlock(); 
                          currentHash = symbolTable.getCurrentScope(); 
                    :}
                     ;
 
-CASES ::= CASE {: RESULT = " -Texto Generico- "; :}
-        | CASE CASES {: RESULT = " -Texto Generico- "; :}
-        | DEFAULT_CASE {: RESULT = " -Texto Generico- "; :}
+CASES ::= CASE:caseNode 
+            {: 
+                RESULT = new ArrayList<SwitchCaseNode>(); 
+                ((List<SwitchCaseNode>)RESULT).add((SwitchCaseNode)caseNode);
+            :}
+        |  CASES:caseList CASE:caseNode
+            {: 
+                RESULT = (List<SwitchCaseNode>) caseList;
+               ((List<SwitchCaseNode>) RESULT).add((SwitchCaseNode)caseNode);
+            :}
         ;
 
-CASE ::= Case CASE_LABEL Colon 
-       {: 
-             symbolTable.enterBlock(currentSwitch, "case"); 
-             currentHash = symbolTable.getCurrentBlockIdentifier();       
-       :}
-         FUNCTION_DECLARATION_BODY
-       {: 
-             RESULT = " -Texto Generico- ";
+CASE ::= Case CASE_LABEL:label Colon 
+            {: 
+                    symbolTable.enterBlock(currentSwitch, "case"); 
+                    currentHash = symbolTable.getCurrentBlockIdentifier();       
+            :}
+                FUNCTION_DECLARATION_BODY:body
+            {: 
+                    RESULT = new SwitchCaseNode("Case", new ExpressionNode(label.toString()), (List<BodyNode>)body);
 
-             symbolTable.exitBlock(); 
-             currentHash = symbolTable.getCurrentScope(); 
-       :} 
-        ;
+                    symbolTable.exitBlock(); 
+                    currentHash = symbolTable.getCurrentScope(); 
+            :} 
+       | DEFAULT_CASE:defaultCase 
+            {: 
+                RESULT = (SwitchCaseNode)defaultCase; 
+            :}
+       ;
 
 DEFAULT_CASE ::= Default Colon 
                {: 
                      symbolTable.enterBlock(currentSwitch, "default"); 
                      currentHash = symbolTable.getCurrentBlockIdentifier();       
                :}                 
-                 FUNCTION_DECLARATION_BODY
+                 FUNCTION_DECLARATION_BODY:body
                {: 
-                     RESULT = " -Texto Generico- ";
+                     RESULT = new SwitchCaseNode("Default", new ExpressionNode("Default"), (List<BodyNode>)body);
 
                      symbolTable.exitBlock(); 
                      currentHash = symbolTable.getCurrentScope(); 
                :} 
                 ;
 
-SWITCH_EXPRESSION ::= Identifier  {: RESULT = " -Texto Generico- "; :}                    
-                    | IntegerLiteral {: RESULT = " -Texto Generico- "; :}
-                    | Char {: RESULT = " -Texto Generico- "; :}
-                    | ARRAY_USE {: RESULT = " -Texto Generico- "; :}
-                    | FUNCTION_CALL {: RESULT = " -Texto Generico- "; :}
-                    | UNARY_ARITHMETIC_EXPRESSION {: RESULT = " -Texto Generico- "; :}
-                    | ParenthesisOpening EXPRESSION ParenthesisClosure {: RESULT = " -Texto Generico- "; :}
+SWITCH_EXPRESSION ::= Identifier:exp  {: RESULT = exp.toString(); :}                    
+                    | IntegerLiteral:exp {: RESULT = exp.toString(); :}
+                    | CharacterLiteral:exp {: RESULT = exp.toString(); :}
+                    | ARRAY_USE:exp {: RESULT = exp.toString(); :}
+                    | FUNCTION_CALL:exp {: RESULT = exp.toString(); :}
+                    | UNARY_ARITHMETIC_EXPRESSION:exp {: RESULT = exp.toString(); :}
+                    | ParenthesisOpening EXPRESSION:exp ParenthesisClosure {: RESULT =  "("+exp.toString()+")"; :}
                     ;
 
-CASE_LABEL ::= Identifier {: RESULT = " -Texto Generico- "; :}                     
-             | IntegerLiteral {: RESULT = " -Texto Generico- "; :}
-             | CharacterLiteral {: RESULT = " -Texto Generico- "; :}
+CASE_LABEL ::= Identifier:exp {: RESULT = exp.toString(); :}                     
+             | IntegerLiteral:exp {: RESULT = exp.toString(); :}
+             | CharacterLiteral:exp {: RESULT = exp.toString(); :}
              ;
 
 RETURN_STATEMENT ::= Return EndSentence {: RESULT = " -Texto Generico- "; :}
                    | Return EXPRESSION EndSentence {: RESULT = " -Texto Generico- "; :}
                    ;
 
-BREAK_STATEMENT ::= Break EndSentence {: RESULT = " -Texto Generico- "; :}
+BREAK_STATEMENT ::= Break EndSentence {: RESULT = "Break-Statement"; :}
                   ;
