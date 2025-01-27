@@ -408,12 +408,12 @@ READ_STATEMENT ::= Read ParenthesisOpening EXPRESSION:exp ParenthesisClosure End
                     :}
                  ;
 
-BINARY_ARITHMETIC_OPERATOR ::= Sum {: RESULT = " suma "; :}
-                             | Subtraction {: RESULT = " resta "; :}
-                             | Multiplication {: RESULT = " multiplica "; :}
-                             | Division {: RESULT = " divide "; :}
-                             | Module {: RESULT = " cociente "; :}
-                             | Power {: RESULT = " potencia "; :}
+BINARY_ARITHMETIC_OPERATOR ::= Sum {: RESULT = " + "; :}
+                             | Subtraction {: RESULT = " - "; :}
+                             | Multiplication {: RESULT = " * "; :}
+                             | Division {: RESULT = " / "; :}
+                             | Module {: RESULT = " % "; :}
+                             | Power {: RESULT = " ** "; :}
                              ;
 
 NEGATIVE_OPERATOR ::= Negative {: RESULT = "-"; :}

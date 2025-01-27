@@ -89,5 +89,10 @@ public class FunctionCallNode extends ASTNode{
         }
         return sb.toString();
     }
-    
+
+    @Override
+    public String toString() {
+        return "FunctionCall:" + name + parameterList;
+    }
+
 }
