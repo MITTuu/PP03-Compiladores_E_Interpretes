@@ -421,7 +421,19 @@ FUNCTION_CALL_PARAMETER_OPTION ::= /* Vacío */ {: RESULT = new ArrayList<Expres
 
 FUNCTION_CALL ::= FUNCTION_NAME:name ParenthesisOpening FUNCTION_CALL_PARAMETER_OPTION:parameters  ParenthesisClosure 
                     {: 
-                        RESULT = new FunctionCallNode(name.toString(), (List<ExpressionNode>)parameters); 
+                        RESULT = new FunctionCallNode(name.toString(), (List<ExpressionNode>)parameters);
+                        System.out.println((parametersright+1) + " LLamada a funcion " + name + " con los parametros: " + parameters.toString());
+
+                        try {
+                            ((FunctionCallNode) RESULT).parser = parser;
+                            ((FunctionCallNode) RESULT).currentHash = currentFunction;
+                            //((FunctionCallNode) RESULT).checkSemantics();
+
+                        } catch (RuntimeException e) {
+                            String message = e.getMessage();
+                            parser.logError("Error en la línea " + (parametersright+1) + ": " + message);                           
+                        }
+
                     :}
                 ;
 
