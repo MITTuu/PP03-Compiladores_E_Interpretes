@@ -230,14 +230,14 @@ FUNCTION_DECLARATION_BODY ::= FUNCTION_BODY_ELEMENT:body
                               :}
                             ;
 
-FUNCTION_BODY_ELEMENT ::= VARIABLE_DECLARATION:e {: RESULT = new BodyNode("Variable-Declaración", (ASTNode)e); :}
-                        | VARIABLE_ASSIGNMENT:e {: RESULT = new BodyNode("Variable-Asignación", (ASTNode)e); :}
-                        | FUNCTION_CALL_EXPRESSION:e {: RESULT = new BodyNode("Función-Llamada", (ASTNode)e); :}
-                        | CONTROL_STRUCTURE:e {: RESULT = new BodyNode("Estructura de Control", (ASTNode)e); :}
-                        | PRINT_STATEMENT:e {: RESULT = new BodyNode("PRINT_STATEMENT", new GenericASTNode(e.toString()) ); :}
-                        | READ_STATEMENT:e {: RESULT = new BodyNode("READ_STATEMENT", new GenericASTNode(e.toString()) ); :}
-                        | RETURN_STATEMENT:e {: RESULT = new BodyNode("RETURN_STATEMENT", new GenericASTNode(e.toString()) ); :}
-                        | BREAK_STATEMENT:e {: RESULT = new BodyNode("BREAK_STATEMENT", new GenericASTNode(e.toString()) ); :}
+FUNCTION_BODY_ELEMENT ::= VARIABLE_DECLARATION:e {: RESULT = new BodyNode("VARIABLE-Declaración", (ASTNode)e); :}
+                        | VARIABLE_ASSIGNMENT:e {: RESULT = new BodyNode("VARIABLE-Asignación", (ASTNode)e); :}
+                        | FUNCTION_CALL_EXPRESSION:e {: RESULT = new BodyNode("FUNCIÓN-Llamada", (ASTNode)e); :}
+                        | CONTROL_STRUCTURE:e {: RESULT = new BodyNode("ESTRUCTURA DE CONTROL", (ASTNode)e); :}
+                        | PRINT_STATEMENT:e {: RESULT = new BodyNode("PRINT-LLamada-Función", (ASTNode)e); :}
+                        | READ_STATEMENT:e {: RESULT = new BodyNode("READ-Llamada-Función", new GenericASTNode(e.toString()) ); :}
+                        | RETURN_STATEMENT:e {: RESULT = new BodyNode("RETURN-Declaración", new GenericASTNode(e.toString()) ); :}
+                        | BREAK_STATEMENT:e {: RESULT = new BodyNode("BREAK-Declaración", new GenericASTNode(e.toString()) ); :}
                         | error  {: RESULT = new BodyNode("ERROR", new GenericASTNode("Error de sintaxis en esta posición") ); :}
                         ;
 
@@ -383,7 +383,10 @@ LITERALS ::= IntegerLiteral: i {: RESULT = "Integer:" + i.toString(); :}
            | StringLiteral: s {: RESULT = "String:" + s.toString(); :}
            ;
 
-PRINT_STATEMENT ::= Print ParenthesisOpening EXPRESSION ParenthesisClosure EndSentence {: RESULT = " -Texto Generico- "; :}
+PRINT_STATEMENT ::= Print ParenthesisOpening EXPRESSION:exp ParenthesisClosure EndSentence 
+                  {: 
+                    RESULT = new PrintFunctionCall(new ExpressionNode(exp.toString())); 
+                  :}
                   ;
 
 READ_STATEMENT ::= Read ParenthesisOpening Identifier ParenthesisClosure EndSentence {: RESULT = " -Texto Generico- "; :}
