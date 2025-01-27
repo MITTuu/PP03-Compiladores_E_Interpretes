@@ -190,7 +190,7 @@ public class View_Main extends javax.swing.JFrame {
             // Obtener los errores sintácticos acumulados
             List<String> semanticErrorList = parser.getSemanticErrorList();
 
-            if (errorList.isEmpty() && lexErrorList.isEmpty() ) {
+            if (errorList.isEmpty() && semanticErrorList.isEmpty() && lexErrorList.isEmpty() ) {
                 jTextArea_Output.setText("Análisis Sintáctico realizado correctamente");
                 jTextArea_Output.setForeground(new Color(25, 111, 61));
             } else {
@@ -206,7 +206,7 @@ public class View_Main extends javax.swing.JFrame {
                 
                 if(!errorList.isEmpty()) {
                     mensajeErrores.append("\n\n");
-                    mensajeErrores.append("Errores sintácticos:").append("\n");
+                    mensajeErrores.append("ERRORES SINTÁCTICOS:").append("\n");
                     for (String error : errorList) {
                         mensajeErrores.append(error).append("\n");
                     }
@@ -215,7 +215,7 @@ public class View_Main extends javax.swing.JFrame {
                 /*LISTA DE ERRORES SEMÁNTICOS*/
                 if(!semanticErrorList.isEmpty()) {
                     mensajeErrores.append("\n\n");
-                    mensajeErrores.append("Errores Semánticos:").append("\n");
+                    mensajeErrores.append("ERRORES SEMÁNTICOS:").append("\n");
                     for (String error : semanticErrorList) {
                         mensajeErrores.append(error).append("\n");
                     }
