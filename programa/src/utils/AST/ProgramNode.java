@@ -32,8 +32,15 @@ public class ProgramNode extends ASTNode {
         StringBuilder sb = new StringBuilder();
         sb.append(indent).append("Programa\n");
         for (FunctionNode fn : functions) {
-            sb.append(indent).append("└── ").append(fn.toString(indent+"        "));
+            
         }
+        for (int i = 0; i < functions.size(); i++) {
+                    if(i+1 == functions.size()){
+                        sb.append(indent).append("└── ").append(functions.get(i).toString(indent+"        "));
+                    }else{
+                        sb.append(indent).append("├── ").append(functions.get(i).toString(indent+"│       "));
+                    } 
+                }
         return sb.toString();
     }
 }
