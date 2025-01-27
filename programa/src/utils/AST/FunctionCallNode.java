@@ -23,24 +23,49 @@ public class FunctionCallNode extends ASTNode{
     @Override
     public void checkSemantics() {
         symbolTable = (SymbolTable) parser.getSymbolTable();
+
         // Verificar si la función existe en la tabla de símbolos
         if (!symbolTable.containsFunctionKey(name)) {
-            throw new RuntimeException("Error semántico: La función '" + name + "' no está definida.");
+            throw new RuntimeException("La función '" + name + "' no está definida.");
         }
 
         // Obtener la definición de la función desde la tabla de símbolos
         FunctionSymbol function = symbolTable.getFunctionSymbols().get(name);
 
         // Convertir los parámetros de la función en una lista de tipos
-        List<String> expectedParams = new ArrayList<>(Arrays.asList(function.getParameters().split(",\\s*")));
+        List<String> expectedParams = new ArrayList<>();
+        String[] paramArray = function.getParameters().split(",\\s*");
+
+        // Procesar cada parámetro, tomando solo la primera palabra (tipo)
+        for (String param : paramArray) {
+            String[] parts = param.split("\\s+");
+            expectedParams.add(parts[0]);
+        }
+
+        //System.out.println("Parametros esperados para la funcion " + name + ": " + expectedParams);
 
         // Verificar la cantidad de parámetros
         if (expectedParams.size() != parameterList.size()) {
-            throw new RuntimeException("La función '" + name + "' espera " + 
-                                       expectedParams.size() + " parámetros, pero se pasaron " + 
+            throw new RuntimeException("La función '" + name + "' espera " +
+                                       expectedParams.size() + " parámetros, pero se pasaron " +
                                        parameterList.size() + ".");
         }
+
+        // Verificar que los tipos de los parámetros sean correctos
+        for (int i = 0; i < parameterList.size(); i++) {
+            ExpressionNode paramNode = parameterList.get(i);
+            String expectedType = expectedParams.get(i);
+
+            // Verificar que el tipo del parámetro coincide con el tipo esperado
+            String actualType = paramNode.getType(symbolTable);
+            if (!expectedType.equals(actualType)) {
+                throw new RuntimeException("La función " + name + " espera un tipo " + "'" + expectedType + "'" + " en la posición " + (i + 1) +
+                                           ", pero se proporcionó un tipo '" + actualType + "'.");
+            }
+        }
     }
+
+
 
     @Override
     void generateMIPS() {
