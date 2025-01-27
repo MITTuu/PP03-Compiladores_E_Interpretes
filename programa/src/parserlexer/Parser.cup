@@ -512,7 +512,7 @@ VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                             RESULT = new VariableAssignmentNode(id.toString(), new ExpressionNode(exp.toString()));
                             try {
                                 ((VariableAssignmentNode) RESULT).parser = parser;
-                                ((VariableAssignmentNode) RESULT).currentHash = currentFunction;
+                                ((VariableAssignmentNode) RESULT).currentHash = currentHash;
                                 ((VariableAssignmentNode) RESULT).checkSemantics();
                                 symbolTable.updateVariableValue(id.toString(), currentHash, exp.toString());
 
@@ -535,7 +535,7 @@ VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                             RESULT = new VariableAssignmentNode(id.toString(), (ArrayElementsNode)elements);
                             try {
                                 ((VariableAssignmentNode) RESULT).parser = parser;
-                                ((VariableAssignmentNode) RESULT).currentHash = currentFunction;
+                                ((VariableAssignmentNode) RESULT).currentHash = currentHash;
                                 ((VariableAssignmentNode) RESULT).checkSemantics();
                                 symbolTable.updateVariableValue(id.toString(), currentHash, elements);
 
@@ -569,7 +569,7 @@ IF_STRUCTURE ::= If ParenthesisOpening LOGICAL_EXPRESSION:condition ParenthesisC
                  FUNCTION_DECLARATION_BODY:thenBody BlockClosure
                {: 
                    symbolTable.exitBlock(); 
-                   currentHash = symbolTable.getCurrentScope(); 
+                   currentHash = symbolTable.getCurrentBlockIdentifier(); 
 
                    RESULT = new IfStatementNode(new ExpressionNode(condition.toString()), (List<BodyNode>)thenBody);
                :}
@@ -583,7 +583,7 @@ ELSE_STRUCTURE ::= Else BlockOpening
                     FUNCTION_DECLARATION_BODY:elseBody BlockClosure 
                     {:                     
                         symbolTable.exitBlock(); 
-                        currentHash = symbolTable.getCurrentScope(); 
+                        currentHash = symbolTable.getCurrentBlockIdentifier(); 
                         RESULT = (List<BodyNode>)elseBody;
                     :}
                  ;
@@ -624,7 +624,7 @@ WHILE_STRUCTURE ::= While ParenthesisOpening LOGICAL_EXPRESSION:condition Parent
                         RESULT = new WhileStatementNode(new ExpressionNode(condition.toString()),( List<BodyNode>)body);
 
                         symbolTable.exitBlock(); 
-                        currentHash = symbolTable.getCurrentScope(); 
+                        currentHash = symbolTable.getCurrentBlockIdentifier(); 
                   :}
                    ;
 
@@ -638,7 +638,7 @@ FOR_STRUCTURE ::= For ParenthesisOpening INIT_FOR_STRUCTURE:init LOGICAL_EXPRESS
                       RESULT = new ForStatementNode((ASTNode)init, new ExpressionNode(condition.toString()), (VariableAssignmentNode)updateExp, (List<BodyNode>)body);
 
                       symbolTable.exitBlock(); 
-                      currentHash = symbolTable.getCurrentScope(); 
+                      currentHash = symbolTable.getCurrentBlockIdentifier(); 
                 :}
                 ;
 
@@ -667,7 +667,7 @@ SWITCH_STRUCTURE ::= Switch ParenthesisOpening SWITCH_EXPRESSION:exp Parenthesis
                          RESULT = new SwitchStatementNode(new ExpressionNode(exp.toString()), (List<SwitchCaseNode>)caseList);
 
                          symbolTable.exitBlock(); 
-                         currentHash = symbolTable.getCurrentScope(); 
+                         currentHash = symbolTable.getCurrentBlockIdentifier(); 
                    :}
                     ;
 
@@ -693,7 +693,7 @@ CASE ::= Case CASE_LABEL:label Colon
                     RESULT = new SwitchCaseNode("Case", new ExpressionNode(label.toString()), (List<BodyNode>)body);
 
                     symbolTable.exitBlock(); 
-                    currentHash = symbolTable.getCurrentScope(); 
+                    currentHash = symbolTable.getCurrentBlockIdentifier(); 
             :} 
        | DEFAULT_CASE:defaultCase 
             {: 
@@ -711,7 +711,7 @@ DEFAULT_CASE ::= Default Colon
                      RESULT = new SwitchCaseNode("Default", new ExpressionNode("Default"), (List<BodyNode>)body);
 
                      symbolTable.exitBlock(); 
-                     currentHash = symbolTable.getCurrentScope(); 
+                     currentHash = symbolTable.getCurrentBlockIdentifier(); 
                :} 
                 ;
 
