@@ -67,11 +67,7 @@ public class VariableAssignmentNode extends ASTNode {
     @Override
     public void checkSemantics() {
         symbolTable = (SymbolTable) parser.getSymbolTable();
-        String functionName = currentHash.split("-")[0];
-        
-        if (!symbolTable.containsVariableKey(id, functionName)) {
-            throw new RuntimeException("La variable '" + id + "' no ha sido declarada en este scope.");
-        }
+
     }
 
     @Override

@@ -99,14 +99,24 @@ public class SymbolTable {
      * @throws RuntimeException Si la variable no existe en el alcance proporcionado.
      */
     public void updateVariableValue(String id, String asignationScope, Object newValue) {
+        boolean variableFound = false;
+        System.out.println(id + " asigna en " + asignationScope);
         for (VariableSymbol symbol : variableSymbols.values()) {
             // Verificar si el nombre coincide y el alcance de asignación es válido
-            if (symbol.getName().equals(id) && asignationScope.startsWith(symbol.getScope())) {
-                symbol.setValue(newValue);
-                return;
+            if (symbol.getName().equals(id)) {
+                variableFound = true;
+                if (asignationScope.startsWith(symbol.getScope())) {
+                    symbol.setValue(newValue);
+                    return;
+                }
             }
         }
-        throw new RuntimeException("La variable '" + id + "' no puede ser asignada en el alcance '" + asignationScope + "'.");
+
+        if (!variableFound) {
+            throw new RuntimeException("La variable '" + id + "' no fue encontrada en la tabla de símbolos.");
+        } else {
+            throw new RuntimeException("La variable '" + id + "' no puede ser asignada en el alcance '" + asignationScope + "'.");
+        }
     }
    
     /**
