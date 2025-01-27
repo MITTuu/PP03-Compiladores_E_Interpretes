@@ -2,7 +2,9 @@ package utils.AST;
 
 //Nodo para la asignación de variables
 
+import bin.Parser;
 import java.util.List;
+import utils.SymbolsTable.SymbolTable;
 
 public class VariableAssignmentNode extends ASTNode {
     
@@ -12,7 +14,10 @@ public class VariableAssignmentNode extends ASTNode {
     ArrayElementsNode arrayElements;
     ArrayUseNode arrayUse;
     private int VariableAssignmentCase;//Determina el tipo de contructor que se usó.
-
+    SymbolTable symbolTable;
+    public Parser parser;
+    public String currentHash;
+    
        //Incluye declaración de variable con asignación de expresión.
     public VariableAssignmentNode(String id, ExpressionNode expression){
         this.id = id;
@@ -60,8 +65,13 @@ public class VariableAssignmentNode extends ASTNode {
     }
 
     @Override
-    void checkSemantics() {
-        throw new UnsupportedOperationException("Not supported yet."); 
+    public void checkSemantics() {
+        symbolTable = (SymbolTable) parser.getSymbolTable();
+        String functionName = currentHash.split("-")[0];
+        
+        if (!symbolTable.containsVariableKey(id, functionName)) {
+            throw new RuntimeException("La variable '" + id + "' no ha sido declarada en este scope.");
+        }
     }
 
     @Override

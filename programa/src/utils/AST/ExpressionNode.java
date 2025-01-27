@@ -21,5 +21,9 @@ String expression;
     String toString(String indent) {
         return indent +"└── Expresión: "+ expression + "\n";
     }
-    
+
+    @Override
+    public String toString() {
+        return expression;
+    }
 }

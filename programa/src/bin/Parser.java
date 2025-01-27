@@ -1452,7 +1452,22 @@ class CUP$Parser$actions {
 		int elementsright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
 		Object elements = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		 
-                            RESULT = new VariableAssignmentNode(id.toString(), (ArrayElementsNode)elements); 
+                            RESULT = new VariableAssignmentNode(id.toString(), (ArrayElementsNode)elements);
+                            try {
+                                ((VariableAssignmentNode) RESULT).parser = parser;
+                                ((VariableAssignmentNode) RESULT).currentHash = currentFunction;
+                                ((VariableAssignmentNode) RESULT).checkSemantics();
+                                symbolTable.updateVariableValue(id.toString(), currentHash, elements);
+
+                            } catch (RuntimeException e) {
+                                String message = e.getMessage();
+
+                                if (message.contains("ya está definida.")) {
+                                    System.out.println(message);
+                                } else {
+                                    parser.logError("Error en la línea " + (idright+1) + ": " + message);
+                                }
+                            }
                         
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("VARIABLE_ASSIGNMENT",4, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -1466,7 +1481,7 @@ class CUP$Parser$actions {
 		int expright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
 		Object exp = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		 
-                            RESULT = new VariableAssignmentNode(exp.toString()); 
+                            RESULT = new VariableAssignmentNode(exp.toString());
                         
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("VARIABLE_ASSIGNMENT",4, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -1483,7 +1498,22 @@ class CUP$Parser$actions {
 		int expright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
 		Object exp = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		 
-                            RESULT = new VariableAssignmentNode(id.toString(), new ExpressionNode(exp.toString())); 
+                            RESULT = new VariableAssignmentNode(id.toString(), new ExpressionNode(exp.toString()));
+                            try {
+                                ((VariableAssignmentNode) RESULT).parser = parser;
+                                ((VariableAssignmentNode) RESULT).currentHash = currentFunction;
+                                ((VariableAssignmentNode) RESULT).checkSemantics();
+                                symbolTable.updateVariableValue(id.toString(), currentHash, exp.toString());
+
+                            } catch (RuntimeException e) {
+                                String message = e.getMessage();
+
+                                if (message.contains("ya está definida.")) {
+                                    System.out.println(message);
+                                } else {
+                                    parser.logError("Error en la línea " + (idright+1) + ": " + message);
+                                }
+                            }
                         
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("VARIABLE_ASSIGNMENT",4, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -1830,7 +1860,19 @@ class CUP$Parser$actions {
 		int parametersright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
 		Object parameters = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		 
-                        RESULT = new FunctionCallNode(name.toString(), (List<ExpressionNode>)parameters); 
+                        RESULT = new FunctionCallNode(name.toString(), (List<ExpressionNode>)parameters);
+                        System.out.println((parametersright+1) + " LLamada a funcion " + name + " con los parametros: " + parameters.toString());
+
+                        try {
+                            ((FunctionCallNode) RESULT).parser = parser;
+                            ((FunctionCallNode) RESULT).currentHash = currentFunction;
+                            //((FunctionCallNode) RESULT).checkSemantics();
+
+                        } catch (RuntimeException e) {
+                            String message = e.getMessage();
+                            parser.logError("Error en la línea " + (parametersright+1) + ": " + message);                           
+                        }
+
                     
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("FUNCTION_CALL",10, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
