@@ -176,19 +176,38 @@ public class View_Main extends javax.swing.JFrame {
             Symbol result = parser.parse();
             ProgramNode program ;
             String salidaAST = "Sin datos para mostrar.";
+            
+            // Lista de los errores sintácticos acumulados
+            List<String> semanticErrorList = new ArrayList<>();
+            
+            //Funcionalidad tabla de símbolos
+            SymbolTable symbolTable = (SymbolTable) parser.getSymbolTable();  
+            
             if(result.value != null)
             {
                 program = (ProgramNode)result.value;
+                
+                //Obtiene el arbol sintáctico mediante el metodo abstracto ToString
                 salidaAST = program.toString(" ");
+                
+                //Asigna la tabla de Simbolos al arbol sintáctico abstracto para poder hacer referencia
+                //a la misma del método checkSemantics
+                program.setSymbolTable(symbolTable);
+                
+                //Realiza la llamada para analizar semántica y agregar errores a la lista.
+                //Analiza semántica mediante el método abstracto checkSemantics;
+                //program.checkSemantics();//Requiere diferente implementacion del analisis semantico para hacerlo recursivo
+                
+                //Obtiene la lista de errores semánticos según el analisis
+                //semanticErrorList = program.getSemanticErrorList();//esta lista no esta siendo usada
+                // Obtener los errores sintácticos acumulados
+                semanticErrorList = parser.getSemanticErrorList();
             }            
             Lexer s =  (Lexer) parser.getScanner();
             
             List<Symbol> lexErrorList = s.lexErrorList;
             // Obtener los errores sintácticos acumulados
             List<String> errorList = parser.getErrorList();
-            
-            // Obtener los errores sintácticos acumulados
-            List<String> semanticErrorList = parser.getSemanticErrorList();
 
             if (errorList.isEmpty() && semanticErrorList.isEmpty() && lexErrorList.isEmpty() ) {
                 jTextArea_Output.setText("Análisis Sintáctico realizado correctamente");
@@ -224,10 +243,7 @@ public class View_Main extends javax.swing.JFrame {
                 jTextArea_Output.setForeground(Color.red);
                 lineNumberComponent.repaint();               
             }
-            //Funcionalidad tabla de símbolos
-            SymbolTable symbolTable = (SymbolTable) parser.getSymbolTable();            
-                       
-            
+                                
             //Checkbox para hacer opcional mostrar ventanas de tabla de symbolos y arbol sintáctico
             var mostrarInfoExtra = jCheckBox_VerInfoExtra.isSelected();
             if(mostrarInfoExtra){

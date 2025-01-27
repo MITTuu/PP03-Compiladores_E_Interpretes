@@ -14,7 +14,7 @@ public class ProgramNode extends ASTNode {
     }
 
     @Override
-    void checkSemantics() {
+    public void checkSemantics() {
         for (FunctionNode fn : functions) {
             fn.checkSemantics();
         }

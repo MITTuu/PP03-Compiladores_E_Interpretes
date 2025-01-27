@@ -40,11 +40,12 @@ public class FunctionNode extends ASTNode {
     @Override
     void checkSemantics() {
         // Verificar duplicados en parámetros
-        Set<ParameterNode> paramSet = new HashSet<>(parameterNodeList);
-        if (paramSet.size() != parameterNodeList.size()) {
-            throw new RuntimeException("Parámetros duplicados en función " + name);
+        if(parameterNodeList!=null){
+            Set<ParameterNode> paramSet = new HashSet<>(parameterNodeList);
+            if (paramSet.size() != parameterNodeList.size()) {
+                throw new RuntimeException("Parámetros duplicados en función " + name);
+            }
         }
-
        /*// Verificar que las variables no repitan nombres con los parámetros
         for (VarDeclNode var : variables) {
             if (parameters.contains(var.name)) {
