@@ -235,9 +235,9 @@ FUNCTION_BODY_ELEMENT ::= VARIABLE_DECLARATION:e {: RESULT = new BodyNode("VARIA
                         | FUNCTION_CALL_EXPRESSION:e {: RESULT = new BodyNode("FUNCIÓN-Llamada", (ASTNode)e); :}
                         | CONTROL_STRUCTURE:e {: RESULT = new BodyNode("ESTRUCTURA DE CONTROL", (ASTNode)e); :}
                         | PRINT_STATEMENT:e {: RESULT = new BodyNode("PRINT-LLamada-Función", (ASTNode)e); :}
-                        | READ_STATEMENT:e {: RESULT = new BodyNode("READ-Llamada-Función", new GenericASTNode(e.toString()) ); :}
-                        | RETURN_STATEMENT:e {: RESULT = new BodyNode("RETURN-Declaración", new GenericASTNode(e.toString()) ); :}
-                        | BREAK_STATEMENT:e {: RESULT = new BodyNode("BREAK-Declaración", new GenericASTNode(e.toString()) ); :}
+                        | READ_STATEMENT:e {: RESULT = new BodyNode("READ-Llamada-Función", (ASTNode)e); :}
+                        | RETURN_STATEMENT:e {: RESULT = new BodyNode("RETURN-Declaración", (ASTNode)e); :}
+                        | BREAK_STATEMENT:e {: RESULT = new BodyNode("BREAK-Declaración", (ASTNode)e); :}
                         | error  {: RESULT = new BodyNode("ERROR", new GenericASTNode("Error de sintaxis en esta posición") ); :}
                         ;
 
@@ -385,11 +385,14 @@ LITERALS ::= IntegerLiteral: i {: RESULT = "Integer:" + i.toString(); :}
 
 PRINT_STATEMENT ::= Print ParenthesisOpening EXPRESSION:exp ParenthesisClosure EndSentence 
                   {: 
-                    RESULT = new PrintFunctionCall(new ExpressionNode(exp.toString())); 
+                    RESULT = new PrintFunctionCallNode(new ExpressionNode(exp.toString())); 
                   :}
                   ;
 
-READ_STATEMENT ::= Read ParenthesisOpening Identifier ParenthesisClosure EndSentence {: RESULT = " -Texto Generico- "; :}
+READ_STATEMENT ::= Read ParenthesisOpening EXPRESSION:exp ParenthesisClosure EndSentence 
+                    {: 
+                        RESULT = new ReadFunctionCallNode(new ExpressionNode(exp.toString())); 
+                    :}
                  ;
 
 BINARY_ARITHMETIC_OPERATOR ::= Sum {: RESULT = " suma "; :}
@@ -713,9 +716,15 @@ CASE_LABEL ::= Identifier:exp {: RESULT = exp.toString(); :}
              | CharacterLiteral:exp {: RESULT = exp.toString(); :}
              ;
 
-RETURN_STATEMENT ::= Return EndSentence {: RESULT = " -Texto Generico- "; :}
-                   | Return EXPRESSION EndSentence {: RESULT = " -Texto Generico- "; :}
+RETURN_STATEMENT ::= Return EndSentence 
+                    {: 
+                        RESULT = new ReturnStatementNode(new ExpressionNode("Retorno Vacío"));  
+                    :}
+                   | Return EXPRESSION:exp EndSentence 
+                    {: 
+                        RESULT = new ReturnStatementNode(new ExpressionNode(exp.toString())); 
+                    :}
                    ;
 
-BREAK_STATEMENT ::= Break EndSentence {: RESULT = "Break-Statement"; :}
+BREAK_STATEMENT ::= Break EndSentence {: RESULT = new ExpressionNode("Break-Statement"); :}
                   ;
