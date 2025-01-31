@@ -276,10 +276,10 @@ VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
                         :}
                        | VARIABLE_TYPE:type Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                         {: 
-                            ASTNode expressionNode = new ExpressionNode(
+                            ExpressionNode expressionNode = new ExpressionNode(
                                 ExpressionEnum.VARIABLE_DECLARATION_EXPRESSION,
                                 (ASTNode) exp,
-                                ((ASTNode) exp).expression
+                                ((ASTNode) exp).toString()
                             );
 
                             RESULT = new VariableDeclarationNode(type.toString(), id.toString(), expressionNode);
@@ -379,10 +379,10 @@ ARRAY_DECLARATION ::= VARIABLE_TYPE:type Identifier:id BracketOpening BracketClo
 
 ARRAY_USE ::= Identifier:id BracketOpening EXPRESSION:exp BracketClosure 
                 {: 
-                    ASTNode expressionNode = new ExpressionNode(
+                    ExpressionNode expressionNode = new ExpressionNode(
                                 ExpressionEnum.ARRAY_USE_EXPRESSION,
                                 (ASTNode) exp,
-                                ((ASTNode) exp).expression
+                                ((ASTNode) exp).toString()
                     );
                     RESULT = new ArrayUseNode(id.toString(), expressionNode); 
                 :}
@@ -409,10 +409,10 @@ LITERALS ::= IntegerLiteral: i {: RESULT = "Integer:" + i.toString(); :}
 
 PRINT_STATEMENT ::= Print ParenthesisOpening EXPRESSION:exp ParenthesisClosure EndSentence 
                   {:
-                    ASTNode expressionNode = new ExpressionNode(
+                    ExpressionNode expressionNode = new ExpressionNode(
                                 ExpressionEnum.PRINT_EXPRESSION,
                                 (ASTNode) exp,
-                                ((ASTNode) exp).expression
+                                ((ASTNode) exp).toString()
                     ); 
                     RESULT = new PrintFunctionCallNode(expressionNode); 
                   :}
@@ -420,10 +420,10 @@ PRINT_STATEMENT ::= Print ParenthesisOpening EXPRESSION:exp ParenthesisClosure E
 
 READ_STATEMENT ::= Read ParenthesisOpening EXPRESSION:exp ParenthesisClosure EndSentence 
                     {: 
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                 ExpressionEnum.READ_EXPRESSION,
                                                 (ASTNode) exp,
-                                                ((ASTNode) exp).expression
+                                                ((ASTNode) exp).toString()
                                         ); 
                         RESULT = new ReadFunctionCallNode(expressionNode); 
                     :}
@@ -431,7 +431,7 @@ READ_STATEMENT ::= Read ParenthesisOpening EXPRESSION:exp ParenthesisClosure End
 
 BINARY_ARITHMETIC_OPERATOR ::= Sum 
                                 {:
-                                ASTNode expressionNode = new ExpressionNode(
+                                ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.BINARY_ARITHMETIC_OPERATOR_SUM,
                                                     null,
                                                     " + "
@@ -440,7 +440,7 @@ BINARY_ARITHMETIC_OPERATOR ::= Sum
                                 :}
                              | Subtraction 
                                 {:
-                                ASTNode expressionNode = new ExpressionNode(
+                                ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.BINARY_ARITHMETIC_OPERATOR_SUBTRACTION,
                                                     null,
                                                     " - "
@@ -449,7 +449,7 @@ BINARY_ARITHMETIC_OPERATOR ::= Sum
                                 :}
                              | Multiplication 
                                 {:
-                                ASTNode expressionNode = new ExpressionNode(
+                                ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.BINARY_ARITHMETIC_OPERATOR_MULTIPLICATION,
                                                     null,
                                                     " * "
@@ -458,7 +458,7 @@ BINARY_ARITHMETIC_OPERATOR ::= Sum
                                 :}
                              | Division 
                                 {:
-                                ASTNode expressionNode = new ExpressionNode(
+                                ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.BINARY_ARITHMETIC_OPERATOR_DIVISION,
                                                     null,
                                                     " / "
@@ -467,7 +467,7 @@ BINARY_ARITHMETIC_OPERATOR ::= Sum
                                 :}
                              | Module 
                                 {:
-                                ASTNode expressionNode = new ExpressionNode(
+                                ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.BINARY_ARITHMETIC_OPERATOR_MODULE,
                                                     null,
                                                     " % "
@@ -476,7 +476,7 @@ BINARY_ARITHMETIC_OPERATOR ::= Sum
                                 :}
                              | Power 
                                 {:
-                                ASTNode expressionNode = new ExpressionNode(
+                                ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.BINARY_ARITHMETIC_OPERATOR_POWER,
                                                     null,
                                                     " ** "
@@ -488,25 +488,25 @@ BINARY_ARITHMETIC_OPERATOR ::= Sum
 NEGATIVE_OPERATOR ::= Negative {: RESULT = "-"; :}
                     ; 
 
-FUNCTION_CALL_PARAMETER ::= SIMPLE_EXPRESSION:exp {: RESULT = exp.toString(); :}
+FUNCTION_CALL_PARAMETER ::= SIMPLE_EXPRESSION:exp {: RESULT = exp; :}
                         ;
 
 FUNCTION_CALL_PARAMETER_LIST ::= FUNCTION_CALL_PARAMETER:exp 
                                     {: 
-                                        ASTNode expressionNode = new ExpressionNode(
+                                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.FUNCTION_CALL_PARAMETER,
                                                     (ASTNode) exp,
-                                                    ((ASTNode) exp).expression
+                                                    ((ASTNode) exp).toString()
                                         ); 
                                         RESULT = new ArrayList<ExpressionNode>(); 
                                         ((List<ExpressionNode>)RESULT).add(expressionNode);
                                     :}
                                | FUNCTION_CALL_PARAMETER_LIST:paramList Comma FUNCTION_CALL_PARAMETER:exp 
                                     {: 
-                                        ASTNode expressionNode = new ExpressionNode(
+                                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.FUNCTION_CALL_PARAMETER,
                                                     (ASTNode) exp,
-                                                    ((ASTNode) exp).expression
+                                                    ((ASTNode) exp).toString()
                                         ); 
                                         ((List<ExpressionNode>)paramList).add(expressionNode);
                                         RESULT = (List<ExpressionNode>)paramList; 
@@ -567,7 +567,7 @@ EXPRESSION ::= LOGICAL_EXPRESSION:exp
 /* SIMPLE_EXPRESSION: Nivel base de las expresiones */
 SIMPLE_EXPRESSION ::= Identifier:exp 
                         {:
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.IDENTIFIER,
                                                      null,
                                                     " Id:" +exp.toString() + " "
@@ -576,7 +576,7 @@ SIMPLE_EXPRESSION ::= Identifier:exp
                         :}                    
                     | LITERALS:exp 
                         {:
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.LITERALS,
                                                     null,
                                                     exp.toString()
@@ -585,7 +585,7 @@ SIMPLE_EXPRESSION ::= Identifier:exp
                         :}
                     | NEGATIVE_LITERAL:exp 
                         {:
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.NEGATIVE_LITERAL,
                                                     null,
                                                     exp.toString()
@@ -594,7 +594,7 @@ SIMPLE_EXPRESSION ::= Identifier:exp
                         :}
                     | ARRAY_USE:exp 
                         {:
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.ARRAY_USE_AS_EXPRESSION,
                                                     null,
                                                     ((ArrayUseNode)exp).id+"[ " + ((ExpressionNode)((ArrayUseNode)exp).expression).expression  +" ]",
@@ -604,7 +604,7 @@ SIMPLE_EXPRESSION ::= Identifier:exp
                         :}
                     | FUNCTION_CALL:exp 
                         {:
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.FUNCTION_CALL_AS_EXPRESSION,
                                                     null,
                                                     ((FunctionCallNode)exp).name+"( " + ((FunctionCallNode)exp).parameterList.toString() +" )",
@@ -614,7 +614,7 @@ SIMPLE_EXPRESSION ::= Identifier:exp
                         :}
                     | UNARY_ARITHMETIC_EXPRESSION:exp 
                         {:
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.UNARY_ARITHMETIC_EXPRESSION,
                                                     null,
                                                     exp.toString()
@@ -623,7 +623,7 @@ SIMPLE_EXPRESSION ::= Identifier:exp
                         :}
                     | ParenthesisOpening EXPRESSION:exp ParenthesisClosure 
                         {:
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.SIMPLE_EXPRESSION,
                                                     (ExpressionNode)exp,
                                                     " ( " + ((ExpressionNode)exp).toString() + " ) "
@@ -632,7 +632,7 @@ SIMPLE_EXPRESSION ::= Identifier:exp
                         :}
                     | Negation SIMPLE_EXPRESSION:exp 
                         {:
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.NEGATION_SIMPLE_EXPRESSION,
                                                     (ExpressionNode) exp,
                                                     " -" +((ExpressionNode) exp).toString()
@@ -643,24 +643,24 @@ SIMPLE_EXPRESSION ::= Identifier:exp
 
 ARITHMETIC_EXPRESSION ::= SIMPLE_EXPRESSION:exp 
                             {: 
-                                RESULT = exp.toString(); 
+                                RESULT = exp; 
                             :}
                         | ARITHMETIC_EXPRESSION:exp1 BINARY_ARITHMETIC_OPERATOR:op ARITHMETIC_EXPRESSION:exp2 
                             {: 
-                                ASTNode expressionNode = new ExpressionNode(
+                                ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.ARITHMETIC_EXPRESSION,
-                                                    ((ASTNode) exp1).expression + ((ASTNode) op).expression + ((ASTNode) exp2).expression,
+                                                    ((ASTNode) exp1).toString() + ((ASTNode) op).toString() + ((ASTNode) exp2).toString(),
                                                     (ASTNode) exp1,
                                                     (ASTNode) op,
                                                     (ASTNode) exp2
                                             ); 
-                                RESULT = exp1.toString() + op.toString() + exp2.toString(); 
+                                RESULT = expressionNode; 
                             :}
                         ;
 
 RELATIONAL_OPERATOR ::= Less 
                         {:
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.RELATIONAL_OPERATOR_LESS,
                                                     null,
                                                     " < "
@@ -669,7 +669,7 @@ RELATIONAL_OPERATOR ::= Less
                         :}
                       | LessEqual 
                         {:
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.RELATIONAL_OPERATOR_LESS_EQUAL,
                                                     null,
                                                     " <= "
@@ -678,7 +678,7 @@ RELATIONAL_OPERATOR ::= Less
                         :}
                       | Greater 
                         {:
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.RELATIONAL_OPERATOR_GREATER,
                                                     null,
                                                     " > "
@@ -687,7 +687,7 @@ RELATIONAL_OPERATOR ::= Less
                         :}
                       | GreaterEqual 
                         {:
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.RELATIONAL_OPERATOR_GREATER_EQUAL,
                                                     null,
                                                     " >= "
@@ -696,7 +696,7 @@ RELATIONAL_OPERATOR ::= Less
                         :}
                       | Equal 
                         {:
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.RELATIONAL_OPERATOR_EQUAL,
                                                     null,
                                                     " == "
@@ -705,7 +705,7 @@ RELATIONAL_OPERATOR ::= Less
                         :}
                       | NotEqual 
                         {:
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.RELATIONAL_OPERATOR_NOT_EQUAL,
                                                     null,
                                                     " != "
@@ -720,9 +720,9 @@ RELATIONAL_EXPRESSION ::= ARITHMETIC_EXPRESSION:exp
                           :}
                         | RELATIONAL_EXPRESSION:exp1 RELATIONAL_OPERATOR:op RELATIONAL_EXPRESSION:exp2 
                           {: 
-                           ASTNode expressionNode = new ExpressionNode(
+                           ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.RELATIONAL_EXPRESSION,
-                                                    ((ASTNode) exp1).expression + ((ASTNode) op).expression + ((ASTNode) exp2).expression,
+                                                    ((ASTNode) exp1).toString()  + ((ASTNode) op).toString()  + ((ASTNode) exp2).toString() ,
                                                     (ASTNode) exp1,
                                                     (ASTNode) op,
                                                     (ASTNode) exp2
@@ -733,7 +733,7 @@ RELATIONAL_EXPRESSION ::= ARITHMETIC_EXPRESSION:exp
 
 LOGICAL_OPERATOR ::= Conjunction 
                     {: 
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.LOGICAL_OPERATOR_CONJUNCTION,
                                                     null,
                                                     " && "
@@ -742,7 +742,7 @@ LOGICAL_OPERATOR ::= Conjunction
                     :}
                    | Disjunction 
                      {: 
-                         ASTNode expressionNode = new ExpressionNode(
+                         ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.LOGICAL_OPERATOR_DISJUCTION,
                                                     null,
                                                     " || "
@@ -757,9 +757,9 @@ LOGICAL_EXPRESSION ::= RELATIONAL_EXPRESSION:exp
                         :}                     
                      | LOGICAL_EXPRESSION:exp1 LOGICAL_OPERATOR:op LOGICAL_EXPRESSION:exp2 
                         {: 
-                            ASTNode expressionNode = new ExpressionNode(
+                            ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.LOGICAL,
-                                                    ((ASTNode) exp1).expression + ((ASTNode) op).expression + ((ASTNode) exp2).expression,
+                                                    ((ASTNode) exp1).toString() + ((ASTNode) op).toString()  + ((ASTNode) exp2).toString() ,
                                                     (ASTNode) exp1,
                                                     (ASTNode) op,
                                                     (ASTNode) exp2
@@ -770,10 +770,10 @@ LOGICAL_EXPRESSION ::= RELATIONAL_EXPRESSION:exp
 
 VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence 
                         {: 
-                            ASTNode expressionNode = new ExpressionNode(
+                            ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.VARIABLE_ASSIGNMENT_EXPRESSION,
                                                     (ASTNode) exp,
-                                                    ((ASTNode) exp).expression
+                                                    ((ASTNode) exp).toString()
                                             ); 
                             RESULT = new VariableAssignmentNode(id.toString(), expressionNode);
                             try {
@@ -817,10 +817,10 @@ VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                         :}
                       | ARRAY_USE:arr AssignmentSign EXPRESSION:exp EndSentence //Para asignación de un elemento en el arreglo
                         {: 
-                            ASTNode expressionNode = new ExpressionNode(
+                            ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.ARRAY_USE_EXPRESSION,
                                                     (ASTNode) exp,
-                                                    ((ASTNode) exp).expression
+                                                    ((ASTNode) exp).toString()
                                         ); 
                             RESULT = new VariableAssignmentNode((ArrayUseNode)arr, expressionNode); 
                         :}
@@ -842,10 +842,10 @@ IF_STRUCTURE ::= If ParenthesisOpening LOGICAL_EXPRESSION:exp ParenthesisClosure
                    symbolTable.exitBlock(); 
                    currentHash = symbolTable.getCurrentBlockIdentifier(); 
 
-                   ASTNode expressionNode = new ExpressionNode(
+                   ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.CONTROL_STRUCTURE_CONDITION,
                                                     (ASTNode) exp,
-                                                    ((ASTNode) exp).expression
+                                                    ((ASTNode) exp).toString()
                                             ); 
                    RESULT = new IfStatementNode(expressionNode, (List<BodyNode>)thenBody);
                :}
@@ -897,10 +897,10 @@ WHILE_STRUCTURE ::= While ParenthesisOpening LOGICAL_EXPRESSION:exp ParenthesisC
                   :}
                     FUNCTION_DECLARATION_BODY:body BlockClosure
                   {: 
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.CONTROL_STRUCTURE_CONDITION,
                                                     (ASTNode) exp,
-                                                    ((ASTNode) exp).expression
+                                                    ((ASTNode) exp).toString()
                                                 ); 
                         RESULT = new WhileStatementNode(expressionNode,( List<BodyNode>)body);
 
@@ -916,10 +916,10 @@ FOR_STRUCTURE ::= For ParenthesisOpening INIT_FOR_STRUCTURE:init LOGICAL_EXPRESS
                 :}                
                   FUNCTION_DECLARATION_BODY:body BlockClosure
                 {: 
-                      ASTNode expressionNode = new ExpressionNode(
+                      ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.CONTROL_STRUCTURE_CONDITION,
                                                     (ASTNode) exp,
-                                                    ((ASTNode) exp).expression
+                                                    ((ASTNode) exp).toString()
                                                 ); 
                       RESULT = new ForStatementNode((ASTNode)init, expressionNode, (VariableAssignmentNode)updateExp, (List<BodyNode>)body);
 
@@ -938,10 +938,10 @@ UPDATE_EXPRESSION ::= UNARY_ARITHMETIC_EXPRESSION :exp
                       :}
                     | Identifier:id AssignmentSign EXPRESSION:exp 
                       {: 
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.UPDATE_EXPRESSION,
                                                     (ASTNode) exp,
-                                                    ((ASTNode) exp).expression
+                                                    ((ASTNode) exp).toString()
                                                 ); 
                         RESULT = new VariableAssignmentNode(id.toString(), expressionNode);  
                       :}
@@ -955,10 +955,10 @@ SWITCH_STRUCTURE ::= Switch ParenthesisOpening SWITCH_EXPRESSION:exp Parenthesis
                    :}
                      CASES:caseList  BlockClosure
                    {: 
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.SWITCH_EXPRESSION,
                                                     (ASTNode) exp,
-                                                    ((ASTNode) exp).expression
+                                                    ((ASTNode) exp).toString()
                                                 ); 
                          RESULT = new SwitchStatementNode(expressionNode, (List<SwitchCaseNode>)caseList);
 
@@ -986,10 +986,10 @@ CASE ::= Case CASE_LABEL:exp Colon
             :}
                 FUNCTION_DECLARATION_BODY:body
             {: 
-                    ASTNode expressionNode = new ExpressionNode(
+                    ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.CASE_LABEL,
                                                     (ASTNode) exp,
-                                                    ((ASTNode) exp).expression
+                                                    ((ASTNode) exp).toString()
                                                 ); 
                     RESULT = new SwitchCaseNode("Case", expressionNode, (List<BodyNode>)body);
 
@@ -1009,7 +1009,7 @@ DEFAULT_CASE ::= Default Colon
                :}                 
                  FUNCTION_DECLARATION_BODY:body
                {: 
-                     ASTNode expressionNode = new ExpressionNode(
+                     ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.CASE_LABEL,
                                                     null,
                                                     "Default"
@@ -1023,23 +1023,106 @@ DEFAULT_CASE ::= Default Colon
 
 
 
-SWITCH_EXPRESSION ::= Identifier:exp  {: RESULT = exp.toString(); :}                    
-                    | IntegerLiteral:exp {: RESULT = exp.toString(); :}
-                    | CharacterLiteral:exp {: RESULT = exp.toString(); :}
-                    | ARRAY_USE:exp {: RESULT = exp.toString(); :}
-                    | FUNCTION_CALL:exp {: RESULT = exp.toString(); :}
-                    | UNARY_ARITHMETIC_EXPRESSION:exp {: RESULT = exp.toString(); :}
-                    | ParenthesisOpening EXPRESSION:exp ParenthesisClosure {: RESULT =  "("+exp.toString()+")"; :}
+SWITCH_EXPRESSION ::= Identifier:exp 
+                        {:
+                        ExpressionNode expressionNode = new ExpressionNode(
+                                                    ExpressionEnum.IDENTIFIER,
+                                                     null,
+                                                    " Id:" +exp.toString() + " "
+                                            );  
+                        RESULT = expressionNode; 
+                        :}                      
+                    | IntegerLiteral:exp 
+                        {:
+                        ExpressionNode expressionNode = new ExpressionNode(
+                                                    ExpressionEnum.LITERALS,
+                                                    null,
+                                                    "Integer:" + exp.toString()
+                                            );  
+                        RESULT = expressionNode; 
+                        :}
+                    | CharacterLiteral:exp 
+                        {:
+                        ExpressionNode expressionNode = new ExpressionNode(
+                                                    ExpressionEnum.LITERALS,
+                                                    null,
+                                                    "Char:" + exp.toString()
+                                            );  
+                        RESULT = expressionNode; 
+                        :}
+                    | ARRAY_USE:exp 
+                        {:
+                        ExpressionNode expressionNode = new ExpressionNode(
+                                                    ExpressionEnum.ARRAY_USE_AS_EXPRESSION,
+                                                    null,
+                                                    ((ArrayUseNode)exp).id+"[ " + ((ExpressionNode)((ArrayUseNode)exp).expression).expression  +" ]",
+                                                    (ASTNode)exp
+                                            );  
+                        RESULT = expressionNode; 
+                        :}
+                    | FUNCTION_CALL:exp 
+                        {:
+                        ExpressionNode expressionNode = new ExpressionNode(
+                                                    ExpressionEnum.FUNCTION_CALL_AS_EXPRESSION,
+                                                    null,
+                                                    ((FunctionCallNode)exp).name+"( " + ((FunctionCallNode)exp).parameterList.toString() +" )",
+                                                    (ASTNode)exp
+                                            );  
+                        RESULT = expressionNode; 
+                        :}
+                    | UNARY_ARITHMETIC_EXPRESSION:exp 
+                        {:
+                        ExpressionNode expressionNode = new ExpressionNode(
+                                                    ExpressionEnum.UNARY_ARITHMETIC_EXPRESSION,
+                                                    null,
+                                                    exp.toString()
+                                            );  
+                        RESULT = expressionNode; 
+                        :}
+                    | ParenthesisOpening EXPRESSION:exp ParenthesisClosure 
+                        {:
+                        ExpressionNode expressionNode = new ExpressionNode(
+                                                    ExpressionEnum.SIMPLE_EXPRESSION,
+                                                    (ExpressionNode)exp,
+                                                    " ( " + ((ExpressionNode)exp).toString() + " ) "
+                                            );  
+                        RESULT = expressionNode; 
+                        :}
                     ;
 
-CASE_LABEL ::= Identifier:exp {: RESULT = exp.toString(); :}                     
-             | IntegerLiteral:exp {: RESULT = exp.toString(); :}
-             | CharacterLiteral:exp {: RESULT = exp.toString(); :}
+CASE_LABEL ::= Identifier:exp 
+                        {:
+                        ExpressionNode expressionNode = new ExpressionNode(
+                                                    ExpressionEnum.IDENTIFIER,
+                                                     null,
+                                                    " Id:" +exp.toString() + " "
+                                            );  
+                        RESULT = expressionNode; 
+                        :}                        
+             | IntegerLiteral:exp 
+                        {:
+                        ExpressionNode expressionNode = new ExpressionNode(
+                                                    ExpressionEnum.LITERALS,
+                                                    null,
+                                                    "Integer:" + exp.toString()
+                                            );  
+                        RESULT = expressionNode; 
+                        :}
+             | CharacterLiteral:exp 
+                        {:
+                        ExpressionNode expressionNode = new ExpressionNode(
+                                                    ExpressionEnum.LITERALS,
+                                                    null,
+                                                    "Char:" + exp.toString()
+                                            );  
+                        RESULT = expressionNode; 
+                        :}
              ;
+
 
 RETURN_STATEMENT ::= Return EndSentence 
                     {: 
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.RETURN_EXPRESSION,
                                                     null,
                                                     "Retorno Vacío"
@@ -1048,10 +1131,10 @@ RETURN_STATEMENT ::= Return EndSentence
                     :}
                    | Return EXPRESSION:exp EndSentence 
                     {: 
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.RETURN_EXPRESSION,
                                                     (ASTNode) exp,
-                                                    ((ASTNode) exp).expression
+                                                    ((ASTNode) exp).toString()
                                                 ); 
                         RESULT = new ReturnStatementNode(expressionNode); 
                     :}
@@ -1059,7 +1142,7 @@ RETURN_STATEMENT ::= Return EndSentence
 
 BREAK_STATEMENT ::= Break EndSentence 
                     {: 
-                        ASTNode expressionNode = new ExpressionNode(
+                        ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.BREAK_EXPRESSION,
                                                     null,
                                                     "Break-Statement"

@@ -2,8 +2,8 @@ package utils.AST;
 
 
 public class ArrayUseNode extends ASTNode{
-    String id;
-    ExpressionNode expression;
+    public String id;
+    public ExpressionNode expression;
     
     
     public ArrayUseNode (String id, ExpressionNode expression){

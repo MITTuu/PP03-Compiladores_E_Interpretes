@@ -8,7 +8,7 @@ import utils.SymbolsTable.SymbolTable;
 import utils.SymbolsTable.VariableSymbol;
 
 public class ExpressionNode extends ASTNode{
-    String expression;//Contiene el string concatenado de las expresiones que se asigna o evalúa.
+    public String expression;//Contiene el string concatenado de las expresiones que se asigna o evalúa.
     ASTNode subExpression;//Contiene la expresión hijo que compone la actual expresión. Puede ser null en caso de ser una expresión base
     ExpressionEnum expressionType;//Determina el tipo de expresión que está evaluando como conjunto del atributo llamado "subExpression".
     ASTNode treeElementNode; //Contiene el nodo en caso que la expresión sea el resultado de un nodo del arbol AST, por ejemlo FunctionCallNode. Puede ser null en algunos casos.

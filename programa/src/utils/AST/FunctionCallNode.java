@@ -9,8 +9,8 @@ import utils.SymbolsTable.SymbolTable;
 
 public class FunctionCallNode extends ASTNode{
     
-    String name;
-    List<ExpressionNode> parameterList;
+    public String name;
+    public List<ExpressionNode> parameterList;
     SymbolTable symbolTable;
     public Parser parser;
     public String currentHash;
