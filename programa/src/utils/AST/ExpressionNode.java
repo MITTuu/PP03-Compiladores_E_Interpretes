@@ -8,7 +8,16 @@ import utils.SymbolsTable.SymbolTable;
 import utils.SymbolsTable.VariableSymbol;
 
 public class ExpressionNode extends ASTNode{
-    String expression;
+    String expression;//Contiene el string concatenado de las expresiones que se asigna o evalúa.
+    ASTNode subExpression;//Contiene la expresión hijo que compone la actual expresión. Puede ser null en caso de ser una expresión base
+    ExpressionEnum expressionType;//Determina el tipo de expresión que está evaluando como conjunto del atributo llamado "subExpression".
+    ASTNode treeElementNode; //Contiene el nodo en caso que la expresión sea el resultado de un nodo del arbol AST, por ejemlo FunctionCallNode. Puede ser null en algunos casos.
+    
+    ASTNode leftExpression; //En caso de expresiones binarias que incluyen el siguiente formato (exp op exp), verificar según expressionType
+    ASTNode operatorExpression; //En caso de expresiones binarias que incluyen el siguiente formato (exp op exp), verificar según expressionType
+    ASTNode rightExpression; //En caso de expresiones binarias que incluyen el siguiente formato (exp op exp), verificar según expressionType
+    
+    
     SymbolTable symbolTable;
     public Parser parser;
     public String currentHash;
@@ -16,6 +25,31 @@ public class ExpressionNode extends ASTNode{
     
     public ExpressionNode(String expression){
         this.expression = expression;
+    }
+    
+    public ExpressionNode(ExpressionEnum expressionType, ASTNode subExpression, String expression){
+        this.expressionType = expressionType;
+        this.subExpression = subExpression;
+        this.expression = expression;
+    }
+    
+    //Constructor opcional en caso que sea necesario asignar el treeElementNode como parte de la expresión resultante.
+    public ExpressionNode(ExpressionEnum expressionType, ASTNode subExpression, String expression, ASTNode treeElementNode){
+        this.expressionType = expressionType;
+        this.subExpression = subExpression;
+        this.expression = expression;
+        this.treeElementNode = treeElementNode;
+    }
+    
+    //Constructor opcional 
+    //En caso de expresiones binarias que incluyen el siguiente formato (exp op exp), verificar según expressionType
+    public ExpressionNode(ExpressionEnum expressionType, String expression,
+            ASTNode leftExpression, ASTNode operatorExpression, ASTNode rightExpression){
+        this.expressionType = expressionType;
+        this.expression = expression;
+        this.leftExpression = leftExpression;
+        this.operatorExpression = operatorExpression;
+        this.rightExpression = rightExpression;
     }
     
     public String getType(SymbolTable symbolTable) {
