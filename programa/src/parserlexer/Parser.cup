@@ -463,13 +463,26 @@ NEGATIVE_LITERAL ::= NEGATIVE_OPERATOR IntegerLiteral:lit {: RESULT = "NEGATIVE-
                    | NEGATIVE_OPERATOR FloatLiteral:lit {: RESULT = "NEGATIVE-"+lit.toString(); :}
                    ;
 
-UNARY_ARITHMETIC_EXPRESSION ::= Identifier:id Increment {: RESULT = id.toString()+":"+ "++"; :}
-                              | Identifier:id Decrement {: RESULT = id.toString()+ ":"+"--"; :}
+UNARY_ARITHMETIC_EXPRESSION ::= Identifier:id Increment {: RESULT = id.toString()+":" +  "++"; :}
+                              | Identifier:id Decrement {: RESULT = id.toString()+ ":" + "--"; :}
                               ;
 
 
 /* EXPRESSION: El nivel raíz de las expresiones */
-EXPRESSION ::= LOGICAL_EXPRESSION:exp  {: RESULT = exp.toString(); :}
+EXPRESSION ::= LOGICAL_EXPRESSION:exp  
+             {: 
+                    RESULT = new ExpressionNode(exp.toString()); 
+                    
+                    try {
+                        ((ExpressionNode) RESULT).parser = parser;
+                        ((ExpressionNode) RESULT).currentHash = currentHash;
+                        ((ExpressionNode) RESULT).checkSemantics();
+
+                    } catch (RuntimeException e) {
+                        String message = e.getMessage();
+                        parser.logSemanticError("Error en la línea " + (expright+1) + ": " + message);                           
+                    }                    
+             :}
              ;
 
 /* SIMPLE_EXPRESSION: Nivel base de las expresiones */
@@ -479,7 +492,7 @@ SIMPLE_EXPRESSION ::= Identifier:exp {: RESULT = " Id:" +exp.toString() + " "; :
                     | ARRAY_USE:exp {: RESULT = exp.toString(); :}
                     | FUNCTION_CALL:exp {: RESULT = exp.toString(); :}
                     | UNARY_ARITHMETIC_EXPRESSION:exp {: RESULT = exp.toString(); :}
-                    | ParenthesisOpening EXPRESSION:exp ParenthesisClosure {: RESULT = " (" + exp.toString() + ") "; :}
+                    | ParenthesisOpening EXPRESSION:exp ParenthesisClosure {: RESULT = " ( " + exp.toString() + " ) "; :}
                     | Negation SIMPLE_EXPRESSION:exp {: RESULT = " -" + exp.toString(); :}
                     ;
 

@@ -100,7 +100,7 @@ public class SymbolTable {
      */
     public void updateVariableValue(String id, String asignationScope, Object newValue) {
         boolean variableFound = false;
-        System.out.println(id + " asigna en " + asignationScope);
+        //System.out.println(id + " asigna en " + asignationScope);
         for (VariableSymbol symbol : variableSymbols.values()) {
             // Verificar si el nombre coincide y el alcance de asignación es válido
             if (symbol.getName().equals(id)) {
@@ -217,6 +217,36 @@ public class SymbolTable {
     public Map<String, VariableSymbol> getVariableSymbols (){
      return variableSymbols;
     }
+
+    /**
+     * Busca y devuelve una variable en la tabla de símbolos, validando que exista en el scope proporcionado.
+     * @param variableName El nombre de la variable.
+     * @param scope El scope desde donde se está llamando la variable.
+     * @return El objeto VariableSymbol si la variable existe y es accesible.
+     * @throws RuntimeException Si la variable no existe o no es accesible desde el scope proporcionado.
+     */
+    public VariableSymbol getVariable(String variableName, String scope) {       
+        // Extraer el nombre de la función del scope
+        String functionName = scope.split("-")[0];
+
+        // Construir la clave única de la variable
+        String uniqueKey = functionName + "." + variableName;
+
+        // Verificar si la variable existe en el scope
+        if (!variableSymbols.containsKey(uniqueKey)) {
+            throw new RuntimeException("La variable '" + variableName + "' no existe en el scope '" + functionName + "'.");
+        }
+
+        // Obtener la variable
+        VariableSymbol variable = variableSymbols.get(uniqueKey);
+
+        // Validar que la variable sea accesible desde el scope proporcionado
+        if (!scope.startsWith(variable.getScope())) {
+            throw new RuntimeException("La variable '" + variableName + "' no es accesible desde el scope '" + scope + "'.");
+        }
+
+        return variable;
+    }    
     
     /**
      * Imprime todas las funciones en la tabla de símbolos con formato de tabla.
