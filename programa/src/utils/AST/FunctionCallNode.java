@@ -39,11 +39,11 @@ public class FunctionCallNode extends ASTNode{
 
         // Procesar cada parámetro, tomando solo la primera palabra (tipo)
         for (String param : paramArray) {
-            String[] parts = param.split("\\s+");
-            expectedParams.add(parts[0]);
+            if (!param.trim().isEmpty()) {
+                String[] parts = param.split("\\s+");
+                expectedParams.add(parts[0]);
+            }
         }
-
-        //System.out.println("Parametros esperados para la funcion " + name + ": " + expectedParams);
 
         // Verificar la cantidad de parámetros
         if (expectedParams.size() != parameterList.size()) {
@@ -65,8 +65,6 @@ public class FunctionCallNode extends ASTNode{
             }
         }
     }
-
-
 
     @Override
     String generateMIPS(CodeGenerator cg) {

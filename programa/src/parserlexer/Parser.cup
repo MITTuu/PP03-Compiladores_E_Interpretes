@@ -276,6 +276,18 @@ VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
                         :}
                        | VARIABLE_TYPE:type Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                         {: 
+                            String reducedType = ((ExpressionNode) exp).getReduceType();
+                            
+                            if (!reducedType.toString().equals("a")) {
+                                if (!type.toString().equals(reducedType)) {
+                                    // Levantar un error si los tipos no coinciden
+                                    parser.logSemanticError("Error en la línea " + (typeright + 1) + ": Incompatibilidad de tipos. Se esperaba " 
+                                        + type.toString() + " pero se asignó " + reducedType);
+                                }
+                            }
+                            
+                            //System.out.println(exp.toString() + " reduced to " + reducedType );
+
                             ExpressionNode expressionNode = new ExpressionNode(
                                 ExpressionEnum.VARIABLE_DECLARATION_EXPRESSION,
                                 (ASTNode) exp,
@@ -293,10 +305,12 @@ VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
                             } catch (RuntimeException e) {
                                 String message = e.getMessage();
 
-                                if (message.contains("ya está definida.")) {
-                                    //System.out.println(message);
+                                if (type.equals("a") && message.contains("Incompatibilidad de tipos asignacion")) {
+                                    System.out.println(message);
+                                } else if (message.contains("ya está definida.")) {
+                                    System.out.println(message);
                                 } else {
-                                    parser.logSemanticError("Error en la línea " + (typeright+1) + ": " + message);
+                                    parser.logSemanticError("Error en la línea " + (idright+1) + ": " + message);
                                 }
                             }                           
                         :}
@@ -597,6 +611,7 @@ SIMPLE_EXPRESSION ::= Identifier:exp
                         ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.ARRAY_USE_AS_EXPRESSION,
                                                     null,
+                                                    "ArrayUse:" +
                                                     ((ArrayUseNode)exp).id+"[ " + ((ExpressionNode)((ArrayUseNode)exp).expression).expression  +" ]",
                                                     (ASTNode)exp
                                             );  
@@ -604,13 +619,14 @@ SIMPLE_EXPRESSION ::= Identifier:exp
                         :}
                     | FUNCTION_CALL:exp 
                         {:
-                        ExpressionNode expressionNode = new ExpressionNode(
-                                                    ExpressionEnum.FUNCTION_CALL_AS_EXPRESSION,
-                                                    null,
-                                                    ((FunctionCallNode)exp).name+"( " + ((FunctionCallNode)exp).parameterList.toString() +" )",
-                                                    (ASTNode)exp
-                                            );  
-                        RESULT = expressionNode; 
+                            ExpressionNode expressionNode = new ExpressionNode(
+                                ExpressionEnum.FUNCTION_CALL_AS_EXPRESSION,
+                                null,
+                                "FunctionCall:" + 
+                                ((FunctionCallNode)exp).name + "[ " + ((FunctionCallNode)exp).parameterList.toString() + " ]",
+                                (ASTNode)exp
+                            );  
+                            RESULT = expressionNode; 
                         :}
                     | UNARY_ARITHMETIC_EXPRESSION:exp 
                         {:
@@ -769,7 +785,9 @@ LOGICAL_EXPRESSION ::= RELATIONAL_EXPRESSION:exp
                      ;
 
 VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence 
-                        {: 
+                        {:
+                            String reducedType = ((ExpressionNode) exp).getReduceType();                           
+
                             ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.VARIABLE_ASSIGNMENT_EXPRESSION,
                                                     (ASTNode) exp,
@@ -779,14 +797,18 @@ VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                             try {
                                 ((VariableAssignmentNode) RESULT).parser = parser;
                                 ((VariableAssignmentNode) RESULT).currentHash = currentHash;
+                                ((VariableAssignmentNode) RESULT).reducedType = reducedType;
+
                                 ((VariableAssignmentNode) RESULT).checkSemantics();
                                 symbolTable.updateVariableValue(id.toString(), currentHash, exp.toString());
 
                             } catch (RuntimeException e) {
                                 String message = e.getMessage();
 
-                                if (message.contains("ya está definida.")) {
-                                    //System.out.println(message);
+                                if (reducedType.equals("a") && message.contains("Incompatibilidad")) {
+                                    System.out.println(message);
+                                } else if (message.contains("ya está definida.")) {
+                                    System.out.println(message);
                                 } else {
                                     parser.logSemanticError("Error en la línea " + (idright+1) + ": " + message);
                                 }
@@ -910,8 +932,8 @@ WHILE_STRUCTURE ::= While ParenthesisOpening LOGICAL_EXPRESSION:exp ParenthesisC
                    ;
 
 FOR_STRUCTURE ::= For ParenthesisOpening INIT_FOR_STRUCTURE:init LOGICAL_EXPRESSION:exp EndSentence UPDATE_EXPRESSION:updateExp ParenthesisClosure BlockOpening 
-                {: 
-                      symbolTable.enterBlock(currentFunction, "for"); 
+                {:
+                      symbolTable.enterBlock(currentFunction, "for");
                       currentHash = symbolTable.getCurrentBlockIdentifier();
                 :}                
                   FUNCTION_DECLARATION_BODY:body BlockClosure
@@ -923,8 +945,8 @@ FOR_STRUCTURE ::= For ParenthesisOpening INIT_FOR_STRUCTURE:init LOGICAL_EXPRESS
                                                 ); 
                       RESULT = new ForStatementNode((ASTNode)init, expressionNode, (VariableAssignmentNode)updateExp, (List<BodyNode>)body);
 
-                      symbolTable.exitBlock(); 
-                      currentHash = symbolTable.getCurrentBlockIdentifier(); 
+                      symbolTable.exitBlock();
+                      currentHash = symbolTable.getCurrentBlockIdentifier();
                 :}
                 ;
 
@@ -1021,8 +1043,6 @@ DEFAULT_CASE ::= Default Colon
                :} 
                 ;
 
-
-
 SWITCH_EXPRESSION ::= Identifier:exp 
                         {:
                         ExpressionNode expressionNode = new ExpressionNode(
@@ -1065,7 +1085,7 @@ SWITCH_EXPRESSION ::= Identifier:exp
                         ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.FUNCTION_CALL_AS_EXPRESSION,
                                                     null,
-                                                    ((FunctionCallNode)exp).name+"( " + ((FunctionCallNode)exp).parameterList.toString() +" )",
+                                                    "FunctionCall: " + ((FunctionCallNode)exp).name+"[ " + ((FunctionCallNode)exp).parameterList.toString() +" ]",
                                                     (ASTNode)exp
                                             );  
                         RESULT = expressionNode; 
@@ -1130,13 +1150,27 @@ RETURN_STATEMENT ::= Return EndSentence
                         RESULT = new ReturnStatementNode(expressionNode);  
                     :}
                    | Return EXPRESSION:exp EndSentence 
-                    {: 
+                    {:
+                        String reducedType = ((ExpressionNode) exp).getReduceType();
+
                         ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.RETURN_EXPRESSION,
                                                     (ASTNode) exp,
                                                     ((ASTNode) exp).toString()
                                                 ); 
-                        RESULT = new ReturnStatementNode(expressionNode); 
+                        RESULT = new ReturnStatementNode(expressionNode);
+
+                        try {
+                            ((ReturnStatementNode) RESULT).parser = parser;
+                            ((ReturnStatementNode) RESULT).currentHash = currentHash;
+                            ((ReturnStatementNode) RESULT).reducedType = reducedType;
+
+                            ((ReturnStatementNode) RESULT).checkSemantics();
+
+                        } catch (RuntimeException e) {
+                            String message = e.getMessage();
+                            parser.logSemanticError("Error en la línea " + (expright+1) + ": " + message);
+                        }
                     :}
                    ;
 
