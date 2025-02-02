@@ -1235,13 +1235,13 @@ class CUP$Parser$actions {
 		int expleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int expright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Object exp = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 
+		
                         ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.UPDATE_EXPRESSION,
                                                     (ASTNode) exp,
                                                     ((ASTNode) exp).toString()
                                                 ); 
-                        RESULT = new VariableAssignmentNode(id.toString(), expressionNode);  
+                        RESULT = new VariableAssignmentNode(id.toString(), expressionNode);
                       
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("UPDATE_EXPRESSION",46, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -1254,8 +1254,8 @@ class CUP$Parser$actions {
 		int expleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int expright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Object exp = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 
-                        RESULT = new VariableAssignmentNode(exp.toString()); 
+		
+                        RESULT = new VariableAssignmentNode(exp.toString());
                       
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("UPDATE_EXPRESSION",46, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -1332,8 +1332,54 @@ class CUP$Parser$actions {
 		int updateExpright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)).right;
 		Object updateExp = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-2)).value;
 
-                      symbolTable.enterBlock(currentFunction, "for");
-                      currentHash = symbolTable.getCurrentBlockIdentifier();
+                    symbolTable.enterBlock(currentFunction, "for");
+                    currentHash = symbolTable.getCurrentBlockIdentifier();
+                    //System.out.println("For expression 1: " + init.toString());
+                    //System.out.println("For expression 2: " + exp.toString());
+                    //System.out.println("For expression 3: " + updateExp.toString());
+                    
+                    // Validar la semántica de la expresión 2 (LOGICAL_EXPRESSION)
+                    try {
+                        ExpressionNode conditionExpression = new ExpressionNode(
+                            ExpressionEnum.CONTROL_STRUCTURE_CONDITION,
+                            (ASTNode) exp,
+                            exp.toString()
+                        );
+                        conditionExpression.parser = parser;
+                        conditionExpression.currentHash = currentHash;
+                        conditionExpression.checkSemantics(); // Validar semántica
+
+                    } catch (RuntimeException e) {
+                        String message = e.getMessage();
+
+                        if (message.contains("ya está definida.")) {
+                            System.out.println(message);
+                        } else {
+                            parser.logSemanticError("Error en la línea " + (expright+1) + ": " + message);
+                        }
+                    }
+
+                    // Validar la semántica de la expresión 3 (UPDATE_EXPRESSION)
+                    try {                        
+                        ExpressionNode updateExpression = new ExpressionNode(
+                            ExpressionEnum.UPDATE_EXPRESSION,
+                            (ASTNode) updateExp,
+                            updateExp.toString()
+                        );
+                        updateExpression.parser = parser;
+                        updateExpression.currentHash = currentHash;
+                        updateExpression.checkSemantics(); // Validar semántica
+
+                    } catch (RuntimeException e) {
+                        String message = e.getMessage();
+
+                        if (message.contains("ya está definida.")) {
+                            System.out.println(message);
+                        } else {
+                            parser.logSemanticError("Error en la línea " + (expright+1) + ": " + message);
+                        }
+                    }
+
                 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("NT$3",56, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
