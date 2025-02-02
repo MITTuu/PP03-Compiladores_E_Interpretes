@@ -243,7 +243,24 @@ public class View_Main extends javax.swing.JFrame {
                 jTextArea_Output.setForeground(Color.red);
                 lineNumberComponent.repaint();               
             }
-                                
+
+            // --- Prompt resultado ---
+            if (errorList.isEmpty() && semanticErrorList.isEmpty() && lexErrorList.isEmpty()) {
+                String mensajeExito = "Análisis exitoso: El código ingresado puede ser traducido a código fuente.\n\n"
+                                    + "¿Desea generar el código de salida?";
+
+                int opcion = JOptionPane.showOptionDialog(null, mensajeExito, "Análisis Correcto",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
+                        new Object[]{"Generar Código", "Cerrar"}, "Generar Código");
+
+                if (opcion == JOptionPane.YES_OPTION) {
+                    generarCodigoDestino();
+                }
+            } else {
+                StringBuilder mensajeErrores = new StringBuilder("Análisis fallido: El código no puede ser traducido a código fuente.\n");
+                JOptionPane.showMessageDialog(null, mensajeErrores.toString(), "Errores Encontrados", JOptionPane.ERROR_MESSAGE);
+            }
+            
             //Checkbox para hacer opcional mostrar ventanas de tabla de symbolos y arbol sintáctico
             var mostrarInfoExtra = jCheckBox_VerInfoExtra.isSelected();
             if(mostrarInfoExtra){
@@ -478,7 +495,11 @@ public class View_Main extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Error durante el análisis: " + e.getMessage());
         }
     }
-
+    
+    public static void generarCodigoDestino(){
+        System.out.println("generar codigo");
+    }    
+    
     /**
      * Muestra el contenido de la tabla de símbolos en un cuadro de diálogo con dos tablas:
      * una para las funciones y otra para las variables. Cada tabla se ajusta dinámicamente 
