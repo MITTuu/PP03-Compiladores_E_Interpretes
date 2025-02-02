@@ -573,7 +573,11 @@ EXPRESSION ::= LOGICAL_EXPRESSION:exp
 
                     } catch (RuntimeException e) {
                         String message = e.getMessage();
-                        parser.logSemanticError("Error en la línea " + (expright+1) + ": " + message);                           
+                        if (message.contains("Error semántico: la función no está definida.")) {
+                            // ignorar
+                        } else {
+                            parser.logSemanticError("Error en la línea " + (expright+1) + ": " + message);                           
+                        }
                     }                    
              :}
              ;
@@ -1186,14 +1190,32 @@ CASE_LABEL ::= Identifier:exp
              ;
 
 
-RETURN_STATEMENT ::= Return EndSentence 
-                    {: 
+RETURN_STATEMENT ::= Return:r EndSentence 
+                    {:
+                        String reducedType = null;
                         ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.RETURN_EXPRESSION,
                                                     null,
                                                     "Retorno Vacío"
                                                 ); 
-                        RESULT = new ReturnStatementNode(expressionNode);  
+                        RESULT = new ReturnStatementNode(expressionNode);
+
+                        try {
+                            ((ReturnStatementNode) RESULT).parser = parser;
+                            ((ReturnStatementNode) RESULT).currentHash = currentHash;
+                            ((ReturnStatementNode) RESULT).reducedType = reducedType;
+
+                            ((ReturnStatementNode) RESULT).checkSemantics();
+
+                        } catch (RuntimeException e) {
+                            String message = e.getMessage();
+                            if (message.contains("pero la se trató de devolver de tipo a")) {
+                                //ignorar
+                            } else {
+                                parser.logSemanticError("Error en la línea " + (rright+1) + ": " + message);
+                            }
+                        }
+
                     :}
                    | Return EXPRESSION:exp EndSentence 
                     {:
@@ -1215,7 +1237,11 @@ RETURN_STATEMENT ::= Return EndSentence
 
                         } catch (RuntimeException e) {
                             String message = e.getMessage();
-                            parser.logSemanticError("Error en la línea " + (expright+1) + ": " + message);
+                            if (message.contains("pero la se trató de devolver de tipo a")) {
+                                //ignorar
+                            } else {
+                                parser.logSemanticError("Error en la línea " + (expright+1) + ": " + message);
+                            }
                         }
                     :}
                    ;
