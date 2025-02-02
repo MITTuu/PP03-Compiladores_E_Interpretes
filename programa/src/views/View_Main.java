@@ -507,7 +507,7 @@ public class View_Main extends javax.swing.JFrame {
         functionTable.setPreferredScrollableViewportSize(functionTable.getPreferredSize());
 
         // Crear las columnas para la tabla de variables
-        String[] variableColumns = {"Variable", "Tipo", "Scope", "Valor", "Línea"};
+        String[] variableColumns = {"Variable", "Tipo", "Scope", "Valor", "Línea", "Dirección de memoria"};
         DefaultTableModel variableTableModel = new DefaultTableModel(variableColumns, 0);
 
         // Obtener las variables de la tabla de símbolos y ordenarlas por el número de línea
@@ -521,7 +521,8 @@ public class View_Main extends javax.swing.JFrame {
                     variable.getType(),
                     variable.getScope(),
                     variable.getValue() != null ? variable.getValue().toString() : "null",
-                    variable.getDeclarationLine()
+                    variable.getDeclarationLine(),
+                    variable.getMemoryAddress()
             });
         }
         JTable variableTable = new JTable(variableTableModel);
