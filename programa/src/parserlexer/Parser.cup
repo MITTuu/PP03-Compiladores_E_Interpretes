@@ -306,9 +306,9 @@ VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
                                 String message = e.getMessage();
 
                                 if (type.equals("a") && message.contains("Incompatibilidad de tipos asignacion")) {
-                                    System.out.println(message);
+                                    //System.out.println(message);
                                 } else if (message.contains("ya está definida.")) {
-                                    System.out.println(message);
+                                    //System.out.println(message);
                                 } else {
                                     parser.logSemanticError("Error en la línea " + (idright+1) + ": " + message);
                                 }
@@ -806,9 +806,9 @@ VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                                 String message = e.getMessage();
 
                                 if (reducedType.equals("a") && message.contains("Incompatibilidad")) {
-                                    System.out.println(message);
+                                    //System.out.println(message);
                                 } else if (message.contains("ya está definida.")) {
-                                    System.out.println(message);
+                                    //System.out.println(message);
                                 } else {
                                     parser.logSemanticError("Error en la línea " + (idright+1) + ": " + message);
                                 }

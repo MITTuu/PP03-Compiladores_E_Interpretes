@@ -1,5 +1,7 @@
 package utils.MIPS.GeneracionCodigo;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class CodeGenerator {
@@ -7,23 +9,16 @@ public class CodeGenerator {
     private Stack<String> temporaryRegisters;
     // Registro donde se almacenará el resultado de la última 
     private String lastRegister;
+    // Almacenará las declaraciones de .data
+    private List<String> dataSection;  
 
     // Contador para generar etiquetas únicas (si es necesario).
     private int labelCounter;
 
     public CodeGenerator() {
         temporaryRegisters = new Stack<>();
-        // Inicializamos algunos registros temporales que se usan habitualmente en MIPS.
-        temporaryRegisters.push("$t9");
-        temporaryRegisters.push("$t8");
-        temporaryRegisters.push("$t7");
-        temporaryRegisters.push("$t6");
-        temporaryRegisters.push("$t5");
-        temporaryRegisters.push("$t4");
-        temporaryRegisters.push("$t3");
-        temporaryRegisters.push("$t2");
-        temporaryRegisters.push("$t1");
-        temporaryRegisters.push("$t0");
+        dataSection = new ArrayList<>();
+        recargarPilaSoluciónTempEnDesarrollo();
         labelCounter = 0;
     }
 
@@ -85,5 +80,15 @@ public class CodeGenerator {
      */
     public String generateLabel() {
         return "L" + (labelCounter++);
+    }
+    
+    // Agrega una línea a la sección .data
+    public void addDataSection(String data) {
+        dataSection.add(data);
+    }
+
+    // Devuelve todo el contenido de la sección .data
+    public String getDataSection() {
+        return String.join("\n", dataSection);
     }
 }
