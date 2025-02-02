@@ -38,7 +38,7 @@ public class ReturnStatementNode extends ASTNode {
                 // Levantar un error si los tipos no coinciden
                 throw new RuntimeException("El valor de retorno de la función '" 
                                             + currentFunction + "' se esperaba de tipo " + returnType 
-                                            + ", pero la se trató de devolver de tipo " + reducedType);  
+                                            + ", pero se trató de devolver de tipo " + reducedType);  
  
             }
         }        
