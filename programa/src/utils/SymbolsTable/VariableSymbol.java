@@ -14,6 +14,8 @@ public class VariableSymbol {
     private String scope; 
     private Object value; 
     private int declarationLine;
+    private int memoryAddress;
+   
 
     /**
      * Constructor que inicializa una nueva instancia de VariableSymbol.
@@ -30,6 +32,25 @@ public class VariableSymbol {
         this.scope = scope;
         this.value = value;
         this.declarationLine = declarationLine;
+    }
+
+    /**
+     * Constructor que inicializa una nueva instancia de VariableSymbol.
+     * 
+     * @param name El nombre de la variable.
+     * @param type El tipo de la variable.
+     * @param scope El alcance donde la variable está declarada.
+     * @param value El valor inicial de la variable.
+     * @param declarationLine La línea del código fuente donde la variable fue declarada.
+     *  @param memoryAddress La dirección de memoria que fué asignada para ser utilizada por el programa ensamblador.
+     */
+    public VariableSymbol(String name, String type, String scope, Object value, int declarationLine, int memoryAddress) {
+        this.name = name;
+        this.type = type;
+        this.scope = scope;
+        this.value = value;
+        this.declarationLine = declarationLine;
+        this.memoryAddress = memoryAddress;
     }
   
     public String getName() {
@@ -54,5 +75,13 @@ public class VariableSymbol {
   
     public int getDeclarationLine() {
         return declarationLine;
+    }
+    
+     public int getMemoryAddress() {
+        return memoryAddress;
+    }
+
+    public void setMemoryAddress(int memoryAddress) {
+        this.memoryAddress = memoryAddress;
     }
 }

@@ -33,6 +33,9 @@ public class SymbolTable {
     // Contadores para identificar bloques únicos por tipo
     private Map<String, Integer> blockCounters = new HashMap<>();
     
+    // Dirección inicial de almacenamiento de memoria para variables
+    private int nextMemoryAddress = 1000; 
+    
 
     /**
      * Constructor de la clase SymbolTable.
@@ -78,6 +81,7 @@ public class SymbolTable {
      * @param declarationLine La línea de declaración de la variable en el código fuente.
      * @throws RuntimeException Si la variable ya está definida en la tabla de símbolos.
      */
+    
     public void addVariable(String name, String type, String scope, Object value, int declarationLine) {
         String mainScope = scope.split("-")[0];
         String uniqueKey = mainScope + "." + name;
@@ -86,9 +90,15 @@ public class SymbolTable {
         if (variableSymbols.containsKey(uniqueKey)) {
             throw new RuntimeException("La variable '" + name + "' ya está definida en el alcance '" + mainScope + "'.");
         }
-
+        
+        //Obtiene el siguiente identificador de memoria que usará la variable, para ser usado por el ensamblador
+        int memoryAddress = getNextMemoryAddress();  
+        
         // Agregar la variable con la clave única
-        variableSymbols.put(uniqueKey, new VariableSymbol(name, type, scope, value, declarationLine));
+        variableSymbols.put(uniqueKey, new VariableSymbol(name, type, scope, value, declarationLine,memoryAddress));
+        
+        //asigna el siguiente valor a obtener
+        setNextMemoryAddress();
     }
   
     /**
@@ -271,20 +281,31 @@ public class SymbolTable {
         }
 
         // Imprimir encabezado de la tabla
-        System.out.println("\n" + String.format("%-20s %-15s %-10s %-10s %-10s", "Variable", "Tipo", "Alcance", "Valor", "Linea"));
+        System.out.println("\n" + String.format("%-20s %-15s %-10s %-10s %-10s %-22s", "Variable", "Tipo", "Alcance", "Valor", "Linea", "Dirección de Memoria"));
         System.out.println("--------------------------------------------------------------------");
 
         // Imprimir variables agrupadas por scope
         for (Map.Entry<String, List<VariableSymbol>> entry : groupedByScope.entrySet()) {
             for (VariableSymbol symbol : entry.getValue()) {
-                System.out.println(String.format("%-20s %-15s %-10s %-10s %-10d", 
+                System.out.println(String.format("%-20s %-15s %-10s %-10s %-10d %-10d", 
                     symbol.getName(), 
                     symbol.getType(), 
                     symbol.getScope(), 
                     symbol.getValue() != null ? symbol.getValue().toString() : "null", 
-                    symbol.getDeclarationLine()
+                    symbol.getDeclarationLine(),
+                    symbol.getMemoryAddress()
                 ));
             }
         }
+    }
+    
+    public int getNextMemoryAddress() {
+        return nextMemoryAddress;
+    }
+
+    
+    public void setNextMemoryAddress() {
+        //Asigna 4 bytes me memoria por eso suma 4 para la siguiente.
+        this.nextMemoryAddress = nextMemoryAddress +4;
     }
 }
