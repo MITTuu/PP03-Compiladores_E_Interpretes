@@ -37,7 +37,7 @@ public class VariableAssignmentNode extends ASTNode {
         String[] unaryExpression = unaryArithmeticExpression.split(":");
         this.id = unaryExpression[0];
         this.unaryArithmeticOperator= unaryExpression[1];
-        this.expression = null;
+        this.expression = new ExpressionNode(unaryArithmeticExpression);
         this.arrayElements = null;
         this.arrayUse = null;
         
@@ -120,4 +120,12 @@ public class VariableAssignmentNode extends ASTNode {
         return sb.toString();
     }
     
+    @Override
+    public String toString() {
+        if (expression != null) {
+            return expression.toString();
+        }      
+        
+        return null;
+    }
 }

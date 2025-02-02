@@ -806,7 +806,7 @@ VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                                 String message = e.getMessage();
 
                                 if (reducedType.equals("a") && message.contains("Incompatibilidad")) {
-                                    System.out.println(message);
+                                    //System.out.println(message);
                                 } else if (message.contains("ya está definida.")) {
                                     System.out.println(message);
                                 } else {
@@ -933,8 +933,54 @@ WHILE_STRUCTURE ::= While ParenthesisOpening LOGICAL_EXPRESSION:exp ParenthesisC
 
 FOR_STRUCTURE ::= For ParenthesisOpening INIT_FOR_STRUCTURE:init LOGICAL_EXPRESSION:exp EndSentence UPDATE_EXPRESSION:updateExp ParenthesisClosure BlockOpening 
                 {:
-                      symbolTable.enterBlock(currentFunction, "for");
-                      currentHash = symbolTable.getCurrentBlockIdentifier();
+                    symbolTable.enterBlock(currentFunction, "for");
+                    currentHash = symbolTable.getCurrentBlockIdentifier();
+                    //System.out.println("For expression 1: " + init.toString());
+                    //System.out.println("For expression 2: " + exp.toString());
+                    //System.out.println("For expression 3: " + updateExp.toString());
+                    
+                    // Validar la semántica de la expresión 2 (LOGICAL_EXPRESSION)
+                    try {
+                        ExpressionNode conditionExpression = new ExpressionNode(
+                            ExpressionEnum.CONTROL_STRUCTURE_CONDITION,
+                            (ASTNode) exp,
+                            exp.toString()
+                        );
+                        conditionExpression.parser = parser;
+                        conditionExpression.currentHash = currentHash;
+                        conditionExpression.checkSemantics(); // Validar semántica
+
+                    } catch (RuntimeException e) {
+                        String message = e.getMessage();
+
+                        if (message.contains("ya está definida.")) {
+                            System.out.println(message);
+                        } else {
+                            parser.logSemanticError("Error en la línea " + (expright+1) + ": " + message);
+                        }
+                    }
+
+                    // Validar la semántica de la expresión 3 (UPDATE_EXPRESSION)
+                    try {                        
+                        ExpressionNode updateExpression = new ExpressionNode(
+                            ExpressionEnum.UPDATE_EXPRESSION,
+                            (ASTNode) updateExp,
+                            updateExp.toString()
+                        );
+                        updateExpression.parser = parser;
+                        updateExpression.currentHash = currentHash;
+                        updateExpression.checkSemantics(); // Validar semántica
+
+                    } catch (RuntimeException e) {
+                        String message = e.getMessage();
+
+                        if (message.contains("ya está definida.")) {
+                            System.out.println(message);
+                        } else {
+                            parser.logSemanticError("Error en la línea " + (expright+1) + ": " + message);
+                        }
+                    }
+
                 :}                
                   FUNCTION_DECLARATION_BODY:body BlockClosure
                 {: 
@@ -955,17 +1001,17 @@ INIT_FOR_STRUCTURE ::= VARIABLE_DECLARATION:varDecl {: RESULT =  varDecl; :}
                      ;
 
 UPDATE_EXPRESSION ::= UNARY_ARITHMETIC_EXPRESSION :exp
-                      {: 
-                        RESULT = new VariableAssignmentNode(exp.toString()); 
+                      {:
+                        RESULT = new VariableAssignmentNode(exp.toString());
                       :}
                     | Identifier:id AssignmentSign EXPRESSION:exp 
-                      {: 
+                      {:
                         ExpressionNode expressionNode = new ExpressionNode(
                                                     ExpressionEnum.UPDATE_EXPRESSION,
                                                     (ASTNode) exp,
                                                     ((ASTNode) exp).toString()
                                                 ); 
-                        RESULT = new VariableAssignmentNode(id.toString(), expressionNode);  
+                        RESULT = new VariableAssignmentNode(id.toString(), expressionNode);
                       :}
                     ;
 
