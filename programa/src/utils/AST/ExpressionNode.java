@@ -4,6 +4,7 @@ import bin.Parser;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
+import utils.MIPS.GeneracionCodigo.CodeGenerator;
 import utils.SymbolsTable.SymbolTable;
 import utils.SymbolsTable.VariableSymbol;
 
@@ -31,6 +32,7 @@ public class ExpressionNode extends ASTNode{
         this.expressionType = expressionType;
         this.subExpression = subExpression;
         this.expression = expression;
+        generateMIPS(ASTNode.cg);
     }
     
     //Constructor opcional en caso que sea necesario asignar el treeElementNode como parte de la expresión resultante.
@@ -78,16 +80,16 @@ public class ExpressionNode extends ASTNode{
     public void checkSemantics() {
         symbolTable = (SymbolTable) parser.getSymbolTable();
         
-        System.out.println("Expresion: " + expression + " declarada en " + currentHash);
+        //System.out.println("Expresion: " + expression + " declarada en " + currentHash);
 
         // Construir la expresión de tipos
         String typeExpression = buildTypeExpression(expression);
-        System.out.println("Expresion de tipos: " + typeExpression);
+        //System.out.println("Expresion de tipos: " + typeExpression);
         
         // Reducir la expresión de tipos
         reducedType = reduceTypeExpression(typeExpression);
         
-        System.out.println("Tipo reducido: " + reducedType);
+        //System.out.println("Tipo reducido: " + reducedType);
     }
 
     /**
@@ -297,11 +299,6 @@ public class ExpressionNode extends ASTNode{
     }
     
     @Override
-    void generateMIPS() {
-        throw new UnsupportedOperationException("Not supported yet."); 
-    }
-
-    @Override
     String toString(String indent) {
         return indent +"└── Expresión: "+ expression + "\n";
     }
@@ -309,5 +306,104 @@ public class ExpressionNode extends ASTNode{
     @Override
     public String toString() {
         return expression;
+    }
+    
+    @Override
+    String generateMIPS(CodeGenerator cg) {
+        switch (expressionType) {
+            case LOGICAL:
+                // Código para expresión lógica
+                break;
+            case LOGICAL_OPERATOR_CONJUNCTION:
+                // Código para operador lógico de conjunción
+                break;
+            case LOGICAL_OPERATOR_DISJUCTION:
+                // Código para operador lógico de disyunción
+                break;
+            case RELATIONAL_EXPRESSION:
+                // Código para expresión relacional
+                break;
+            case RELATIONAL_OPERATOR_LESS:
+            case RELATIONAL_OPERATOR_LESS_EQUAL:
+            case RELATIONAL_OPERATOR_GREATER:
+            case RELATIONAL_OPERATOR_GREATER_EQUAL:
+            case RELATIONAL_OPERATOR_EQUAL:
+            case RELATIONAL_OPERATOR_NOT_EQUAL:
+                // Código para operadores relacionales
+                break;
+            case ARITHMETIC_EXPRESSION:
+                // Código para expresión aritmética
+                break;
+            case BINARY_ARITHMETIC_OPERATOR_SUM:
+            case BINARY_ARITHMETIC_OPERATOR_SUBTRACTION:
+            case BINARY_ARITHMETIC_OPERATOR_MULTIPLICATION:
+            case BINARY_ARITHMETIC_OPERATOR_DIVISION:
+            case BINARY_ARITHMETIC_OPERATOR_MODULE:
+            case BINARY_ARITHMETIC_OPERATOR_POWER:
+                // Código para operadores aritméticos binarios
+                break;
+            case SIMPLE_EXPRESSION:
+                // Código para expresión simple
+                break;
+            case IDENTIFIER:
+                // Código para identificador
+                break;
+            case LITERALS:
+                String result = literalGenerator.generateCodeLiteralLoad(expression,cg);                
+                return result;
+            case NEGATIVE_LITERAL:
+            case UNARY_ARITHMETIC_EXPRESSION:
+                // Código para literales, separar tipo con split
+                break;
+            case ARRAY_USE_AS_EXPRESSION:
+                // Código para variable resultado de uso de arreglo
+                break;
+            case FUNCTION_CALL_AS_EXPRESSION:
+                // Código para llamada a función
+                break;
+            case NEGATION_SIMPLE_EXPRESSION:
+                // Código para negación de expresión simple
+                break;
+            case RETURN_EXPRESSION:
+                // Código para expresión de retorno
+                break;
+            case BREAK_EXPRESSION:
+                // Código para expresión de break
+                break;
+            case VARIABLE_DECLARATION_EXPRESSION:
+                // Código para declaración de variable
+                break;
+            case ARRAY_USE_EXPRESSION:
+                // Código para puntero en uso de arreglo
+                break;
+            case PRINT_EXPRESSION:
+                // Código para llamada a función PRINT
+                break;
+            case READ_EXPRESSION:
+                // Código para llamada a función READ
+                break;
+            case FUNCTION_CALL_PARAMETER:
+                // Código para parámetros de llamada de función
+                break;
+            case VARIABLE_ASSIGNMENT_EXPRESSION:
+                // Código para asignación a variable
+                break;
+            case CONTROL_STRUCTURE_CONDITION:
+                // Código para condición en estructura de control
+                break;
+            case UPDATE_EXPRESSION:
+                // Código para actualización de contador en For
+                break;
+            case SWITCH_EXPRESSION:
+                // Código para identificador de estructura SWITCH
+                break;
+            case CASE_LABEL:
+                // Código para etiqueta de caso en SWITCH
+                break;
+            default:
+                throw new IllegalArgumentException("Tipo de expresión no soportado: " + expressionType);
+        }
+
+        return "";
     }
 }

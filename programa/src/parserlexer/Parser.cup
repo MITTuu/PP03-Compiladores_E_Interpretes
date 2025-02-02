@@ -70,7 +70,7 @@ parser code
     //Método para salida por consolda
     public void print(String prodName, Symbol s){
          String salida = "Encontrado " +prodName+ " : cerca de Linea: " + (s.right + 1) + " Columna: " + (s.left + 1) + ", Texto: \"" + s.value + "\"";
-         System.out.println(salida); 
+         //System.out.println(salida); 
     }
 
     public Object getSymbolTable() {
@@ -268,7 +268,7 @@ VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
                                 String message = e.getMessage();
 
                                 if (message.contains("ya está definida.")) {
-                                    System.out.println(message);
+                                    //System.out.println(message);
                                 } else {
                                     parser.logSemanticError("Error en la línea " + (typeright+1) + ": " + message);
                                 }
@@ -294,7 +294,7 @@ VARIABLE_DECLARATION ::= VARIABLE_TYPE:type Identifier:id EndSentence
                                 String message = e.getMessage();
 
                                 if (message.contains("ya está definida.")) {
-                                    System.out.println(message);
+                                    //System.out.println(message);
                                 } else {
                                     parser.logSemanticError("Error en la línea " + (typeright+1) + ": " + message);
                                 }
@@ -330,7 +330,7 @@ ARRAY_DECLARATION ::= VARIABLE_TYPE:type Identifier:id BracketOpening BracketClo
                             String message = e.getMessage();
 
                             if (message.contains("ya está definida.")) {
-                                System.out.println(message);
+                                //System.out.println(message);
                             } else {
                                 parser.logSemanticError("Error en la línea " + (typeright+1) + ": " + message);
                             }
@@ -350,7 +350,7 @@ ARRAY_DECLARATION ::= VARIABLE_TYPE:type Identifier:id BracketOpening BracketClo
                             String message = e.getMessage();
 
                             if (message.contains("ya está definida.")) {
-                                System.out.println(message);
+                                //System.out.println(message);
                             } else {
                                 parser.logSemanticError("Error en la línea " + (typeright+1) + ": " + message);
                             }
@@ -370,7 +370,7 @@ ARRAY_DECLARATION ::= VARIABLE_TYPE:type Identifier:id BracketOpening BracketClo
                             String message = e.getMessage();
 
                             if (message.contains("ya está definida.")) {
-                                System.out.println(message);
+                                //System.out.println(message);
                             } else {
                                 parser.logSemanticError("Error en la línea " + (typeright+1) + ": " + message);
                             }
@@ -786,7 +786,7 @@ VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                                 String message = e.getMessage();
 
                                 if (message.contains("ya está definida.")) {
-                                    System.out.println(message);
+                                    //System.out.println(message);
                                 } else {
                                     parser.logSemanticError("Error en la línea " + (idright+1) + ": " + message);
                                 }
@@ -809,7 +809,7 @@ VARIABLE_ASSIGNMENT ::= Identifier:id AssignmentSign EXPRESSION:exp EndSentence
                                 String message = e.getMessage();
 
                                 if (message.contains("ya está definida.")) {
-                                    System.out.println(message);
+                                    //System.out.println(message);
                                 } else {
                                     parser.logSemanticError("Error en la línea " + (idright+1) + ": " + message);
                                 }

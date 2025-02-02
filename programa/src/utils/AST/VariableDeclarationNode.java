@@ -3,6 +3,7 @@ package utils.AST;
 
 import utils.SymbolsTable.SymbolTable;
 import bin.Parser;
+import utils.MIPS.GeneracionCodigo.CodeGenerator;
 
 public class VariableDeclarationNode extends ASTNode{
     String type;
@@ -37,7 +38,7 @@ public class VariableDeclarationNode extends ASTNode{
     }
 
     @Override
-    void generateMIPS() {
+    String generateMIPS(CodeGenerator cg) {
         throw new UnsupportedOperationException("Not supported yet."); 
     }
 

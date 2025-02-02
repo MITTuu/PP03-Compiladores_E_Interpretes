@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import utils.MIPS.GeneracionCodigo.CodeGenerator;
 
 public class FunctionNode extends ASTNode {
     String name;
@@ -55,7 +56,7 @@ public class FunctionNode extends ASTNode {
     }
     
      @Override
-    void generateMIPS() {
+    String generateMIPS(CodeGenerator cg) {
         System.out.println(name + ":");
         System.out.println("  # Guardar registros si es necesario");
        /* for (VarDeclNode var : variables) {
@@ -63,6 +64,7 @@ public class FunctionNode extends ASTNode {
         }*/
         System.out.println("  # Código de la función");
         System.out.println("  jr $ra  # Retorno");
+        return "";
     }
     
     @Override

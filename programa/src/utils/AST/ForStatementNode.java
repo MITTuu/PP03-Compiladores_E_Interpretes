@@ -1,6 +1,7 @@
 package utils.AST;
 
 import java.util.List;
+import utils.MIPS.GeneracionCodigo.CodeGenerator;
 
 public class ForStatementNode extends ASTNode {
 
@@ -22,7 +23,7 @@ public class ForStatementNode extends ASTNode {
     }
 
     @Override
-    void generateMIPS() {
+    String generateMIPS(CodeGenerator cg) {
         throw new UnsupportedOperationException("Not supported yet."); 
     }
 

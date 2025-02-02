@@ -1,5 +1,7 @@
 package utils.AST;
 
+import utils.MIPS.GeneracionCodigo.CodeGenerator;
+
 
 public class ArrayUseNode extends ASTNode{
     public String id;
@@ -17,7 +19,7 @@ public class ArrayUseNode extends ASTNode{
     }
 
     @Override
-    void generateMIPS() {
+    String generateMIPS(CodeGenerator cg) {
         throw new UnsupportedOperationException("Not supported yet."); 
     }
 

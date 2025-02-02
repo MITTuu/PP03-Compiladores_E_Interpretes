@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import utils.AST.ASTNode;
 import utils.AST.FunctionNode;
+import utils.MIPS.GeneracionCodigo.CodeGenerator;
 
 // Nodo para el programa completo
 public class ProgramNode extends ASTNode {
@@ -21,10 +22,12 @@ public class ProgramNode extends ASTNode {
     }
 
     @Override
-    void generateMIPS() {
+    String generateMIPS(CodeGenerator cg) {
         for (FunctionNode fn : functions) {
-            fn.generateMIPS();
+            fn.generateMIPS(cg);
         }
+        
+        return "";
     }
     
     @Override

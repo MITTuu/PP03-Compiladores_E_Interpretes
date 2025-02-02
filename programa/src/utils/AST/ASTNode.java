@@ -5,6 +5,7 @@ package utils.AST;
 import java.util.ArrayList;
 import java.util.List;
 import utils.SymbolsTable.SymbolTable;
+import utils.MIPS.GeneracionCodigo.*;
 
 public abstract class ASTNode {   
     //Lista de errores semánticos 
@@ -13,12 +14,20 @@ public abstract class ASTNode {
     //Tabla de simbolos para almacenar los alcances, tipo y valores de las variables y funciones
     public SymbolTable symbolTableAST = new SymbolTable();
     
+    //Instanciar la utilidad de LiteralGenerator
+    LiteralGenerator literalGenerator = new LiteralGenerator();
+    
+    // Instanciar el generador de código
+    static CodeGenerator cg = new CodeGenerator();
+    
     /**
      * Este método verifica tipos y errores
      *Debe limitarse a analizar los propios elementos de la clase 
      */
     abstract void checkSemantics(); // Verifica tipos y errores
-    abstract void generateMIPS();   // Genera el código MIPS
+    
+    abstract String generateMIPS(CodeGenerator cg);   // Genera el código MIPS
+    
     abstract String toString(String indent); //Genera un string de los nodos
     
     // Agrega errores semánticos a la lista

@@ -1,6 +1,7 @@
 package utils.AST;
 
 import bin.Parser;
+import utils.MIPS.GeneracionCodigo.CodeGenerator;
 import utils.SymbolsTable.SymbolTable;
 
 public class ArrayDeclarationNode extends ASTNode {
@@ -52,7 +53,7 @@ public class ArrayDeclarationNode extends ASTNode {
     }
 
     @Override
-    void generateMIPS() {
+    String generateMIPS(CodeGenerator cg) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

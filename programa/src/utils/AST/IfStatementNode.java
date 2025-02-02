@@ -3,6 +3,7 @@ package utils.AST;
 
 import java.util.ArrayList;
 import java.util.List;
+import utils.MIPS.GeneracionCodigo.CodeGenerator;
 
 
 public class IfStatementNode extends ASTNode {
@@ -54,7 +55,7 @@ public class IfStatementNode extends ASTNode {
     }
 
     @Override
-    void generateMIPS() {
+    String generateMIPS(CodeGenerator cg) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

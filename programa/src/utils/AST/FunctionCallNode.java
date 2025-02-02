@@ -4,6 +4,7 @@ import bin.Parser;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import utils.MIPS.GeneracionCodigo.CodeGenerator;
 import utils.SymbolsTable.FunctionSymbol;
 import utils.SymbolsTable.SymbolTable;
 
@@ -68,7 +69,7 @@ public class FunctionCallNode extends ASTNode{
 
 
     @Override
-    void generateMIPS() {
+    String generateMIPS(CodeGenerator cg) {
         throw new UnsupportedOperationException("Not supported yet."); 
     }
 

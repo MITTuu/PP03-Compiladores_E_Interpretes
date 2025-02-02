@@ -2,6 +2,7 @@
 package utils.AST;
 
 import java.util.List;
+import utils.MIPS.GeneracionCodigo.CodeGenerator;
 
 public class WhileStatementNode extends ASTNode{
     ExpressionNode condition;
@@ -18,7 +19,7 @@ public class WhileStatementNode extends ASTNode{
     }
 
     @Override
-    void generateMIPS() {
+    String generateMIPS(CodeGenerator cg) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

@@ -4,6 +4,7 @@ package utils.AST;
 
 import bin.Parser;
 import java.util.List;
+import utils.MIPS.GeneracionCodigo.CodeGenerator;
 import utils.SymbolsTable.SymbolTable;
 
 public class VariableAssignmentNode extends ASTNode {
@@ -71,7 +72,7 @@ public class VariableAssignmentNode extends ASTNode {
     }
 
     @Override
-    void generateMIPS() {
+    String generateMIPS(CodeGenerator cg) {
         throw new UnsupportedOperationException("Not supported yet."); 
     }
 

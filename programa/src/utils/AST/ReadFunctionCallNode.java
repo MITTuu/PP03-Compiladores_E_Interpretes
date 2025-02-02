@@ -1,6 +1,8 @@
 
 package utils.AST;
 
+import utils.MIPS.GeneracionCodigo.CodeGenerator;
+
 
 public class ReadFunctionCallNode extends ASTNode {
     
@@ -16,7 +18,7 @@ public class ReadFunctionCallNode extends ASTNode {
     }
 
     @Override
-    void generateMIPS() {
+    String generateMIPS(CodeGenerator cg) {
         throw new UnsupportedOperationException("Not supported yet."); 
     }
 

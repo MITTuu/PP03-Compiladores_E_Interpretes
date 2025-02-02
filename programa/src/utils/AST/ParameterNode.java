@@ -1,5 +1,7 @@
 package utils.AST;
 
+import utils.MIPS.GeneracionCodigo.CodeGenerator;
+
 public class ParameterNode extends ASTNode{
 
     String variableType;
@@ -16,7 +18,7 @@ public class ParameterNode extends ASTNode{
     }
 
     @Override
-    void generateMIPS() {
+    String generateMIPS(CodeGenerator cg) {
         throw new UnsupportedOperationException("Not supported yet."); 
     }
 

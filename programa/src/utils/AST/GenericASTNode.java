@@ -1,6 +1,9 @@
 package utils.AST;
 
 // Nodo para declaración de variables
+
+import utils.MIPS.GeneracionCodigo.CodeGenerator;
+
 public class GenericASTNode extends ASTNode {
     String name;
 
@@ -14,7 +17,7 @@ public class GenericASTNode extends ASTNode {
     }
 
     @Override
-    void generateMIPS() {
+    String generateMIPS(CodeGenerator cg) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
