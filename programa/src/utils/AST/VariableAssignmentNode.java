@@ -5,6 +5,7 @@ package utils.AST;
 import bin.Parser;
 import java.util.List;
 import utils.SymbolsTable.SymbolTable;
+import utils.SymbolsTable.VariableSymbol;
 
 public class VariableAssignmentNode extends ASTNode {
     
@@ -17,6 +18,7 @@ public class VariableAssignmentNode extends ASTNode {
     SymbolTable symbolTable;
     public Parser parser;
     public String currentHash;
+    public String reducedType;
     
        //Incluye declaración de variable con asignación de expresión.
     public VariableAssignmentNode(String id, ExpressionNode expression){
@@ -68,6 +70,20 @@ public class VariableAssignmentNode extends ASTNode {
     public void checkSemantics() {
         symbolTable = (SymbolTable) parser.getSymbolTable();
 
+        VariableSymbol variable = symbolTable.getVariable(id, currentHash);
+        String type = variable.getType();
+
+        if (type.equals("Char") && reducedType.equals("Integer")) {
+            return;
+        }        
+        
+        if (!type.equals("a")) {
+            if (!type.equals(reducedType)) {
+                // Levantar un error si los tipos no coinciden
+                throw new RuntimeException("Incompatibilidad de tipos asignacion. Se esperaba " 
+                    + type + " pero se asignó " + reducedType);
+            }
+        }        
     }
 
     @Override

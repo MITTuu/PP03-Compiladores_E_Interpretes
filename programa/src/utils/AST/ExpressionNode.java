@@ -21,7 +21,7 @@ public class ExpressionNode extends ASTNode{
     SymbolTable symbolTable;
     public Parser parser;
     public String currentHash;
-    public String reducedType;
+    public String reducedType = "a";
     
     public ExpressionNode(String expression){
         this.expression = expression;
@@ -64,30 +64,34 @@ public class ExpressionNode extends ASTNode{
                 if (variable != null) {
                     return variable.getType();
                 } else {
-                    throw new RuntimeException("Error semántico: La variable '" + value + "' no está definida.");
+                    throw new RuntimeException("La variable '" + value + "' no está definida.");
                 }
             }
 
             return type;
         }
 
-        throw new RuntimeException("Error semántico: La expresión '" + expression + "' no tiene un formato válido.");
+        throw new RuntimeException("La expresión '" + expression + "' no tiene un formato válido.");
+    }
+    
+    public String getReduceType() {
+        return reducedType;
     }
     
     @Override
     public void checkSemantics() {
         symbolTable = (SymbolTable) parser.getSymbolTable();
         
-        System.out.println("Expresion: " + expression + " declarada en " + currentHash);
+        //System.out.println("Expresion: " + expression + " declarada en " + currentHash);
 
         // Construir la expresión de tipos
         String typeExpression = buildTypeExpression(expression);
-        System.out.println("Expresion de tipos: " + typeExpression);
+        //System.out.println("Expresion de tipos: " + typeExpression);
         
         // Reducir la expresión de tipos
         reducedType = reduceTypeExpression(typeExpression);
         
-        System.out.println("Tipo reducido: " + reducedType);
+        //System.out.println("Tipo reducido: " + reducedType);
     }
 
     /**
@@ -97,7 +101,6 @@ public class ExpressionNode extends ASTNode{
      * @return La expresión de tipos.
      */
     private String buildTypeExpression(String expression) {
-        
         // Dividir la expresión en tokens, conservando los paréntesis
         String[] tokens = expression.split("((?<=\\s)|(?=\\s))");
 
@@ -112,41 +115,82 @@ public class ExpressionNode extends ASTNode{
             // Ignorar el negativo si no es un operador de resta
             if (token.equals("-")) {
                 continue;
-            }            
-            
+            }
+
             if (token.matches(".*:--|.*:\\+\\+")) {
-                // identificador seguido de :-- o :++
+                // Identificador seguido de :-- o :++
                 String id = token.split(":")[0].trim();
                 VariableSymbol variable = symbolTable.getVariable(id, currentHash);
                 typeExpression.append(variable.getType()).append(" ");
-            }
-            else if (token.startsWith("Id:")) {
+            } else if (token.startsWith("Id:")) {
                 // Es un identificador, obtener su tipo
                 String id = token.substring(3).trim();
                 VariableSymbol variable = symbolTable.getVariable(id, currentHash);
                 typeExpression.append(variable.getType()).append(" ");
-            }
-            else if (token.startsWith("FunctionCall:")) {
+            } else if (token.startsWith("FunctionCall:")) {
                 // Es una llamada a función, obtener su tipo de retorno
                 String functionCall = token.substring(13).trim();
                 String functionName = functionCall.split("\\[")[0].trim();
                 String returnType = symbolTable.getFunctionSymbols().get(functionName).getReturnType();
                 typeExpression.append(returnType).append(" ");
 
-                // Ignorar todo lo que esté dentro de los corchetes []
-                while (i < tokens.length && !tokens[i].contains("]")) {
+                // Ignorar todo lo que esté dentro de los corchetes internos [ ]
+                int count = 0;
+                while (i < tokens.length) {
+                    if (count == 2) {
+                        break;
+                    }
+                    
+                    if (tokens[i].contains("]")) {
+                        count++;
+                    }
+                    i++;
+                }                        
+            } else if (token.startsWith("ArrayUse:")) {
+                // Es un uso de arreglo, obtener el tipo del arreglo
+                String arrayUse = token.substring(9).trim();
+                String arrayName = arrayUse.split("\\[")[0].trim();
+                VariableSymbol arrayVariable = symbolTable.getVariable(arrayName, currentHash);
+                String name = arrayVariable.getType().split("\\[")[0];
+                typeExpression.append(name).append(" ");
+
+                // Ignorar todo lo que esté dentro de los corchetes internos [ ]
+                int count = 0;
+                while (i < tokens.length) {
+                    if (count == 1) {
+                        break;
+                    }
+
+                    if (tokens[i].contains("]")) {
+                        count++;
+                    }
                     i++;
                 }
+            } else if (token.startsWith("String:\"")) {
+                // Acumular el literal completo
+                StringBuilder literal = new StringBuilder(token);
+                if (!token.endsWith("\"")) {
+                    // Acumular tokens hasta encontrar la comilla de cierre
+                    while (++i < tokens.length) {
+                        String nextToken = tokens[i];
+                        literal.append(nextToken);
+                        if (nextToken.contains("\"")) {
+                            break;
+                        }
+                    }
+                }
+                typeExpression.append("String").append(" ");
             }
-            else if (token.startsWith("Bool:") || token.startsWith("Integer:") || token.startsWith("Float:") || token.startsWith("String:")) {
+            
+            else if (token.startsWith("Bool:") || token.startsWith("Integer:") || token.startsWith("Float:") || token.startsWith("Char:")) {
                 // Es un literal, obtener su tipo
                 String type = token.split(":")[0].trim();
                 typeExpression.append(type).append(" ");
-            }
-            else if (token.equals("(") || token.equals(")")) {
+            } else if (token.equals("(") || token.equals(")")) {
+                // Es un paréntesis, mantenerlo en la expresión
                 typeExpression.append(token).append(" ");
-            }
-            else {
+            } else {
+                // Es un operador u otro token, mantenerlo en la expresión
                 typeExpression.append(token).append(" ");
             }
         }

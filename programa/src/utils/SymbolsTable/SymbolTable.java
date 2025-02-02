@@ -27,6 +27,8 @@ public class SymbolTable {
     // Identificador del bloque actual
     public String blockIdentifier;
     
+    public String currentFunc;
+    
     // Pila para manejar bloques de control
     private Deque<String> blockStack = new ArrayDeque<>();
     
@@ -40,6 +42,7 @@ public class SymbolTable {
      */
     public SymbolTable() {
         blockStack.push("global");
+        currentFunc = "UNKNOWN";
     }
     
     /**
@@ -50,7 +53,13 @@ public class SymbolTable {
      * @throws RuntimeException Si la función ya está definida en la tabla de símbolos.
      */
     public void addFunction(String name, String returnType, String parameters) {
-
+        
+        if (!currentFunc.equals(name)) {
+            currentFunc = name;
+            blockStack.pop();
+            blockStack.push(name);
+        }
+        
         if (functionSymbols.containsKey(name)) {
             throw new RuntimeException("La función '" + name + "' ya está definida.");
         }
@@ -128,19 +137,16 @@ public class SymbolTable {
         // Obtener el bloque actual desde la pila
         String currentBlock = blockStack.peek();
 
-        // Determinar el prefijo del nuevo bloque
-        String prefix = currentBlock.equals("global") ? functionName : currentBlock;
-
-        // Incrementar el contador para este tipo de bloque
-        String blockKey = prefix + "_" + blockType;
+        // Incrementar el contador para este tipo de bloque dentro del scope actual
+        String blockKey = currentBlock + "-" + blockType;
         blockCounters.put(blockKey, blockCounters.getOrDefault(blockKey, 0) + 1);
         int blockId = blockCounters.get(blockKey);
 
-        // Crear un identificador único para el nuevo bloque
-        blockIdentifier = prefix + "-" + blockType + "_" + blockId;
+        // Crear un identificador único para el nuevo bloque anidado
+        blockIdentifier = currentBlock + "-" + blockType + "_" + blockId;
         blockStack.push(blockIdentifier);
     }
-
+    
     /**
      * Finaliza el bloque de control actual, restaurando el bloque anterior en la pila.
      * @throws RuntimeException Si se intenta salir del bloque global.
@@ -148,10 +154,12 @@ public class SymbolTable {
     public void exitBlock() {
         if (!blockStack.isEmpty() && !blockStack.peek().equals("global")) {
             blockStack.pop();
+            blockIdentifier = blockStack.peek();  // Actualiza con el bloque actual
         } else {
             throw new RuntimeException("Error: no se puede salir del alcance global.");
         }
     }
+
 
     /**
      * Obtiene el identificador del bloque actual (el bloque en la cima de la pila).
