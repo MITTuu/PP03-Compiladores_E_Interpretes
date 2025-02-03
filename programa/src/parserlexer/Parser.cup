@@ -1209,7 +1209,7 @@ RETURN_STATEMENT ::= Return:r EndSentence
 
                         } catch (RuntimeException e) {
                             String message = e.getMessage();
-                            if (message.contains("pero la se trató de devolver de tipo a")) {
+                            if (message.contains("pero se trató de devolver de tipo a")) {
                                 //ignorar
                             } else {
                                 parser.logSemanticError("Error en la línea " + (rright+1) + ": " + message);
@@ -1237,10 +1237,10 @@ RETURN_STATEMENT ::= Return:r EndSentence
 
                         } catch (RuntimeException e) {
                             String message = e.getMessage();
-                            if (message.contains("pero la se trató de devolver de tipo a")) {
+                            if (message.contains("pero se trató de devolver de tipo a")) {
                                 //ignorar
                             } else {
-                                parser.logSemanticError("Error en la línea " + (expright+1) + ": " + message);
+                                parser.logSemanticError("Error en lalínea " + (expright+1) + ": " + message);
                             }
                         }
                     :}
