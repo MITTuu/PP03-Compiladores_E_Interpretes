@@ -20,10 +20,14 @@ public class LiteralGenerator {
        
        switch(literalType){
            case "Integer":
+                    reg = cg.getTemporaryRegister();
+                    System.out.println("li " + reg + ", " + literalValue + "  # Cargar entero en " + reg);
+                    return "li " + reg + ", " + literalValue + "  # Cargar entero en " + reg + "\n";
            case "Bool":
                     reg = cg.getTemporaryRegister();
-                    System.out.println("li " + reg + ", " + literalValue + "  # Cargar entero/bool en " + reg);
-                    return "li " + reg + ", " + literalValue + "  # Cargar entero/bool en " + reg + "\n";
+                    String boolCast = literalValue.equals("true") ? "1" : "0";
+                    System.out.println("li " + reg + ", " + boolCast + "  # Cargar bool en " + reg);
+                    return "li " + reg + ", " + boolCast + "  # Cargar bool en " + reg + "\n";
            case "Char":
                      if (literalValue.length() == 3) {
                         int asciiValue = (int) literalValue.charAt(1);

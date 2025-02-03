@@ -57,14 +57,22 @@ public class FunctionNode extends ASTNode {
     
      @Override
     String generateMIPS(CodeGenerator cg) {
-        System.out.println(name + ":");
-        System.out.println("  # Guardar registros si es necesario");
-       /* for (VarDeclNode var : variables) {
-            var.generateMIPS();
-        }*/
-        System.out.println("  # Código de la función");
-        System.out.println("  jr $ra  # Retorno");
-        return "";
+       if(parameterNodeList == null || parameterNodeList.isEmpty()){
+            return "";
+        }
+       if ( bodyNodeList == null || bodyNodeList.isEmpty()) {
+            return "";
+        }
+        String bodyList = "";
+        for(BodyNode element : this.bodyNodeList){
+            bodyList = bodyList.concat(element.generateMIPS(cg));
+        }
+       
+        String result = "";
+        for(ParameterNode param : parameterNodeList){
+            result = result.concat(param.generateMIPS(cg));
+        }
+       return result + bodyList;
     }
     
     @Override

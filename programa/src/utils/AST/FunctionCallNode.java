@@ -68,7 +68,14 @@ public class FunctionCallNode extends ASTNode{
 
     @Override
     String generateMIPS(CodeGenerator cg) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        if(parameterList == null || parameterList.isEmpty()){
+            return "";
+        }
+        String result = "";
+        for(ExpressionNode exp : parameterList){
+            result = result.concat(exp.generateMIPS(cg));
+        }
+       return result;
     }
 
     @Override

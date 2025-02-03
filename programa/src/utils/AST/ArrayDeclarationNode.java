@@ -54,7 +54,8 @@ public class ArrayDeclarationNode extends ASTNode {
 
     @Override
     String generateMIPS(CodeGenerator cg) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if(arrayElements == null)return "";
+        return this.arrayElements.generateMIPS(cg);
     }
 
     @Override

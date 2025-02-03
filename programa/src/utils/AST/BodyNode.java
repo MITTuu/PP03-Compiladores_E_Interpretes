@@ -19,7 +19,8 @@ public class BodyNode extends ASTNode{
 
     @Override
     String generateMIPS(CodeGenerator cg) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        if(bodyElement == null)return "";
+        return bodyElement.generateMIPS(cg);
     }
 
     @Override

@@ -18,7 +18,10 @@ public class PrintFunctionCallNode extends ASTNode {
 
     @Override
     String generateMIPS(CodeGenerator cg) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        if(expression != null){
+            return expression.generateMIPS(cg);
+        }
+        return "";
     }
 
     @Override

@@ -56,7 +56,36 @@ public class IfStatementNode extends ASTNode {
 
     @Override
     String generateMIPS(CodeGenerator cg) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        StringBuilder result = new StringBuilder();
+
+        // Verificar si 'condition' no es null y generar código
+        if (condition != null) {
+            result.append(condition.generateMIPS(cg));
+        }
+
+        // Verificar si 'ifBody' no es null ni vacío y generar código
+        if (ifBody != null && !ifBody.isEmpty()) {
+            for (BodyNode bodyNode : ifBody) {
+                result.append(bodyNode.generateMIPS(cg));
+            }
+        }
+
+        // Verificar si 'elseIfBranches' no es null ni vacío y generar código
+        if (elseIfBranches != null && !elseIfBranches.isEmpty()) {
+            for (IfStatementNode elseIfNode : elseIfBranches) {
+                result.append(elseIfNode.generateMIPS(cg));
+            }
+        }
+
+        // Verificar si 'finalElseBody' no es null ni vacío y generar código
+        if (finalElseBody != null && !finalElseBody.isEmpty()) {
+            for (BodyNode elseNode : finalElseBody) {
+                result.append(elseNode.generateMIPS(cg));
+            }
+        }
+
+        // Retornar el resultado concatenado
+        return result.toString();
     }
 
     @Override

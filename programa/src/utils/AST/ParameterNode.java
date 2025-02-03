@@ -19,7 +19,7 @@ public class ParameterNode extends ASTNode{
 
     @Override
     String generateMIPS(CodeGenerator cg) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        return "# Pendiente, hacer la generación de código para ParameterNode \n";
     }
 
     @Override

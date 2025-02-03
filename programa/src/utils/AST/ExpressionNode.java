@@ -31,8 +31,7 @@ public class ExpressionNode extends ASTNode{
     public ExpressionNode(ExpressionEnum expressionType, ASTNode subExpression, String expression){
         this.expressionType = expressionType;
         this.subExpression = subExpression;
-        this.expression = expression;
-        generateMIPS(ASTNode.cg);
+        this.expression = expression;        
     }
     
     //Constructor opcional en caso que sea necesario asignar el treeElementNode como parte de la expresión resultante.
@@ -354,6 +353,33 @@ public class ExpressionNode extends ASTNode{
     
     @Override
     String generateMIPS(CodeGenerator cg) {
+        if(expressionType == null) {
+            if(expression == null) expression = "No se encontró texto de expresion";
+            System.err.println("expressionType en null en: " + expression);
+            return "";
+        }
+        
+        String result = "";
+        if(subExpression !=null){
+            result = result + subExpression.generateMIPS(cg);
+        }
+        
+        if(treeElementNode !=null){
+            result = result + treeElementNode.generateMIPS(cg);
+        }
+        
+        if(leftExpression !=null){
+            result = result + leftExpression.generateMIPS(cg);
+        }
+        
+        if(rightExpression !=null){
+            result = result + rightExpression.generateMIPS(cg);
+        }
+        
+        if(operatorExpression !=null){
+            result = result + operatorExpression.generateMIPS(cg);
+        }
+        
         switch (expressionType) {
             case LOGICAL:
                 // Código para expresión lógica
@@ -393,7 +419,7 @@ public class ExpressionNode extends ASTNode{
                 // Código para identificador
                 break;
             case LITERALS:
-                String result = literalGenerator.generateCodeLiteralLoad(expression,cg);                
+                result = literalGenerator.generateCodeLiteralLoad(expression,cg);                
                 return result;
             case NEGATIVE_LITERAL:
             case UNARY_ARITHMETIC_EXPRESSION:
@@ -447,7 +473,6 @@ public class ExpressionNode extends ASTNode{
             default:
                 throw new IllegalArgumentException("Tipo de expresión no soportado: " + expressionType);
         }
-
-        return "";
+        return result;
     }
 }

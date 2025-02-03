@@ -24,7 +24,19 @@ public class ForStatementNode extends ASTNode {
 
     @Override
     String generateMIPS(CodeGenerator cg) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        // Validar si alguno de los atributos es null o si la lista está vacía
+        if (initialization == null || condition == null || updateExpression == null || 
+            body == null || body.isEmpty()) {
+            return "";
+        }
+        String initialization = this.initialization.generateMIPS(cg);
+        String condition = this.condition.generateMIPS(cg);
+        String updateExpression = this.updateExpression.generateMIPS(cg);
+        String bodyList = "";
+        for(BodyNode element : this.body){
+            bodyList = bodyList.concat(element.generateMIPS(cg));
+        }
+        return initialization + condition+ updateExpression + bodyList;
     }
 
     @Override

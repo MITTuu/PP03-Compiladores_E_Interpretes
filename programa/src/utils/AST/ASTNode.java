@@ -15,10 +15,8 @@ public abstract class ASTNode {
     public SymbolTable symbolTableAST = new SymbolTable();
     
     //Instanciar la utilidad de LiteralGenerator
-    LiteralGenerator literalGenerator = new LiteralGenerator();
+    LiteralGenerator literalGenerator = new LiteralGenerator();   
     
-    // Instanciar el generador de código
-    static CodeGenerator cg = new CodeGenerator();
     
     /**
      * Este método verifica tipos y errores

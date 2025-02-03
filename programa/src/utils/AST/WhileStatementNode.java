@@ -20,7 +20,16 @@ public class WhileStatementNode extends ASTNode{
 
     @Override
     String generateMIPS(CodeGenerator cg) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        // Validar si alguno de los atributos es null o si la lista está vacía
+        if (condition == null ||  body == null || body.isEmpty()) {
+            return "";
+        }
+        String condition = this.condition.generateMIPS(cg);
+        String bodyList = "";
+        for(BodyNode element : this.body){
+            bodyList = bodyList.concat(element.generateMIPS(cg));
+        }
+        return  condition +  bodyList;
     }
 
     @Override

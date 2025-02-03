@@ -32,6 +32,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import utils.AST.ProgramNode;
+import utils.MIPS.GeneracionCodigo.CodeGenerator;
 import utils.SymbolsTable.SymbolTable;
 import utils.SymbolsTable.FunctionSymbol;
 import utils.SymbolsTable.VariableSymbol;
@@ -54,6 +55,8 @@ import utils.SymbolsTable.VariableSymbol;
 public class View_Main extends javax.swing.JFrame {
 
     LineNumberComponent lineNumberComponent;
+    ProgramNode program ;
+    SymbolTable symbolTable;
     
     /**
      * Constructor de la clase {@code View_Main}.
@@ -154,6 +157,47 @@ public class View_Main extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Guardado cancelado.");
         }
     }
+    
+    private void saveMipsCode(String dataMIPS, String textMIPS) {
+        String dataSection = "# --------------------------------------------------\n"
+                    + "# Sección de Datos (.data)\n"
+                    + "# --------------------------------------------------\n"
+                    + ".data \n\n"
+                    + dataMIPS;
+        String textSection = "\n\n# --------------------------------------------------\n"
+                    + "# Carga de valores en registros (.text)\n"
+                    + "# --------------------------------------------------\n"
+                    + ".text \n\n"
+                    + "# La directiva .globl main declara la etiqueta 'main' como símbolo global \n"
+                    + "# lo que indica que es el punto de entrada del programa \n"
+                    + ".globl main \n\n"
+                    + "main: \n\n"
+                    + textMIPS;
+
+        String content = dataSection + textSection;
+        
+        //Abre una ventana de dialogo para elegir la ruta donde se guardará el texto de codigo generado.
+        JFileChooser fileChooser = new JFileChooser();
+        int selection = fileChooser.showSaveDialog(null);
+
+        if (selection == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            
+           // Verificar si el file tiene la extensión .txt
+           if (!file.getName().toLowerCase().endsWith(".asm")) {
+               file = new File(file.getAbsolutePath() + ".asm");
+           }
+            
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                writer.write(content);
+                JOptionPane.showMessageDialog(null, "Archivo guardado exitosamente en: " + file.getPath());
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(null, "Error al guardar el archivo: " + e.getMessage());
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Guardado cancelado.");
+        }
+    }
 
     /**
      * Realiza el análisis sintáctico del código fuente ingresado en el área de texto. Utiliza el 
@@ -173,35 +217,27 @@ public class View_Main extends javax.swing.JFrame {
         Parser parser = new Parser(new Lexer(new StringReader(expr)));
 
         try {
-            Symbol result = parser.parse();
-            ProgramNode program ;
+            Symbol result = parser.parse();            
             String salidaAST = "Sin datos para mostrar.";
             
             // Lista de los errores sintácticos acumulados
             List<String> semanticErrorList = new ArrayList<>();
             
             //Funcionalidad tabla de símbolos
-            SymbolTable symbolTable = (SymbolTable) parser.getSymbolTable();  
+            symbolTable = (SymbolTable) parser.getSymbolTable();  
             
             if(result.value != null)
             {
                 program = (ProgramNode)result.value;
                 
                 //Obtiene el arbol sintáctico mediante el metodo abstracto ToString
-                salidaAST = program.toString(" ");
-                
-                //Asigna la tabla de Simbolos al arbol sintáctico abstracto para poder hacer referencia
-                //a la misma del método checkSemantics
-                program.setSymbolTable(symbolTable);
-                
-                //Realiza la llamada para analizar semántica y agregar errores a la lista.
-                //Analiza semántica mediante el método abstracto checkSemantics;
-                //program.checkSemantics();//Requiere diferente implementacion del analisis semantico para hacerlo recursivo
+                salidaAST = program.toString(" ");               
                 
                 //Obtiene la lista de errores semánticos según el analisis
                 //semanticErrorList = program.getSemanticErrorList();//esta lista no esta siendo usada
                 // Obtener los errores sintácticos acumulados
                 semanticErrorList = parser.getSemanticErrorList();
+                                
             }            
             Lexer s =  (Lexer) parser.getScanner();
             
@@ -590,6 +626,7 @@ public class View_Main extends javax.swing.JFrame {
         label_Titulo = new java.awt.Label();
         jButton_SaveToFile = new javax.swing.JButton();
         jCheckBox_VerInfoExtra = new javax.swing.JCheckBox();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -643,6 +680,13 @@ public class View_Main extends javax.swing.JFrame {
 
         jCheckBox_VerInfoExtra.setText("Mostrar Tabla de Symbolos y Arbol Sintáctico");
 
+        jButton1.setText("Generar Código MIPS");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel_BodyLayout = new javax.swing.GroupLayout(jPanel_Body);
         jPanel_Body.setLayout(jPanel_BodyLayout);
         jPanel_BodyLayout.setHorizontalGroup(
@@ -659,13 +703,15 @@ public class View_Main extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jButton_SaveToFile, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(jPanel_BodyLayout.createSequentialGroup()
-                        .addGap(425, 425, 425)
+                        .addGap(194, 194, 194)
                         .addComponent(jButton_LexicalAnalyzer, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(106, 106, 106)
+                        .addGap(155, 155, 155)
                         .addComponent(jButton_SintaxAnalyzer)
-                        .addGap(36, 36, 36)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jCheckBox_VerInfoExtra)
-                        .addGap(0, 198, Short.MAX_VALUE)))
+                        .addGap(118, 118, 118)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 107, Short.MAX_VALUE)))
                 .addGap(29, 29, 29))
             .addComponent(jScrollPane2)
         );
@@ -684,7 +730,8 @@ public class View_Main extends javax.swing.JFrame {
                 .addGroup(jPanel_BodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton_LexicalAnalyzer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton_SintaxAnalyzer)
-                    .addComponent(jCheckBox_VerInfoExtra))
+                    .addComponent(jCheckBox_VerInfoExtra)
+                    .addComponent(jButton1))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 224, Short.MAX_VALUE)
                 .addContainerGap())
@@ -731,6 +778,30 @@ public class View_Main extends javax.swing.JFrame {
         analizadorSintactico();
     }//GEN-LAST:event_jButton_SintaxAnalyzerActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+       if (program == null) {
+            JOptionPane.showMessageDialog(null, "El programa necesita realizar el Análisis de Código primero.", "Error", JOptionPane.WARNING_MESSAGE);
+       }else{
+
+            //Asigna la tabla de Simbolos al arbol sintáctico abstracto para poder hacer referencia
+            //a la misma en el método generateMIPS
+            program.setSymbolTable(symbolTable);
+
+
+            // Instanciar el generador de código
+            CodeGenerator cg = new CodeGenerator();
+            //Realiza la llamada para generar el codigo MIPS Y crear la estructura .data del CodeGenerator class.
+            //Lo realiza mediante el metodo abstracto generateMIPS que recibe la instancia de CodeGenerator y retorna el .text;
+            String textMIPS = program.generateMIPS(cg);
+
+            //Obtiene el codigo de la sección .data
+            String dataMIPS = cg.getDataSection();
+
+            //Almacena el código en un archivo
+            saveMipsCode(dataMIPS, textMIPS);
+       }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -768,6 +839,7 @@ public class View_Main extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton_LexicalAnalyzer;
     private javax.swing.JButton jButton_LoadFile;
     private javax.swing.JButton jButton_SaveToFile;

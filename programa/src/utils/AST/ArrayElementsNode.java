@@ -18,7 +18,7 @@ public class ArrayElementsNode extends ASTNode {
 
     @Override
     String generateMIPS(CodeGenerator cg) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        return "# Pendiente. Generar MIPS para arreglo de de elementos String de ArrayElementsNode \n"; 
     }
 
     @Override

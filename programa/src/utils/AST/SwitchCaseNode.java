@@ -22,7 +22,18 @@ public class SwitchCaseNode extends ASTNode {
 
     @Override
     String generateMIPS(CodeGenerator cg) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        if(caseLabel == null || body == null || body.isEmpty()){
+            return "";
+        } 
+        String result = caseLabel.generateMIPS(cg);
+        String bodyList = "";
+        for(BodyNode element : this.body){
+            bodyList = bodyList.concat(element.generateMIPS(cg));
+        }
+        
+        result =  result.concat(bodyList);
+        
+        return result;
     }
 
     @Override
