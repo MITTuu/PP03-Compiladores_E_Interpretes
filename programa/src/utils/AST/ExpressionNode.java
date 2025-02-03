@@ -8,6 +8,17 @@ import utils.MIPS.GeneracionCodigo.CodeGenerator;
 import utils.SymbolsTable.SymbolTable;
 import utils.SymbolsTable.VariableSymbol;
 
+/**
+ * Clase que representa un nodo de expresión en el árbol sintáctico abstracto (AST).
+ * 
+ * Esta clase maneja expresiones de diferentes tipos y evalúa sus tipos, operaciones y semántica.
+ * Se utiliza para construir las expresiones de código y gestionar las interacciones entre los nodos
+ * en una estructura que representa operaciones aritméticas, lógicas, relacionales, etc.
+ * 
+ * @author Joselyn Jiménez Salgado
+ * @author Dylan Montiel Zúñiga
+ * @version 1/23/2024
+ */
 public class ExpressionNode extends ASTNode{
     public String expression;//Contiene el string concatenado de las expresiones que se asigna o evalúa.
     ASTNode subExpression;//Contiene la expresión hijo que compone la actual expresión. Puede ser null en caso de ser una expresión base
@@ -23,11 +34,23 @@ public class ExpressionNode extends ASTNode{
     public Parser parser;
     public String currentHash;
     public String reducedType = "a";
-    
+
+    /**
+     * Constructor para crear un nodo de expresión con solo la expresión.
+     * 
+     * @param expression La expresión que representa el nodo.
+     */    
     public ExpressionNode(String expression){
         this.expression = expression;
     }
     
+    /**
+     * Constructor para crear un nodo de expresión con tipo, sub-expresión y la expresión.
+     * 
+     * @param expressionType El tipo de la expresión.
+     * @param subExpression La sub-expresión asociada a esta expresión.
+     * @param expression La expresión que representa el nodo.
+     */    
     public ExpressionNode(ExpressionEnum expressionType, ASTNode subExpression, String expression){
         this.expressionType = expressionType;
         this.subExpression = subExpression;
@@ -35,7 +58,14 @@ public class ExpressionNode extends ASTNode{
         generateMIPS(ASTNode.cg);
     }
     
-    //Constructor opcional en caso que sea necesario asignar el treeElementNode como parte de la expresión resultante.
+    /**
+     * Constructor opcional para asignar un nodo de árbol como parte de la expresión resultante.
+     * 
+     * @param expressionType El tipo de la expresión.
+     * @param subExpression La sub-expresión asociada a esta expresión.
+     * @param expression La expresión que representa el nodo.
+     * @param treeElementNode El nodo del árbol asociado a esta expresión.
+     */     
     public ExpressionNode(ExpressionEnum expressionType, ASTNode subExpression, String expression, ASTNode treeElementNode){
         this.expressionType = expressionType;
         this.subExpression = subExpression;
@@ -43,8 +73,15 @@ public class ExpressionNode extends ASTNode{
         this.treeElementNode = treeElementNode;
     }
     
-    //Constructor opcional 
-    //En caso de expresiones binarias que incluyen el siguiente formato (exp op exp), verificar según expressionType
+    /**
+     * Constructor para expresiones binarias que incluyen izquierda, operador y derecha.
+     * 
+     * @param expressionType El tipo de la expresión.
+     * @param expression La expresión representada por este nodo.
+     * @param leftExpression La expresión de la izquierda del operador.
+     * @param operatorExpression El operador utilizado.
+     * @param rightExpression La expresión de la derecha del operador.
+     */
     public ExpressionNode(ExpressionEnum expressionType, String expression,
             ASTNode leftExpression, ASTNode operatorExpression, ASTNode rightExpression){
         this.expressionType = expressionType;
@@ -53,7 +90,14 @@ public class ExpressionNode extends ASTNode{
         this.operatorExpression = operatorExpression;
         this.rightExpression = rightExpression;
     }
-    
+
+    /**
+     * Obtiene el tipo de la expresión a partir de la tabla de símbolos.
+     * 
+     * @param symbolTable La tabla de símbolos para buscar la variable.
+     * @return El tipo de la expresión.
+     * @throws RuntimeException Si la variable no está definida.
+     */    
     public String getType(SymbolTable symbolTable) {
         String[] parts = expression.split(":");
 
@@ -75,11 +119,19 @@ public class ExpressionNode extends ASTNode{
 
         throw new RuntimeException("La expresión '" + expression + "' no tiene un formato válido.");
     }
-    
+
+    /**
+     * Obtiene el tipo reducido de la expresión.
+     * 
+     * @return El tipo reducido de la expresión.
+     */    
     public String getReduceType() {
         return reducedType;
     }
     
+    /**
+     * Verifica la semántica de la expresión, construyendo la expresión de tipos y reduciéndola.
+     */    
     @Override
     public void checkSemantics() {
         symbolTable = (SymbolTable) parser.getSymbolTable();
@@ -98,6 +150,7 @@ public class ExpressionNode extends ASTNode{
 
     /**
      * Construye una expresión de tipos a partir de una expresión dada.
+     * 
      * @param expression La expresión original.
      * @param symbolTable La tabla de símbolos para buscar tipos de identificadores y funciones.
      * @return La expresión de tipos.
@@ -203,6 +256,12 @@ public class ExpressionNode extends ASTNode{
         return typeExpression.toString().trim();
     }
 
+    /**
+     * Reduce la expresión de tipos a un tipo simple basado en las reglas de precedencia y operación.
+     * 
+     * @param typeExpression La expresión de tipos a reducir.
+     * @return El tipo reducido.
+     */    
     private String reduceTypeExpression(String typeExpression) {
         String[] tokens = typeExpression.split("\\s+");
 
@@ -345,6 +404,12 @@ public class ExpressionNode extends ASTNode{
         }
     }
     
+    /**
+     * Genera el código MIPS correspondiente a la expresión.
+     * 
+     * @param cg El generador de código MIPS.
+     * @return El código MIPS generado.
+     */    
     @Override
     String toString(String indent) {
         return indent +"└── Expresión: "+ expression + "\n";

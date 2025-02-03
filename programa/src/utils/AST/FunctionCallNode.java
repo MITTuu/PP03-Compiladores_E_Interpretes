@@ -8,6 +8,15 @@ import utils.MIPS.GeneracionCodigo.CodeGenerator;
 import utils.SymbolsTable.FunctionSymbol;
 import utils.SymbolsTable.SymbolTable;
 
+/**
+ * Representa un nodo en el árbol sintáctico abstracto (AST) para la llamada a una función.
+ * Esta clase se utiliza para verificar la semántica de la llamada a la función y generar código MIPS,
+ * entre otras funcionalidades relacionadas con la ejecución y validación de una llamada a función.
+ * 
+ * @author Joselyn Jiménez Salgado
+ * @author Dylan Montiel Zúñiga
+ * @version 1/23/2024
+ */
 public class FunctionCallNode extends ASTNode{
     
     public String name;
@@ -15,12 +24,26 @@ public class FunctionCallNode extends ASTNode{
     SymbolTable symbolTable;
     public Parser parser;
     public String currentHash;
-    
+  
+    /**
+     * Constructor de la clase FunctionCallNode.
+     * 
+     * @param name Nombre de la función a la que se realiza la llamada.
+     * @param parameterList Lista de nodos de expresión que representan los parámetros.
+     */    
     public FunctionCallNode(String name, List<ExpressionNode> parameterList) {
         this.name = name;
         this.parameterList = parameterList;
     }
 
+    /**
+     * Verifica la semántica de la llamada a la función, asegurándose de que:
+     * - La función exista en la tabla de símbolos.
+     * - Los parámetros proporcionados coincidan en tipo y cantidad con los definidos para la función.
+     * 
+     * @throws RuntimeException Si ocurre un error en la verificación semántica (por ejemplo, si la función no existe
+     *         o los tipos de parámetros no coinciden).
+     */    
     @Override
     public void checkSemantics() {
         symbolTable = (SymbolTable) parser.getSymbolTable();
@@ -66,11 +89,23 @@ public class FunctionCallNode extends ASTNode{
         }
     }
 
+    /**
+     * Genera el código MIPS correspondiente para esta llamada a la función.
+     * 
+     * @param cg Objeto CodeGenerator que se utiliza para generar el código.
+     * @throws UnsupportedOperationException Si esta operación no está soportada por la clase.
+     */    
     @Override
     String generateMIPS(CodeGenerator cg) {
         throw new UnsupportedOperationException("Not supported yet."); 
     }
 
+    /**
+     * Representa esta llamada a la función en formato de cadena, con una indentación específica.
+     * 
+     * @param indent La cadena de texto que representa la indentación para el formato.
+     * @return La representación en formato de cadena de esta llamada a la función.
+     */    
     @Override
     String toString(String indent) {
         StringBuilder sb = new StringBuilder();
@@ -89,6 +124,11 @@ public class FunctionCallNode extends ASTNode{
         return sb.toString();
     }
 
+    /**
+     * Representa esta llamada a la función en formato de cadena.
+     * 
+     * @return La representación en formato de cadena de esta llamada a la función.
+     */   
     @Override
     public String toString() {
         return "FunctionCall:" + name + parameterList;

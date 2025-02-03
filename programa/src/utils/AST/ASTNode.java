@@ -1,44 +1,75 @@
 package utils.AST;
 
-// Nodo base para el AST
-
 import java.util.ArrayList;
 import java.util.List;
 import utils.SymbolsTable.SymbolTable;
 import utils.MIPS.GeneracionCodigo.*;
 
+/**
+ * Representa un nodo base para el Árbol de Sintaxis Abstracta (AST).
+ * Proporciona la estructura y métodos fundamentales para la verificación semántica
+ * y la generación de código MIPS.
+ * 
+ * Esta clase es abstracta y debe ser extendida por otros nodos específicos del AST.
+ * 
+ * @author Joselyn Jiménez Salgado
+ * @author Dylan Montiel Zúñiga
+ * @version 1/23/2024
+ */
 public abstract class ASTNode {   
-    //Lista de errores semánticos 
+
     public static List<String> semanticErrorListAST = new ArrayList<String>();
-    
-    //Tabla de simbolos para almacenar los alcances, tipo y valores de las variables y funciones
     public SymbolTable symbolTableAST = new SymbolTable();
-    
-    //Instanciar la utilidad de LiteralGenerator
     LiteralGenerator literalGenerator = new LiteralGenerator();
-    
-    // Instanciar el generador de código
     static CodeGenerator cg = new CodeGenerator();
     
     /**
-     * Este método verifica tipos y errores
-     *Debe limitarse a analizar los propios elementos de la clase 
+     * Verifica la semántica del nodo actual, incluyendo la validación de tipos 
+     * y la detección de errores semánticos.
+     * 
+     * Este método debe ser implementado por las subclases y solo debe analizar 
+     * los elementos propios del nodo.
      */
-    abstract void checkSemantics(); // Verifica tipos y errores
+    abstract void checkSemantics();
+    /**
+     * Genera el código MIPS correspondiente a este nodo.
+     * 
+     * @param cg Instancia del generador de código.
+     * @return Representación en ensamblador MIPS del nodo.
+     */    
+    abstract String generateMIPS(CodeGenerator cg);
+
+    /**
+     * Devuelve una representación en cadena del nodo AST, incluyendo su estructura jerárquica.
+     * 
+     * @param indent Espaciado utilizado para la indentación visual.
+     * @return Representación en formato de texto del nodo.
+     */    
+    abstract String toString(String indent); 
     
-    abstract String generateMIPS(CodeGenerator cg);   // Genera el código MIPS
-    
-    abstract String toString(String indent); //Genera un string de los nodos
-    
-    // Agrega errores semánticos a la lista
+    /**
+     * Agrega un error semántico a la lista de errores global del AST.
+     * 
+     * @param error Mensaje de error a registrar.
+     */
     public void logSemanticError(String error) {
         semanticErrorListAST.add(error);
     }
     
+    /**
+     * Obtiene la lista de errores semánticos registrados en el AST.
+     * 
+     * @return Lista de errores semánticos detectados.
+     */    
     public List<String> getSemanticErrorList(){
         return ASTNode.semanticErrorListAST;
     }
-    
+
+    /**
+     * Asigna una nueva tabla de símbolos a este nodo del AST.
+     * 
+     * @param symbolTable La nueva tabla de símbolos.
+     */    
     public void setSymbolTable(SymbolTable symbolTable){
         this.symbolTableAST = symbolTable;
     }
