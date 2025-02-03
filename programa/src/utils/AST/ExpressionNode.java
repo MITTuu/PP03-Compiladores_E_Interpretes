@@ -132,6 +132,9 @@ public class ExpressionNode extends ASTNode{
                 // Es una llamada a función, obtener su tipo de retorno
                 String functionCall = token.substring(13).trim();
                 String functionName = functionCall.split("\\[")[0].trim();
+                if (!symbolTable.getFunctionSymbols().containsKey(functionName)) {
+                    throw new RuntimeException("Error semántico: la función no está definida.");
+                }                
                 String returnType = symbolTable.getFunctionSymbols().get(functionName).getReturnType();
                 typeExpression.append(returnType).append(" ");
 

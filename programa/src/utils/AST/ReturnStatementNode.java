@@ -20,6 +20,11 @@ public class ReturnStatementNode extends ASTNode {
     
     @Override
     public void checkSemantics() {
+        
+        if (reducedType == null) {
+            throw new RuntimeException("Retorno sin asignación en la función '" + currentHash.split("-")[0] + "'.");
+        }        
+        
         symbolTable = (SymbolTable) parser.getSymbolTable();
         String currentFunction = currentHash.split("-")[0];
         String returnType = symbolTable.getFunctionSymbols().get(currentFunction).getReturnType();
@@ -33,7 +38,7 @@ public class ReturnStatementNode extends ASTNode {
                 // Levantar un error si los tipos no coinciden
                 throw new RuntimeException("El valor de retorno de la función '" 
                                             + currentFunction + "' se esperaba de tipo " + returnType 
-                                            + ", pero la se trató de devolver de tipo " + reducedType);  
+                                            + ", pero se trató de devolver de tipo " + reducedType);  
  
             }
         }        
