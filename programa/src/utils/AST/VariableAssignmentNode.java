@@ -1,13 +1,20 @@
 package utils.AST;
 
-//Nodo para la asignación de variables
-
 import bin.Parser;
-import java.util.List;
 import utils.MIPS.GeneracionCodigo.CodeGenerator;
 import utils.SymbolsTable.SymbolTable;
 import utils.SymbolsTable.VariableSymbol;
 
+/**
+ * Representa una asignación de variable en el árbol sintáctico abstracto (AST).
+ * Este nodo puede manejar diferentes tipos de asignaciones, incluyendo 
+ * asignaciones simples, asignaciones con operadores aritméticos, 
+ * asignaciones a elementos de un arreglo, y asignaciones que implican el uso de arreglos.
+ * 
+ * @author Joselyn Jiménez Salgado
+ * @author Dylan Montiel Zúñiga
+ * @version 1/23/2024
+ */
 public class VariableAssignmentNode extends ASTNode {
     
     String id;
@@ -21,7 +28,12 @@ public class VariableAssignmentNode extends ASTNode {
     public String currentHash;
     public String reducedType;
     
-       //Incluye declaración de variable con asignación de expresión.
+    /**
+     * Constructor para una asignación simple de una variable.
+     * 
+     * @param id El identificador de la variable.
+     * @param expression La expresión a la que se le asigna un valor.
+     */      
     public VariableAssignmentNode(String id, ExpressionNode expression){
         this.id = id;
         this.expression = expression;
@@ -32,6 +44,11 @@ public class VariableAssignmentNode extends ASTNode {
         this.VariableAssignmentCase = 1;
     }
     
+    /**
+     * Constructor para una asignación que involucra un operador aritmético unitario.
+     * 
+     * @param unaryArithmeticExpression Una cadena que contiene el identificador y el operador.
+     */    
      public VariableAssignmentNode(String unaryArithmeticExpression){
          //Recibe el id y el operador en un solo string
         String[] unaryExpression = unaryArithmeticExpression.split(":");
@@ -45,8 +62,12 @@ public class VariableAssignmentNode extends ASTNode {
         this.VariableAssignmentCase = 2;
     }
                 
-    //Incluye declaración de variable con asignación de elementos de array.
-    //Para asignación de arreglos
+    /**
+     * Constructor para una asignación a elementos de un arreglo.
+     * 
+     * @param id El identificador del arreglo.
+     * @param arrayElements Los elementos del arreglo a los cuales se asigna un valor.
+     */
     public VariableAssignmentNode(String id, ArrayElementsNode arrayElements){
         this.id = id;
         this.arrayElements = arrayElements;
@@ -57,6 +78,12 @@ public class VariableAssignmentNode extends ASTNode {
         this.VariableAssignmentCase = 3;
     }
     
+    /**
+     * Constructor para una asignación que involucra el uso de un arreglo.
+     * 
+     * @param arrayUse El uso del arreglo.
+     * @param expression La expresión a la que se le asigna un valor.
+     */    
      public VariableAssignmentNode(ArrayUseNode arrayUse, ExpressionNode expression){
         this.id = arrayUse.id;
         this.expression = expression;
@@ -67,6 +94,13 @@ public class VariableAssignmentNode extends ASTNode {
         this.VariableAssignmentCase = 4;
     }
 
+
+    /**
+     * Realiza la verificación semántica de la asignación, comprobando que el tipo de la variable
+     * sea compatible con el tipo de la expresión que se le está asignando.
+     * 
+     * @throws RuntimeException Si hay una incompatibilidad de tipos.
+     */     
     @Override
     public void checkSemantics() {
         symbolTable = (SymbolTable) parser.getSymbolTable();
@@ -87,6 +121,12 @@ public class VariableAssignmentNode extends ASTNode {
         }        
     }
 
+    /**
+     * Genera el código MIPS correspondiente a la asignación de variable.
+     * Este método no está implementado en esta clase.
+     * 
+     * @param cg El generador de código MIPS.     
+     */    
     @Override
     String generateMIPS(CodeGenerator cg) {
         String result = ""; // Inicializar result
@@ -108,6 +148,12 @@ public class VariableAssignmentNode extends ASTNode {
 
     }
 
+    /**
+     * Representa el nodo de la asignación de variable en formato de cadena con indentación.
+     * 
+     * @param indent La cadena de texto que representa la indentación para el formato.
+     * @return La representación en formato de cadena de la asignación de variable.
+     */    
     @Override
     String toString(String indent) {
         StringBuilder sb = new StringBuilder();
@@ -136,6 +182,11 @@ public class VariableAssignmentNode extends ASTNode {
         return sb.toString();
     }
     
+    /**
+     * Representa el nodo de asignación de variable en formato de cadena sin indentación.
+     * 
+     * @return La representación en formato de cadena de la asignación de variable.
+     */    
     @Override
     public String toString() {
         if (expression != null) {

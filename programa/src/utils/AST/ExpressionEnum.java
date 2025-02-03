@@ -1,6 +1,12 @@
-
 package utils.AST;
 
+/**
+ * Enum que representa los diferentes tipos de expresiones que pueden ser utilizadas en el AST.
+ * Cada tipo de expresión tiene una descripción asociada para su identificación semántica.
+ *
+ * @author Joselyn Jiménez Salgado
+ * @version 1/23/2024
+ */
 public enum ExpressionEnum {
     LOGICAL("Expresión lógica"),
     LOGICAL_OPERATOR_CONJUNCTION("Operador lógico de conjunción"),
@@ -42,13 +48,21 @@ public enum ExpressionEnum {
     ; 
     
     private String description;
-
-    
-    
+   
+    /**
+     * Constructor del enum que asocia una descripción a cada tipo de expresión.
+     * 
+     * @param description Descripción de la expresión.
+     */    
     ExpressionEnum(String description){
     this.description = description;
     }
-    
+
+    /**
+     * Obtiene la descripción del tipo de expresión.
+     * 
+     * @return Descripción del tipo de expresión.
+     */    
     public String getDescription() {
         return description;
     } 

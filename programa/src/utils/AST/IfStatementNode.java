@@ -1,11 +1,17 @@
-
 package utils.AST;
 
 import java.util.ArrayList;
 import java.util.List;
 import utils.MIPS.GeneracionCodigo.CodeGenerator;
 
-
+/**
+ * Representa una sentencia de control "if" en el árbol sintáctico abstracto (AST).
+ * Esta clase soporta varios casos de estructuras de control "if" con diferentes combinaciones
+ * de cláusulas "else" y "elseif".
+ * 
+ * @author Joselyn Jiménez Salgado
+ * @version 1/23/2024
+ */
 public class IfStatementNode extends ASTNode {
     ExpressionNode condition;
     List<BodyNode> ifBody;
@@ -13,7 +19,12 @@ public class IfStatementNode extends ASTNode {
     List<BodyNode> finalElseBody;
     private int ifStatementCase = 0;//Revisar producciones casos 3 y 4
 
-    //Caso para solamente un if
+    /**
+     * Constructor para un solo "if" sin "else" ni "elseif".
+     * 
+     * @param condition La condición del "if".
+     * @param ifBody El bloque de instrucciones asociado al "if".
+     */
     public IfStatementNode(ExpressionNode condition, List<BodyNode> ifBody) {
         ifStatementCase =1;
         this.condition = condition;
@@ -22,7 +33,12 @@ public class IfStatementNode extends ASTNode {
         this.finalElseBody = null;
     }
     
-    //Caso para  un if con su else respectivo
+    /**
+     * Constructor para un "if" con un bloque "else".
+     * 
+     * @param ifStatementNode El "if" original.
+     * @param elseBody El bloque de instrucciones del "else".
+     */
     public IfStatementNode(IfStatementNode ifStatementNode, List<BodyNode> elseBody) {
         ifStatementCase = 2;
         this.condition = ifStatementNode.condition;
@@ -31,7 +47,13 @@ public class IfStatementNode extends ASTNode {
         this.elseIfBranches = new ArrayList<>();
     }
     
-    //Caso para  un if con su cadena de elseif y opcional puede incluir un else body al final(validar eso)
+    /**
+     * Constructor para un "if" con una cadena de "elseif" y sin "else".
+     * 
+     * @param ifStatementNode El "if" original.
+     * @param elseIfBranches Lista de ramas "elseif".
+     * @param statementCase El caso de la estructura de control (indica si hay "elseif").
+     */
     public IfStatementNode(IfStatementNode ifStatementNode, List<IfStatementNode> elseIfBranches, int statementCase) {
         ifStatementCase = 3;
         this.condition = ifStatementNode.condition;
@@ -40,7 +62,11 @@ public class IfStatementNode extends ASTNode {
         this.elseIfBranches = elseIfBranches;
     }
     
-    //Caso para  cuando solo se incluye un else final
+    /**
+     * Constructor para un "else" sin "if" (solo el bloque "else").
+     * 
+     * @param elseBody El bloque de instrucciones del "else".
+     */
     public IfStatementNode(List<BodyNode> elseBody) {
         ifStatementCase = 4;
         this.condition = null;
@@ -49,11 +75,24 @@ public class IfStatementNode extends ASTNode {
         this.elseIfBranches = new ArrayList<>();
     }
 
+    /**
+     * Verifica la semántica de la sentencia "if".
+     * Este método no está implementado en esta clase y lanza una excepción si es llamado.
+     * 
+     * @throws UnsupportedOperationException si se llama a este método en esta clase.
+     */    
     @Override
     void checkSemantics() {
         throw new UnsupportedOperationException("Not supported yet."); 
     }
 
+    /**
+     * Genera el código MIPS para la sentencia "if".
+     * Este método no está implementado en esta clase y lanza una excepción si es llamado.
+     * 
+     * @param cg El generador de código utilizado para generar el código MIPS.     
+     * @throws UnsupportedOperationException si se llama a este método en esta clase.
+     */    
     @Override
     String generateMIPS(CodeGenerator cg) {
         StringBuilder result = new StringBuilder();
@@ -88,6 +127,12 @@ public class IfStatementNode extends ASTNode {
         return result.toString();
     }
 
+    /**
+     * Representa la sentencia "if" en formato de cadena con indentación.
+     * 
+     * @param indent La cadena de texto que representa la indentación para el formato.
+     * @return La representación en formato de cadena de esta sentencia "if".
+     */    
     @Override
     String toString(String indent) {
         StringBuilder sb = new StringBuilder();

@@ -8,13 +8,28 @@ import java.util.List;
 import java.util.Set;
 import utils.MIPS.GeneracionCodigo.CodeGenerator;
 
+/**
+ * Representa un nodo en el árbol sintáctico abstracto (AST) para la declaración de una función.
+ * Esta clase se utiliza para modelar funciones en el código fuente, con su nombre, tipo de retorno,
+ * lista de parámetros y el cuerpo de la función.
+ * 
+ * @author Joselyn Jiménez Salgado
+ * @author Dylan Montiel Zúñiga
+ * @version 1/23/2024
+ */
 public class FunctionNode extends ASTNode {
     String name;
     String returnType;
     List<ParameterNode> parameterNodeList;
     List<BodyNode> bodyNodeList;
 
-   
+    /**
+     * Constructor para crear un nodo de función.
+     *
+     * @param function Cadena de texto que representa la declaración de la función, incluyendo el tipo de retorno,
+     *                el nombre y, opcionalmente, los parámetros.
+     * @param bodyList Lista de nodos que representan el cuerpo de la función.
+     */   
     public FunctionNode(String function, List<BodyNode> bodyList) {
         String[] functionParts = function.split(":");
         //valida si es una funcion vacía
@@ -38,6 +53,10 @@ public class FunctionNode extends ASTNode {
         
     }
 
+    /**
+     * Verifica la semántica de la declaración de la función, asegurándose de que no haya parámetros duplicados.
+     * Si se detectan parámetros duplicados, se lanza una excepción en tiempo de ejecución.
+     */    
     @Override
     void checkSemantics() {
         // Verificar duplicados en parámetros
@@ -54,7 +73,12 @@ public class FunctionNode extends ASTNode {
             }
         }*/
     }
-    
+   
+    /**
+     * Genera el código MIPS correspondiente para la declaración de la función.
+     * 
+     * @param cg Objeto CodeGenerator utilizado para generar el código MIPS.
+     */    
      @Override
     String generateMIPS(CodeGenerator cg) {
        if(parameterNodeList == null || parameterNodeList.isEmpty()){
@@ -75,6 +99,12 @@ public class FunctionNode extends ASTNode {
        return result + bodyList;
     }
     
+    /**
+     * Representa esta declaración de función en formato de cadena, con una indentación específica.
+     * 
+     * @param indent La cadena de texto que representa la indentación para el formato.
+     * @return La representación en formato de cadena de esta declaración de función.
+     */    
     @Override
     String toString(String indent) {
         StringBuilder sb = new StringBuilder();
@@ -109,8 +139,12 @@ public class FunctionNode extends ASTNode {
         return sb.toString();
     }
 
-    //Separa el string de parametros para obtener sus tipos y nombre en un nuevo nodo
-    //Asigna la lista de parametros a la variable global
+    /**
+     * Separa la cadena de parámetros y crea nodos de parámetros a partir de ella.
+     * Este método asigna la lista de parámetros a la variable global {@link #parameterNodeList}.
+     * 
+     * @param params Cadena de texto que contiene los parámetros separados por punto y coma.
+     */
     private void SplitParametersToNodes(String params) {
         List<ParameterNode> paramNodeList = new ArrayList<ParameterNode>();
         String[] parameterList = params.split(";");
