@@ -57,6 +57,7 @@ public class View_Main extends javax.swing.JFrame {
     LineNumberComponent lineNumberComponent;
     ProgramNode program ;
     SymbolTable symbolTable;
+    Boolean notExistsErrors = false;
     
     /**
      * Constructor de la clase {@code View_Main}.
@@ -178,6 +179,12 @@ public class View_Main extends javax.swing.JFrame {
         
         //Abre una ventana de dialogo para elegir la ruta donde se guardará el texto de codigo generado.
         JFileChooser fileChooser = new JFileChooser();
+        
+        // Filtro para archivos .asm
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos ASM (*.asm)", "asm");
+        fileChooser.setFileFilter(filter);
+        fileChooser.setAcceptAllFileFilterUsed(false); // Evita que se guarden archivos sin extensión
+        
         int selection = fileChooser.showSaveDialog(null);
 
         if (selection == JFileChooser.APPROVE_OPTION) {
@@ -682,7 +689,7 @@ public class View_Main extends javax.swing.JFrame {
             }
         });
 
-        jCheckBox_VerInfoExtra.setText("Mostrar Tabla de Symbolos y Arbol Sintáctico");
+        jCheckBox_VerInfoExtra.setText("Mostrar Tabla de Símbolos y Arbol Sintáctico");
 
         jButton1.setText("Generar Código MIPS");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -715,7 +722,7 @@ public class View_Main extends javax.swing.JFrame {
                         .addComponent(jCheckBox_VerInfoExtra)
                         .addGap(118, 118, 118)
                         .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 107, Short.MAX_VALUE)))
+                        .addGap(0, 110, Short.MAX_VALUE)))
                 .addGap(29, 29, 29))
             .addComponent(jScrollPane2)
         );
@@ -735,9 +742,9 @@ public class View_Main extends javax.swing.JFrame {
                     .addComponent(jButton_LexicalAnalyzer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton_SintaxAnalyzer)
                     .addComponent(jCheckBox_VerInfoExtra)
-                    .addComponent(jButton1))
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 26, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 224, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -783,7 +790,7 @@ public class View_Main extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton_SintaxAnalyzerActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-       if (program == null) {
+       if (program == null ) {
             JOptionPane.showMessageDialog(null, "El programa necesita realizar el Análisis de Código primero.", "Error", JOptionPane.WARNING_MESSAGE);
        }else{
 
