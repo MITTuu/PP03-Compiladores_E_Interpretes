@@ -43,7 +43,18 @@ public class SwitchStatementNode extends ASTNode{
      */    
     @Override
     String generateMIPS(CodeGenerator cg) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+       if(controlExpression == null || caseList == null || caseList.isEmpty()){
+            return "";
+        } 
+        String result = controlExpression.generateMIPS(cg);
+        String caseListString = "";
+        for(SwitchCaseNode element : this.caseList){
+            caseListString = caseListString.concat(element.generateMIPS(cg));
+        }
+        
+        result =  result.concat(caseListString);
+        
+        return result; 
     }
 
     /**

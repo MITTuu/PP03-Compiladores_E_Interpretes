@@ -38,7 +38,10 @@ public class ReadFunctionCallNode extends ASTNode {
      */    
     @Override
     String generateMIPS(CodeGenerator cg) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        if(expression == null){
+            return "";
+        } 
+        return expression.generateMIPS(cg);
     }
 
     /**

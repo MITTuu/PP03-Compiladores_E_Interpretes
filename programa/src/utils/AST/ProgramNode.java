@@ -44,12 +44,23 @@ public class ProgramNode extends ASTNode {
      * @param cg El generador de código utilizado para generar el código MIPS.     
      */    
     @Override
-    String generateMIPS(CodeGenerator cg) {
+    public String generateMIPS(CodeGenerator cg) {
+        if(functions == null || functions.isEmpty()){return "";}
+        String result = "";
         for (FunctionNode fn : functions) {
-            fn.generateMIPS(cg);
+            result = result.concat(fn.generateMIPS(cg));
         }
         
-        return "";
+        //Incluímos las instrucciones finales para indicar que el programa corrió con existe
+        //Además incluye el codigo final para indicar que finaliza el programa.
+        
+         String strLabel = "finalMsg";
+         String mensajeString ="\"Ejecución del programa terminada con éxito\"";
+         cg.addDataSection(strLabel + ": .asciiz " + mensajeString + " # Almacena el String en memoria para el mensaje final\n");
+         result = result + "\n\n    # Imprimir mensaje final\n" + "la $a0, finalMsg\n" + "li $v0, 4  # Código de servicio para imprimir string\n" + "syscall\n\n" ;
+         result = result + "\n\n    # Terminar el programa\n" + "li $v0, 10" + "# Código de servicio para salir\n" + "syscall\n" ;
+        
+        return result;
     }
     
     /**

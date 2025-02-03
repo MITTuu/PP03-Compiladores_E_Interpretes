@@ -54,7 +54,7 @@ public class VariableAssignmentNode extends ASTNode {
         String[] unaryExpression = unaryArithmeticExpression.split(":");
         this.id = unaryExpression[0];
         this.unaryArithmeticOperator= unaryExpression[1];
-        this.expression = new ExpressionNode(unaryArithmeticExpression);
+        this.expression = new ExpressionNode(ExpressionEnum.UNARY_ARITHMETIC_EXPRESSION,null,unaryArithmeticExpression);
         this.arrayElements = null;
         this.arrayUse = null;
         
@@ -129,7 +129,23 @@ public class VariableAssignmentNode extends ASTNode {
      */    
     @Override
     String generateMIPS(CodeGenerator cg) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        String result = ""; // Inicializar result
+
+        // Validar y concatenar solo si no son null
+        if (expression != null) {
+            result = result.concat(expression.generateMIPS(cg)); // Concatenar si 'expression' no es null
+        }
+
+        if (arrayElements != null) {
+            result = result.concat(arrayElements.generateMIPS(cg)); // Concatenar si 'arrayElements' no es null
+        }
+
+        if (arrayUse != null) {
+            result = result.concat(arrayUse.generateMIPS(cg)); // Concatenar si 'arrayUse' no es null
+        }
+
+        return result; // Retornar el resultado concatenado, vacío si todos fueron null
+
     }
 
     /**

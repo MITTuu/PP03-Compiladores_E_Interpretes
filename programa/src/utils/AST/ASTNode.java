@@ -20,8 +20,10 @@ public abstract class ASTNode {
 
     public static List<String> semanticErrorListAST = new ArrayList<String>();
     public SymbolTable symbolTableAST = new SymbolTable();
-    LiteralGenerator literalGenerator = new LiteralGenerator();
-    static CodeGenerator cg = new CodeGenerator();
+    
+    //Instanciar la utilidad de LiteralGenerator
+    LiteralGenerator literalGenerator = new LiteralGenerator();   
+    
     
     /**
      * Verifica la semántica del nodo actual, incluyendo la validación de tipos 
